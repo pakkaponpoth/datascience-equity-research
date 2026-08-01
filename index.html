@@ -91,6 +91,7 @@
   <div class="prow">
     <div class="filters" id="filters"></div>
     <button class="pbtn" id="pbtn"></button>
+    <button class="pbtn" id="methodBtn" style="border-color:var(--line);color:var(--muted)"></button>
   </div>
   <div class="pbanner" id="pbanner"></div>
 
@@ -104,7 +105,7 @@
 (function(){
   const $=s=>document.querySelector(s);
   const REASON = {
-    "value:pos":{th:"ราคาถูกเทียบมูลค่าพื้นฐาน",en:"cheap vs fundamentals"},"value:neg":{th:"ราคาแพงเทียบมูลค่า",en:"expensive vs fundamentals"},
+    "value:pos":{th:"ราคาต่ำกว่าค่าเฉลี่ยตัวเอง (มีโอกาสเด้ง)",en:"below its own average (mean-reversion)"},"value:neg":{th:"ราคาสูงกว่าค่าเฉลี่ยตัวเอง",en:"above its own average"},
     "quality:pos":{th:"กำไรแข็งแรง ผันผวนต่ำ",en:"strong, stable earnings"},"quality:neg":{th:"กำไรผันผวน",en:"volatile earnings"},
     "momentum:pos":{th:"ราคายืนเหนือค่าเฉลี่ยระยะยาว",en:"price above its long average"},"momentum:neg":{th:"โมเมนตัมยังเป็นขาลง",en:"momentum still weak"},
     "growth:pos":{th:"ธุรกิจเติบโตต่อเนื่อง",en:"steady business growth"},"growth:neg":{th:"การเติบโตชะลอ",en:"slowing growth"},
@@ -128,6 +129,12 @@
      foot:'<b>SETScout</b> · Explainable Investment Decision Support · SET100<br>เพื่อการศึกษาและงานวิจัยเท่านั้น ไม่ใช่คำแนะนำซื้อ/ขาย · ผลย้อนหลังไม่รับประกันอนาคต · ปรึกษาผู้แนะนำการลงทุนที่มีใบอนุญาต',
      pTitle:"ปรับให้เหมาะกับคุณ", pSub:"ตอบ 5 ข้อ เราจะจัดอันดับและปรับขนาดการลงทุนให้เหมาะกับความเสี่ยงที่คุณรับได้", see:"ดูผล",
      prof:{cons:"สายระมัดระวัง",bal:"สายสมดุล",agg:"สายบุก"},
+     method:{title:"วิธีให้คะแนน",intro:"เราให้คะแนนหุ้นทุกตัวจาก 5 ปัจจัย (คำนวณจากราคาจริงย้อนหลัง 2 ปี)",
+       factors:[["📈","โมเมนตัม","ผลตอบแทน 6 เดือน — ราคากำลังไปได้ดีไหม"],["🌱","การเติบโต","ผลตอบแทน 12 เดือน — แนวโน้มระยะยาว"],["⚖️","ราคาเทียบค่าเฉลี่ยตัวเอง","ต่ำกว่าค่าเฉลี่ย 200 วัน = มีโอกาสเด้ง (mean-reversion)"],["🛡️","คุณภาพ","ความผันผวนต่ำ — ราคานิ่ง ไม่หวือหวา"],["❤️","สุขภาพ","ขาดทุนสูงสุดน้อย — ทนตลาดขาลงได้"]],
+       wLabel:"การถ่วงน้ำหนัก",weights:"คุณภาพ 28% · ราคาเทียบค่าเฉลี่ย 24% · โมเมนตัม 20% · สุขภาพ 16% · เติบโต 12%",
+       vLabel:"ตัดสินอย่างไร",verdict:"คะแนนรวม ≥ 62 → น่าสนใจ ✅ · ≥ 48 → รอก่อน 🟡 · ต่ำกว่านั้น → ยังไม่ใช่ 🔴",
+       rLabel:"ความเสี่ยง",risk:"คำนวณจาก VaR รายเดือน (โอกาสขาดทุนในเดือนแย่ ๆ) แล้วแปลงเป็นขนาดลงทุนสูงสุดที่แนะนำ",
+       cLabel:"⚠️ หมายเหตุซื่อสัตย์",caveats:["น้ำหนักยังเป็นค่าตั้งต้น — รอผลสำรวจผู้เชี่ยวชาญ (AHP)","ยังไม่ผ่านการทดสอบย้อนหลัง (backtest)","ปัจจัยเป็น proxy จากราคา — v2 จะเพิ่มปัจจัยพื้นฐาน (P/E, ROE)","เพื่อการศึกษา ไม่ใช่คำแนะนำการลงทุน"]},
      quiz:[
       ["ถ้าหุ้นที่ถือลง 20% ใน 1 เดือน คุณจะ:",[["ซื้อเพิ่ม",2],["ถือไว้",1],["ขายบางส่วน",0],["ขายทั้งหมด",-1]]],
       ["เงินก้อนนี้ต้องใช้เมื่อไร:",[["ภายใน 1 ปี",-1],["1–5 ปี",1],["5 ปีขึ้นไป",2]]],
@@ -151,6 +158,12 @@
      foot:'<b>SETScout</b> · Explainable Investment Decision Support · SET100<br>For education & research only · not a buy/sell recommendation · past performance ≠ future results · consult a licensed adviser',
      pTitle:"Personalize to you", pSub:"5 quick questions — we rank & size the list to the risk you can handle.", see:"See results",
      prof:{cons:"Conservative",bal:"Balanced",agg:"Aggressive"},
+     method:{title:"How we score",intro:"Every stock is scored on 5 factors (from 2 years of real prices)",
+       factors:[["📈","Momentum","6-month return — is the price doing well?"],["🌱","Growth","12-month return — the longer trend"],["⚖️","Price vs its own average","below its 200-day average = room to bounce (mean-reversion)"],["🛡️","Quality","low volatility — calm, not wild"],["❤️","Health","small max-drawdown — survives bad markets"]],
+       wLabel:"Weighting",weights:"Quality 28% · Price-vs-avg 24% · Momentum 20% · Health 16% · Growth 12%",
+       vLabel:"How the verdict is decided",verdict:"Total score ≥ 62 → Worth a look ✅ · ≥ 48 → Wait 🟡 · below → Not now 🔴",
+       rLabel:"Risk",risk:"From monthly VaR (how bad a bad month could be), converted to the max position size we suggest",
+       cLabel:"⚠️ Honest notes",caveats:["Weights are preliminary — pending the AHP expert survey","Not yet backtested","Factors are price proxies — v2 adds fundamentals (P/E, ROE)","Educational, not investment advice"]},
      quiz:[
       ["A stock you own drops 20% in a month, you:",[["Buy more",2],["Hold",1],["Sell some",0],["Sell all",-1]]],
       ["When do you need this money:",[["Within 1 yr",-1],["1–5 yrs",1],["5+ yrs",2]]],
@@ -169,7 +182,7 @@
   function applyTheme(){ document.documentElement.setAttribute('data-theme',theme); $('#themeBtn').textContent=theme==='light'?'🌙':'☀️'; }
   function paintStatic(){
     document.documentElement.lang=lang;
-    $('#langBtn').textContent=tr().lang; $('#pill').textContent=tr().pill;
+    $('#langBtn').textContent=tr().lang; $('#pill').textContent=tr().pill; $('#methodBtn').textContent='ⓘ '+tr().method.title;
     $('#h1').textContent=tr().title; $('#sub').innerHTML=tr().sub; $('#pbtn').textContent=tr().pbtn; $('#foot').innerHTML=tr().foot;
     if(DATA) $('#meta').textContent=tr().meta(DATA.generated,DATA.universe,DATA.stocks.length);
     $('#filters').innerHTML=['ALL','BUY','WAIT','AVOID'].map(k=>`<button class="chip${k===filter?' on':''}" data-f="${k}">${tr().f[k]}</button>`).join('');
@@ -227,11 +240,23 @@
       risk={key,sum};localStorage.setItem('ss_risk',JSON.stringify(risk));close();render();};
   }
 
+  function openMethod(){
+    const m=tr().method;
+    $('#sheet').innerHTML=`<div class="m-top"><div><div class="m-tkr" style="font-size:19px">ⓘ ${m.title}</div><div class="m-nm">${m.intro}</div></div><button class="x" id="xb">✕</button></div>
+      ${m.factors.map(f=>`<div class="block"><div class="v"><b>${f[0]} ${f[1]}</b> — <span style="color:var(--muted)">${f[2]}</span></div></div>`).join('')}
+      <div class="block"><div class="k">${m.wLabel}</div><div class="v">${m.weights}</div></div>
+      <div class="block"><div class="k">${m.vLabel}</div><div class="v">${m.verdict}</div></div>
+      <div class="block"><div class="k">${m.rLabel}</div><div class="v">${m.risk}</div></div>
+      <div class="block" style="border-left:3px solid var(--wait)"><div class="k" style="color:var(--wait)">${m.cLabel}</div><div class="v" style="font-size:13px;color:var(--muted)">${m.caveats.map(c=>'• '+c).join('<br>')}</div></div>`;
+    $('#ov').classList.add('on');document.body.style.overflow='hidden';$('#xb').onclick=close;
+  }
+
   // events
   $('#themeBtn').onclick=()=>{theme=theme==='light'?'dark':'light';localStorage.setItem('ss_theme',theme);applyTheme();};
   $('#langBtn').onclick=()=>{lang=lang==='th'?'en':'th';localStorage.setItem('ss_lang',lang);paintStatic();render();};
   $('#filters').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(!b)return;filter=b.dataset.f;paintStatic();render();});
   $('#pbtn').onclick=openQuiz;
+  $('#methodBtn').onclick=openMethod;
   $('#grid').addEventListener('click',e=>{const c=e.target.closest('[data-t]');if(c)openSheet(c.dataset.t);});
   $('#ov').addEventListener('click',e=>{if(e.target===$('#ov'))close();});
   document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
