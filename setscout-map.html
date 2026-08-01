@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SETScout · System Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#0a0a12;--panel:#12121f;--panel2:#171728;--rule:rgba(255,255,255,0.08);--text:#e8e8f0;--muted:#8a8aa0;--faint:#5a5a70;
+        --accent:#b8c0ff;--up:#26a69a;--down:#ef5350;--gold:#f3d59a;--blue:#7fb4ff;--mono:'JetBrains Mono',monospace;--sans:'Inter Tight',sans-serif;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);padding:28px 20px 60px;line-height:1.4;}
+  .wrap{max-width:1180px;margin:0 auto;}
+  h1{font-size:30px;font-weight:800;letter-spacing:-.02em;} h1 span{color:var(--accent);}
+  .sub{color:var(--muted);font-size:15px;margin-top:4px;}
+  .tag{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:700;margin:34px 0 12px;border-bottom:1px solid var(--rule);padding-bottom:6px;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;}
+  .card{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:14px 16px;flex:1;min-width:200px;}
+  .card .n{font-family:var(--mono);font-size:11px;color:var(--faint);font-weight:600;}
+  .card h3{font-size:15px;font-weight:700;margin:3px 0 5px;}
+  .card p{font-size:12.5px;color:var(--muted);}
+  /* the 4 sentences */
+  .four .card{border-top:3px solid var(--accent);}
+  .four .card.v{border-top-color:var(--gold);} .four .card.r{border-top-color:var(--down);}
+  .four .card.b{border-top-color:var(--blue);} .four .card.t{border-top-color:var(--up);}
+  .four .ex{font-size:12px;color:var(--text);background:var(--panel2);border-radius:8px;padding:8px 10px;margin-top:8px;font-family:var(--mono);}
+  /* pipeline */
+  .pipe{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;}
+  .stage{flex:1;min-width:180px;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:14px;position:relative;}
+  .stage .own{font-family:var(--mono);font-size:10.5px;color:var(--gold);font-weight:600;}
+  .stage h3{font-size:15px;font-weight:700;margin:2px 0 8px;} .stage h3 .em{font-size:16px;}
+  .stage ul{list-style:none;} .stage li{font-size:12px;color:var(--muted);padding:3px 0 3px 14px;position:relative;}
+  .stage li::before{content:'▪';position:absolute;left:0;color:var(--accent);}
+  .arrow{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 6px;min-width:96px;}
+  .arrow .c{font-family:var(--mono);font-size:9.5px;color:var(--faint);text-align:center;line-height:1.3;background:var(--panel2);border:1px solid var(--rule);border-radius:6px;padding:4px 6px;}
+  .arrow .ar{color:var(--accent);font-size:20px;margin:4px 0;}
+  @media(max-width:860px){ .arrow{flex-direction:row;min-width:100%;padding:6px 0;transform:rotate(0)} .arrow .ar{transform:rotate(90deg);margin:0 8px} }
+  .arena{margin-top:12px;background:linear-gradient(90deg,rgba(184,192,255,.08),rgba(243,213,154,.06));border:1px dashed var(--rule);border-radius:12px;padding:12px 16px;font-size:12.5px;color:var(--muted);}
+  .arena b{color:var(--gold);}
+  /* primary data */
+  .pd .card{border-left:3px solid var(--gold);}
+  .pd .card .feed{font-size:11.5px;color:var(--up);font-family:var(--mono);margin-top:8px;}
+  .pd .card .m{font-size:11px;color:var(--gold);font-family:var(--mono);margin-top:4px;}
+  .badge{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;margin-bottom:6px;}
+  .b-star{background:rgba(243,213,154,.15);color:var(--gold);}
+  .b-sec{background:rgba(127,180,255,.12);color:var(--blue);}
+  /* timeline */
+  .tl{display:flex;gap:0;flex-wrap:wrap;margin-top:6px;}
+  .ms{flex:1;min-width:120px;border-top:2px solid var(--rule);padding:12px 8px 0;position:relative;}
+  .ms::before{content:'';position:absolute;top:-6px;left:0;width:10px;height:10px;border-radius:50%;background:var(--accent);}
+  .ms.hot::before{background:var(--gold);box-shadow:0 0 0 3px rgba(243,213,154,.2);}
+  .ms .d{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent);}
+  .ms.hot .d{color:var(--gold);}
+  .ms .t{font-size:11.5px;color:var(--muted);margin-top:3px;}
+  .rails{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;}
+  .rail{font-size:11.5px;color:var(--muted);background:var(--panel);border:1px solid var(--rule);border-radius:999px;padding:6px 13px;}
+  .rail b{color:var(--text);}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:10px;}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>SET<span>Scout</span> · System Map</h1>
+  <div class="sub">An <b>Explainable Investment Decision Support System</b> for the Thai stock market — points you to SET stocks <i>worth investigating</i>, and explains <i>why</i>. It doesn't predict prices or trade.</div>
+
+  <!-- WHAT THE USER SEES -->
+  <div class="tag">① What the user actually sees — 4 plain sentences</div>
+  <div class="row four">
+    <div class="card v"><div class="n">1 · VERDICT</div><h3>Looks good ✅ / Wait 🟡 / Not now 🔴</h3><p>Honest enough to say "none today."</p></div>
+    <div class="card r"><div class="n">2 · RISK (in baht)</div><h3>How much could hurt</h3><div class="ex">"A normal-bad month ≈ −16%. Put at most ฿23 of every ฿100 here."</div></div>
+    <div class="card b"><div class="n">3 · BECAUSE</div><h3>The reason, in one line</h3><div class="ex">"Price is above its long average and hasn't just spiked."</div></div>
+    <div class="card t"><div class="n">4 · TRUST LABEL</div><h3>How much to believe us</h3><div class="ex">"Tested on 10 yrs. When we say 60%, it happened ~60%."</div></div>
+  </div>
+
+  <!-- THE PIPELINE -->
+  <div class="tag">② Under the hood — the pipeline (each box = 1 folder = 1 owner)</div>
+  <div class="pipe">
+    <div class="stage"><div class="own">Role 1 · data/</div><h3><span class="em">🗄️</span> DATA</h3><ul><li>prices + fundamentals</li><li>quality checks</li><li>🔒 sealed test box</li></ul></div>
+    <div class="arrow"><div class="c">Contract A<br>discovery.csv</div><div class="ar">→</div></div>
+    <div class="stage"><div class="own">Roles 2–4 · scout/</div><h3><span class="em">🔍</span> SCOUT</h3><ul><li>multi-factor scores</li><li>news + LLM insight</li><li>discovery ranking</li></ul></div>
+    <div class="arrow"><div class="c">Contract B<br>analysis.json</div><div class="ar">→</div></div>
+    <div class="stage"><div class="own">Roles 5–7 · engine/</div><h3><span class="em">⚙️</span> ENGINE</h3><ul><li>risk (Monte-Carlo)</li><li>ML "second opinion"</li><li>referee (walk-fwd)</li></ul></div>
+    <div class="arrow"><div class="c">Contract C<br>today.json</div><div class="ar">→</div></div>
+    <div class="stage"><div class="own">Role 8a · translator/</div><h3><span class="em">🗣️</span> TRANSLATOR</h3><ul><li>the 4 sentences</li><li>Thai, no jargon</li></ul></div>
+    <div class="arrow"><div class="ar">→</div></div>
+    <div class="stage"><div class="own">Role 8b · webapp/</div><h3><span class="em">🪟</span> WEBAPP</h3><ul><li>Streamlit dashboard</li><li>pick a stock → read</li></ul></div>
+  </div>
+  <div class="arena">🏟️ <b>Strategy Arena</b> (everyone) — each of the 8 writes one 10-line rule → same honest machinery → leaderboard vs buy-and-hold, with a <b>luck bar</b>. Most rules lose. <i>That's the lesson.</i></div>
+
+  <!-- PRIMARY DATA -->
+  <div class="tag">③ Primary data we collect ourselves — 3 streams (prof's requirement)</div>
+  <div class="row pd">
+    <div class="card"><span class="badge b-star">⭐ FLAGSHIP</span><h3>Expert elicitation → factor weights</h3><p>6–10 finance lecturers / analysts / fund managers.</p><div class="m">Method: AHP (pairwise + consistency ratio)</div><div class="feed">→ feeds SCOUT weights + "because" + report</div></div>
+    <div class="card"><span class="badge b-sec">SURVEY</span><h3>Retail-investor survey → problem proof</h3><p>100–300 Thai investors · discovery pain, literacy, trust, comprehension test of the 4 sentences.</p><div class="m">Google Forms · ~7 min · investor groups</div><div class="feed">→ feeds motivation + UX (translator)</div></div>
+    <div class="card"><span class="badge b-sec">USABILITY</span><h3>Explainability test → proves the thesis</h3><p>8–15 users · A/B: LLM explanation vs bare numbers · measure trust + comprehension.</p><div class="m">Think-aloud · SUS / trust scale</div><div class="feed">→ proves the "Explainable" claim</div></div>
+  </div>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--gold)"></span>Primary (we collect)</span>
+    <span><span class="dot" style="background:var(--blue)"></span>Secondary (yfinance · SET · FRED · news)</span>
+    <span>🔒 Ethics: consent · Thai PDPA · pilot on 3–5 first</span>
+  </div>
+
+  <!-- PREP TO LOCK -->
+  <div class="tag">④ Prep to lock NOW (before any modeling)</div>
+  <div class="row">
+    <div class="card"><h3>🎯 The ML label</h3><p>"Beat SET by &gt;X% over N days?" — decide horizon + threshold + universe first, or everything downstream is noise.</p></div>
+    <div class="card"><h3>📈 Universe</h3><p>Start SET50/SET100 (liquid, clean). Handle <b>delisted</b> names or the backtest lies (survivorship).</p></div>
+    <div class="card"><h3>📝 Pre-registration</h3><p>Write rules, weights-source, metrics, holdout split <i>before</i> running. Kills p-hacking.</p></div>
+    <div class="card"><h3>⚖️ Disclaimer</h3><p>"Educational decision-support, <b>not</b> investment advice." (Thai SEC framing.)</p></div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="tag">⑤ Calendar → deadline 28 Aug</div>
+  <div class="tl">
+    <div class="ms"><div class="d">Jul 21</div><div class="t">roles + folders + contracts frozen · check_mine.py live</div></div>
+    <div class="ms"><div class="d">Jul 28</div><div class="t">every layer emits its contract file (even crude) · Arena rules in</div></div>
+    <div class="ms"><div class="d">Aug 4</div><div class="t">end-to-end run_today.py works · paper ≥ half-drafted</div></div>
+    <div class="ms"><div class="d">Aug 11</div><div class="t">polish + live-diary week (runs daily, logged publicly)</div></div>
+    <div class="ms hot"><div class="d">Aug 13 & 20</div><div class="t">two rehearsals (calendar-blocked)</div></div>
+    <div class="ms hot"><div class="d">Aug 28</div><div class="t">final report · submit EARLY</div></div>
+  </div>
+
+  <!-- RAILS -->
+  <div class="tag">Honesty rails (protect the grade)</div>
+  <div class="rails">
+    <span class="rail">🔒 <b>Sealed box</b> opened once, at the end, all 8 present</span>
+    <span class="rail">📊 <b>Luck bar</b> rises with every trial logged</span>
+    <span class="rail">📒 <b>trial_log.md</b> — hiding trials is the one unforgivable sin</span>
+    <span class="rail">🤖 <b>AI policy</b> — draft with it, but explain every line or delete it</span>
+  </div>
+
+  <div style="margin-top:34px;font-family:var(--mono);font-size:11px;color:var(--faint);text-align:center;">SETScout · Explainable Investment Decision Support · SET · senior Data-Science-in-Finance project</div>
+</div>
+</body>
+</html>
