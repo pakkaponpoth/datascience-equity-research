@@ -33,6 +33,8 @@
   .filters{display:flex;gap:8px;flex-wrap:wrap;flex:1;}
   .chip{font-size:13px;font-weight:600;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;transition:.12s;}
   .chip.on{color:var(--bg);background:var(--ink);border-color:var(--ink);}
+  .ssel{font-size:13px;font-weight:600;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 12px;cursor:pointer;outline:none;}
+  .ssel:focus{border-color:var(--accent);}
   .pbtn{font-size:13px;font-weight:700;color:var(--accent);background:var(--card);border:1px solid var(--accent);border-radius:999px;padding:8px 14px;cursor:pointer;white-space:nowrap;}
   .pbanner{display:none;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:10px 14px;margin:12px 0 0;font-size:13px;}
   .pbanner.on{display:flex;} .pbanner a{color:var(--muted);cursor:pointer;text-decoration:underline;margin-left:8px;font-size:12px;}
@@ -90,6 +92,7 @@
 
   <div class="prow">
     <div class="filters" id="filters"></div>
+    <select class="ssel" id="sectorSel"></select>
     <button class="pbtn" id="pbtn"></button>
     <button class="pbtn" id="methodBtn" style="border-color:var(--line);color:var(--muted)"></button>
   </div>
@@ -117,7 +120,7 @@
      sub:'ระบบช่วย<b>ค้นหา</b>หุ้นที่ควรไปศึกษาต่อ พร้อมบอก<b>ความเสี่ยง</b>อย่างตรงไปตรงมา',
      pill:"เพื่อการศึกษา · ไม่ใช่คำแนะนำการลงทุน",
      meta:(d,u,n)=>`ข้อมูลวันที่ ${d} · จาก ${u} · ${n} หุ้น`,
-     f:{ALL:"ทั้งหมด",BUY:"✅ น่าสนใจ",WAIT:"🟡 รอก่อน",AVOID:"🔴 ยังไม่ใช่"},
+     f:{ALL:"ทั้งหมด",BUY:"✅ น่าสนใจ",WAIT:"🟡 รอก่อน",AVOID:"🔴 ยังไม่ใช่"}, allSectors:"ทุกกลุ่ม",
      v:{BUY:"น่าสนใจ",WAIT:"รอก่อน",AVOID:"ยังไม่ใช่ตอนนี้"},
      riskCard:(r,w)=>`เสี่ยง <b>${r}%</b> · สูงสุด ${w} บาท/100`, empty:"ไม่มีหุ้นในกลุ่มนี้",
      dRisk:"ความเสี่ยง (เป็นบาท)",dWhy:"เพราะอะไร",dTrust:"เชื่อได้แค่ไหน",sScore:"คะแนนรวม /100",sWin:"โอกาสเข้าทาง",sLast:"ราคาล่าสุด",
@@ -146,7 +149,7 @@
      sub:'Finds Thai stocks worth <b>researching</b> — and tells you the <b>risk</b>, honestly.',
      pill:"Educational · not investment advice",
      meta:(d,u,n)=>`Data ${d} · from ${u} · ${n} stocks`,
-     f:{ALL:"All",BUY:"✅ Worth a look",WAIT:"🟡 Wait",AVOID:"🔴 Not now"},
+     f:{ALL:"All",BUY:"✅ Worth a look",WAIT:"🟡 Wait",AVOID:"🔴 Not now"}, allSectors:"All sectors",
      v:{BUY:"Worth a look",WAIT:"Wait",AVOID:"Not now"},
      riskCard:(r,w)=>`risk <b>${r}%</b> · max ฿${w}/100`, empty:"No stocks in this group",
      dRisk:"Risk (in baht)",dWhy:"Why",dTrust:"How much to trust",sScore:"Score /100",sWin:"Hit rate",sLast:"Last price",
@@ -176,7 +179,7 @@
   let lang = localStorage.getItem('ss_lang')||'th';
   let theme = localStorage.getItem('ss_theme')||'light';
   let risk = null; try{risk=JSON.parse(localStorage.getItem('ss_risk'))}catch{}
-  let filter='ALL', DATA=null;
+  let filter='ALL', sector='ALL', DATA=null;
   const tr=()=>T[lang];
 
   function applyTheme(){ document.documentElement.setAttribute('data-theme',theme); $('#themeBtn').textContent=theme==='light'?'🌙':'☀️'; }
@@ -186,15 +189,22 @@
     $('#h1').textContent=tr().title; $('#sub').innerHTML=tr().sub; $('#pbtn').textContent=tr().pbtn; $('#foot').innerHTML=tr().foot;
     if(DATA) $('#meta').textContent=tr().meta(DATA.generated,DATA.universe,DATA.stocks.length);
     $('#filters').innerHTML=['ALL','BUY','WAIT','AVOID'].map(k=>`<button class="chip${k===filter?' on':''}" data-f="${k}">${tr().f[k]}</button>`).join('');
+    populateSectors();
   }
   const vcls={BUY:'buy',WAIT:'wait',AVOID:'avoid'}, vemo={BUY:'✅',WAIT:'🟡',AVOID:'🔴'};
   const col={buy:'var(--buy)',wait:'var(--wait)',avoid:'var(--avoid)'}, bgc={buy:'var(--buyb)',wait:'var(--waitb)',avoid:'var(--avoidb)'};
   const pweight=s=>{ let w=s.max_weight*(risk?PROFILES[risk.key].sizeMult:1); return Math.round(Math.max(0.05,Math.min(0.6,w))*100); };
   const pscore=s=> risk ? s.score - PROFILES[risk.key].riskAv*(Math.abs(s.risk_month_pct)/100) : s.score;
 
+  function populateSectors(){
+    if(!DATA)return;
+    const secs=[...new Set(DATA.stocks.map(s=>s.sector))].sort();
+    $('#sectorSel').innerHTML=`<option value="ALL">${tr().allSectors}</option>`+secs.map(s=>`<option value="${s}">${s}</option>`).join('');
+    $('#sectorSel').value=sector;
+  }
   function render(){
     if(!DATA)return;
-    let list=DATA.stocks.filter(s=>filter==='ALL'||s.verdict===filter).sort((a,b)=>pscore(b)-pscore(a));
+    let list=DATA.stocks.filter(s=>(filter==='ALL'||s.verdict===filter)&&(sector==='ALL'||s.sector===sector)).sort((a,b)=>pscore(b)-pscore(a));
     // personalization banner
     const pb=$('#pbanner');
     if(risk){ pb.classList.add('on'); pb.innerHTML=`<span>${tr().banner(tr().prof[risk.key])}</span><span><a id="redoQ">${tr().redo}</a><a id="clrQ">${tr().clear}</a></span>`;
@@ -255,6 +265,7 @@
   $('#themeBtn').onclick=()=>{theme=theme==='light'?'dark':'light';localStorage.setItem('ss_theme',theme);applyTheme();};
   $('#langBtn').onclick=()=>{lang=lang==='th'?'en':'th';localStorage.setItem('ss_lang',lang);paintStatic();render();};
   $('#filters').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(!b)return;filter=b.dataset.f;paintStatic();render();});
+  $('#sectorSel').addEventListener('change',e=>{sector=e.target.value;render();});
   $('#pbtn').onclick=openQuiz;
   $('#methodBtn').onclick=openMethod;
   $('#grid').addEventListener('click',e=>{const c=e.target.closest('[data-t]');if(c)openSheet(c.dataset.t);});
@@ -262,7 +273,7 @@
   document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
 
   applyTheme(); paintStatic();
-  fetch('today.json').then(r=>r.json()).then(d=>{DATA=d;paintStatic();render();})
+  fetch('today.json').then(r=>r.json()).then(d=>{DATA=d;paintStatic();populateSectors();render();})
     .catch(()=>{$('#grid').innerHTML='<div class="err">Could not load today.json — open via the hosted link.</div>';});
 })();
 </script>
