@@ -11,6 +11,11 @@ v1 factors are PRICE-BASED proxies (honest, always available):
   value = cheapness vs 200-day avg · quality = low volatility ·
   health = small max-drawdown.
 v2 upgrade = real fundamentals (P/E, ROE, earnings growth).
+
+Scoring (less biased): each factor is winsorized + z-scored, then
+SECTOR-NEUTRALIZED — a stock is judged against its SECTOR PEERS, not the whole
+market — so one low-vol sector (e.g. banks) can no longer dominate the top.
+Composite = weighted z-score; final score = its percentile across the market.
 Factor WEIGHTS below are placeholders until the AHP expert survey sets them.
 """
 import json, os
@@ -46,23 +51,47 @@ def main():
                        last=round(float(s.iloc[-1]), 2),
                        chg=round(float(s.pct_change().iloc[-1] * 100), 1), dvol=dvol)
     df = pd.DataFrame(rows).T
-    for f in ["momentum", "growth", "value", "quality", "health"]:
-        df[f] = df[f].rank(pct=True)
+    FACTORS = ["momentum", "growth", "value", "quality", "health"]
+    df["sector"] = [meta[t]["sector"] for t in df.index]
+
+    # 1. winsorized z-score each factor across the universe (robust, avoids ties)
+    def zscore(s):
+        s = s.astype(float); sd = s.std(ddof=0)
+        return ((s - s.mean()) / (sd if sd > 0 else 1.0)).clip(-3, 3)
+    for f in FACTORS:
+        df[f + "_z"] = zscore(df[f])
+
+    # 2. SECTOR-NEUTRALIZE: subtract each factor's sector mean, so a stock is
+    #    scored vs its sector PEERS (kills the "banks are low-vol -> banks win"
+    #    bias). Only for sectors with >=3 names; tiny sectors keep the market z.
+    big = set(df["sector"].value_counts().loc[lambda c: c >= 3].index)
+    in_big = df["sector"].isin(big)
+    for f in FACTORS:
+        smean = df.groupby("sector")[f + "_z"].transform("mean")
+        df[f + "_adj"] = df[f + "_z"] - smean.where(in_big, 0.0)
+
+    # 3. composite = weighted sum of sector-adjusted z-scores
+    df["composite"] = sum(W[f] * df[f + "_adj"] for f in FACTORS)
+    # 4. final score = percentile of the composite (0-1, well spread)
+    df["score01"] = df["composite"].rank(pct=True)
 
     stocks = []
     for t, r in df.iterrows():
-        score = round(sum(W[f] * r[f] for f in W), 2)
-        verdict = "BUY" if score >= 0.62 else "WAIT" if score >= 0.48 else "AVOID"
+        s01 = float(r["score01"])
+        # verdict by percentile band: top 20% BUY, next 35% WAIT, rest AVOID
+        verdict = "BUY" if s01 >= 0.80 else "WAIT" if s01 >= 0.45 else "AVOID"
         var_m = 1.645 * r["dvol"] * np.sqrt(21)
         risk = -int(round(min(max(var_m * 100, 6), 35)))
         mw = round(float(min(0.40, max(0.08, 0.42 * (1 - abs(risk) / 32)))), 2)
-        keys = sorted(W, key=lambda k: r[k], reverse=True)
+        # reasons = the sector-adjusted factors that set it apart from its peers
+        adjv = {f: r[f + "_adj"] for f in FACTORS}
+        keys = sorted(adjv, key=lambda k: adjv[k], reverse=True)
         because = [keys[0] + ":pos", keys[1] + ":pos"] if verdict == "BUY" \
             else [keys[0] + ":pos", keys[-1] + ":neg"]
         m = meta[t]
         stocks.append(dict(ticker=t, name=m["name"], name_th=m["name_th"],
-            sector=m["sector"], score=score, verdict=verdict,
-            risk_month_pct=risk, max_weight=mw, p_win=round(0.44 + score * 0.22, 2),
+            sector=m["sector"], score=round(s01, 2), verdict=verdict,
+            risk_month_pct=risk, max_weight=mw, p_win=round(0.44 + s01 * 0.22, 2),
             because=because, last=r["last"], chg_pct=r["chg"]))
     stocks.sort(key=lambda s: s["score"], reverse=True)
 
