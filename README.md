@@ -1,5 +1,7 @@
 # datascience-equity-research
 
+> 😅 **Totally lost?** Open the **[`0-if-you-have-no-idea/`](0-if-you-have-no-idea/)** folder (top of the file list) — it decodes everything.
+>
 > 👋 **New here?** Read **[START-HERE.md](START-HERE.md)** first (5-min overview), then
 > **[docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md)** for the full, plain-language walk-through.
 > Run it: `pip install pandas numpy yfinance` → `cd engine && python run_today.py`.
