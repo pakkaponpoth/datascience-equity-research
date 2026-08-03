@@ -1,5 +1,11 @@
 # datascience-equity-research
-to be decided; Manual scheme+AI-powered stock recommendation system for the Thai stock market or like risk management joint ventures/from corporate pov 
+
+> 👋 **New here?** Read **[START-HERE.md](START-HERE.md)** first (5-min overview), then
+> **[docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md)** for the full, plain-language walk-through.
+> Run it: `pip install pandas numpy yfinance` → `python run_today.py`.
+
+Manual + AI-powered stock **discovery** system for the Thai stock market (SET100).
+*Educational Data Science project — not investment advice.*
 
 # SETScout
 
