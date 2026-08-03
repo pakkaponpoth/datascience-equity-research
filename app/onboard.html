@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SETScout · Get Up to Speed</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#0a0a12;--panel:#12121f;--panel2:#171728;--rule:rgba(255,255,255,0.08);--text:#e8e8f0;--muted:#8a8aa0;--faint:#5a5a70;
+        --accent:#b8c0ff;--up:#26a69a;--down:#ef5350;--gold:#f3d59a;--blue:#7fb4ff;--mono:'JetBrains Mono',monospace;--sans:'Inter Tight','Noto Sans Thai',sans-serif;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);padding:28px 20px 70px;line-height:1.5;}
+  .wrap{max-width:1080px;margin:0 auto;}
+  a{color:var(--accent);}
+  h1{font-size:clamp(26px,5vw,34px);font-weight:800;letter-spacing:-.02em;} h1 span{color:var(--accent);}
+  .sub{color:var(--muted);font-size:15px;margin-top:6px;max-width:680px;}
+  .th{font-family:'Noto Sans Thai',sans-serif;color:var(--faint);font-size:13.5px;margin-top:4px;}
+  .tag{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:700;margin:40px 0 14px;border-bottom:1px solid var(--rule);padding-bottom:7px;}
+  .lead{background:linear-gradient(90deg,rgba(184,192,255,.10),transparent);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:16px 18px;font-size:15px;}
+  .lead b{color:var(--accent);}
+  p{font-size:14px;color:var(--muted);margin-top:10px;} p b{color:var(--text);}
+  .card{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:15px 17px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:12px;}
+  .card h3{font-size:14.5px;font-weight:700;margin-bottom:5px;} .card h3 .e{font-size:16px;}
+  .card p{margin-top:4px;font-size:12.5px;}
+  /* pipeline */
+  .pipe{display:flex;align-items:stretch;flex-wrap:wrap;margin-top:8px;}
+  .stage{flex:1;min-width:150px;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:14px;}
+  .stage .n{font-family:var(--mono);font-size:10px;color:var(--gold);font-weight:700;letter-spacing:.06em;}
+  .stage h3{font-size:14px;font-weight:700;margin:3px 0 6px;}
+  .stage p{font-size:11.8px;color:var(--muted);margin:0;}
+  .arrow{display:flex;align-items:center;justify-content:center;min-width:44px;color:var(--accent);font-size:22px;}
+  @media(max-width:820px){.arrow{min-width:100%;padding:4px 0;transform:rotate(90deg);}}
+  /* four sentences */
+  .four .card{border-top:3px solid var(--accent);}
+  .four .v{border-top-color:var(--gold)!important;} .four .r{border-top-color:var(--down)!important;}
+  .four .b{border-top-color:var(--blue)!important;} .four .t{border-top-color:var(--up)!important;}
+  .four .ex{font-size:11.5px;color:var(--text);background:var(--panel2);border-radius:8px;padding:8px 10px;margin-top:8px;font-family:var(--mono);}
+  /* engines */
+  .eng{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:12px;}
+  .eng .card{border-top:3px solid var(--rule);}
+  .eng .c1{border-top-color:var(--up);} .eng .c2{border-top-color:var(--accent);} .eng .c3{border-top-color:var(--gold);}
+  .eng .w{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:6px;}
+  .eng .res{font-size:12px;margin-top:8px;padding-top:8px;border-top:1px solid var(--rule);}
+  .good{color:var(--up);font-weight:600;} .bad{color:var(--down);}
+  /* findings + rails */
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px;}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--rule);}
+  th{color:var(--faint);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;}
+  td.n,th.n{font-family:var(--mono);text-align:right;}
+  .rails{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-top:12px;}
+  .rail{background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--gold);border-radius:12px;padding:12px 14px;font-size:12.5px;color:var(--muted);}
+  .rail b{color:var(--gold);}
+  .note{margin-top:14px;background:var(--panel2);border:1px dashed var(--rule);border-radius:12px;padding:13px 16px;font-size:12.5px;color:var(--muted);}
+  .note b{color:var(--text);}
+  code{font-family:var(--mono);font-size:12px;color:var(--gold);background:rgba(243,213,154,.08);padding:1px 5px;border-radius:4px;}
+  .pillrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .p2{font-family:var(--mono);font-size:11px;border-radius:999px;padding:5px 11px;border:1px solid var(--rule);}
+  .p-real{color:var(--up);background:rgba(38,166,154,.08);} .p-todo{color:var(--gold);background:rgba(243,213,154,.08);}
+  .links{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+  .lk{font-size:12.5px;font-weight:600;color:var(--text);background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:9px 14px;text-decoration:none;}
+  .lk:hover{border-color:var(--accent);}
+  .foot{margin-top:44px;text-align:center;font-size:11.5px;color:var(--faint);line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>SET<span>Scout</span> — get up to speed</h1>
+  <p class="sub">Joining today and know nothing yet? Start here. Read the 60-second version if you're curious; the detailed version if you're building.</p>
+  <p class="th">เพิ่งเข้ามาวันนี้? อ่าน 60 วินาทีก่อนได้เลย · เวอร์ชันละเอียดอยู่ด้านล่าง</p>
+
+  <!-- ================= SHORT ================= -->
+  <div class="tag">⚡ The 60-second version</div>
+  <div class="lead">
+    <b>SETScout finds Thai stocks worth <u>researching</u> — and tells you the risk, honestly.</b>
+    It does <b>not</b> predict prices or tell you to buy. Every day it scores ~92 SET100 stocks on 5 simple
+    factors, sorts them into <b>Worth a look 🟢 / Wait 🟡 / Not now 🔴</b>, and explains each in plain
+    sentences with the risk in baht. It even admits when it can't beat the market — that honesty <i>is</i> the point.
+  </div>
+
+  <div class="pipe">
+    <div class="stage"><div class="n">1 · DATA</div><h3>📥 Collect</h3><p>Daily prices for ~92 SET100 stocks (Yahoo Finance).</p></div>
+    <div class="arrow">→</div>
+    <div class="stage"><div class="n">2 · FILTER</div><h3>⚙️ Score</h3><p>5 factors per stock, compared fairly within each sector.</p></div>
+    <div class="arrow">→</div>
+    <div class="stage"><div class="n">3 · ENGINES</div><h3>🎚️ 3 profiles</h3><p>Same factors, 3 weightings: safe / balanced / bold.</p></div>
+    <div class="arrow">→</div>
+    <div class="stage"><div class="n">4 · FILE</div><h3>📄 today.json</h3><p>Ranked lists, precomputed once — so the site is instant.</p></div>
+    <div class="arrow">→</div>
+    <div class="stage"><div class="n">5 · APP</div><h3>🌐 Website</h3><p>Reads the file, shows 4 sentences; a quiz picks your profile.</p></div>
+  </div>
+  <p style="margin-top:14px">That's it. A daily <b>screener</b> that's transparent about how it ranks and honest about what it can't do.
+    <b>It's a class project — educational, not investment advice.</b></p>
+
+  <!-- ================= DETAILED ================= -->
+  <div class="tag">🔍 The detailed version</div>
+
+  <p><b>What it is (and isn't).</b> SETScout is an <i>Explainable Investment Decision Support System</i> for the
+  Thai market. It answers <b>“which stocks should I spend time researching today, and how risky are they?”</b> —
+  not “what will the price be” and not “buy this.” Discovery + risk + explanation, with the disclaimer everywhere.</p>
+
+  <div class="tag" style="margin-top:26px">The 4 sentences a user sees</div>
+  <div class="grid four">
+    <div class="card"><h3>Verdict</h3><p>Worth a look / Wait / Not now.</p><div class="ex">🟢 Worth a look</div></div>
+    <div class="card v"><h3>Risk in baht</h3><p>A normal-bad month, in real money.</p><div class="ex">bad month ≈ −16% → max ฿23/100</div></div>
+    <div class="card b"><h3>Because</h3><p>The top reasons, in plain words.</p><div class="ex">above its long average, not spiked</div></div>
+    <div class="card t"><h3>Trust label</h3><p>How much to trust it — honestly.</p><div class="ex">not a profit promise, tells risk</div></div>
+  </div>
+
+  <div class="tag" style="margin-top:26px">The 5 factors (the “score”)</div>
+  <div class="grid">
+    <div class="card"><h3><span class="e">📈</span> Momentum</h3><p>6-month return — is it going well?</p></div>
+    <div class="card"><h3><span class="e">🌱</span> Growth</h3><p>12-month return — the longer trend.</p></div>
+    <div class="card"><h3><span class="e">⚖️</span> Value</h3><p>Cheap vs its own 200-day average.</p></div>
+    <div class="card"><h3><span class="e">🛡️</span> Quality</h3><p>Low volatility — calm, not wild.</p></div>
+    <div class="card"><h3><span class="e">❤️</span> Health</h3><p>Small max-drawdown — survives bad markets.</p></div>
+  </div>
+  <div class="note">Each factor is <b>z-scored</b> (put on a fair 0-centred scale) and <b>sector-neutralized</b>
+    — a stock is judged against <b>its own sector peers</b>, so one calm sector (like banks) can't sweep the top.
+    <span class="th">· ให้คะแนนเทียบกับหุ้นในกลุ่มเดียวกัน</span></div>
+
+  <div class="tag" style="margin-top:26px">The 3 engines (personalization)</div>
+  <p>Same 5 factors, <b>three weightings</b> — one per risk appetite. Your risk-quiz answer picks which list you see.
+    This is a <b>personalized recommender</b>: user profile → matching model.</p>
+  <div class="eng">
+    <div class="card c1"><h3>🛡️ Conservative</h3><div class="w">quality 40 · health 30 · value 20 · mom 5 · growth 5</div>
+      <div class="res">Calm, lower-risk picks. <span class="bad">Trails the market</span> — by design.</div></div>
+    <div class="card c2"><h3>⚖️ Balanced</h3><div class="w">quality 28 · value 24 · mom 20 · health 16 · growth 12</div>
+      <div class="res">The middle default. Also defensive-leaning.</div></div>
+    <div class="card c3"><h3>🚀 Aggressive</h3><div class="w">mom 40 · growth 30 · value 15 · quality 10 · health 5</div>
+      <div class="res"><span class="good">Beats buy-and-hold</span> at 1y/5y/10y — the momentum effect.</div></div>
+  </div>
+
+  <div class="tag" style="margin-top:26px">The honest findings (from real backtests)</div>
+  <table>
+    <tr><th>Engine (buy picks, hold 12mo)</th><th class="n">return</th><th class="n">vs buy&hold</th><th class="n">beats random</th></tr>
+    <tr><td>🛡️ Conservative</td><td class="n">+1.3%</td><td class="n bad">−5.4</td><td class="n">0%</td></tr>
+    <tr><td>⚖️ Balanced</td><td class="n">+1.9%</td><td class="n bad">−4.8</td><td class="n">0%</td></tr>
+    <tr><td>🚀 Aggressive</td><td class="n good">+9.0%</td><td class="n good">+2.3</td><td class="n good">96%</td></tr>
+  </table>
+  <p><b>Read it honestly:</b> the defensive engines <b>don't beat the market</b> — that's expected (efficient
+  markets) and it's <b>the thesis, not a bug</b>. The aggressive engine <b>does</b> show a real edge (the
+  well-documented <b>momentum premium</b>) — and it <b>survives trading costs</b> (+126% net over 10y vs +86%
+  buy&hold, even at 1% round-trip). Caveats we keep out loud: survivorship bias in old data, momentum can crash,
+  one market/period.</p>
+
+  <div class="tag" style="margin-top:26px">The honesty rails (why judges trust it)</div>
+  <div class="rails">
+    <div class="rail"><b>Luck bar</b> — we compare against hundreds of random portfolios. Real skill beats most of them; luck doesn't.</div>
+    <div class="rail"><b>Calibration</b> — we checked if a high score predicts an up-move. It <b>doesn't</b> (flat ~47%). So the honest <code>p_win</code> is ~47% — we rank research-worthiness, not direction.</div>
+    <div class="rail"><b>No look-ahead</b> — every backtest scores using only past data, then measures the future.</div>
+    <div class="rail"><b>Educational, not advice</b> — soft wording, disclaimers everywhere, non-commercial.</div>
+  </div>
+
+  <div class="tag" style="margin-top:26px">What's real vs. still to build</div>
+  <div class="pillrow">
+    <span class="p2 p-real">✓ real: scores · verdicts</span>
+    <span class="p2 p-real">✓ real: risk (VaR) · prices</span>
+    <span class="p2 p-real">✓ real: backtests + costs</span>
+    <span class="p2 p-real">✓ real: 3 engines</span>
+    <span class="p2 p-todo">◷ p_win → wire calibration (~47%)</span>
+    <span class="p2 p-todo">◷ factor weights → AHP survey</span>
+    <span class="p2 p-todo">◷ v2 fundamentals (P/E, ROE)</span>
+    <span class="p2 p-todo">◷ investor survey (primary data)</span>
+  </div>
+
+  <div class="tag" style="margin-top:26px">Under the hood (for builders)</div>
+  <p>The engine runs <b>ahead of time</b> and writes a file; the website just reads it — so users never wait, and
+  the site could be built before the engine even existed. Everything is <b>Python + vanilla JS</b>, no framework.</p>
+  <div class="grid">
+    <div class="card"><h3><span class="e">⚙️</span> run_today.py</h3><p>The engine — pulls prices, scores, writes the 3 profiles into <code>today.json</code>.</p></div>
+    <div class="card"><h3><span class="e">🧪</span> backtest*.py</h3><p>The honesty checks — luck bar, calibration, hold-returns, costs.</p></div>
+    <div class="card"><h3><span class="e">📄</span> today.json</h3><p>The precomputed data contract the website reads.</p></div>
+    <div class="card"><h3><span class="e">🌐</span> index.html</h3><p>The site — 4 sentences, filters, risk quiz, TH/EN, dark/light.</p></div>
+  </div>
+  <div class="note">Run it yourself: <code>pip install pandas numpy yfinance</code> then
+    <code>python run_today.py</code> (refresh picks) or <code>python backtest.py</code> (the honesty check).
+    Full state = <code>CONTINUE.md</code> · full design = <code>HANDOFF.md</code>.</div>
+
+  <div class="links">
+    <a class="lk" href="index.html">🌐 The live app</a>
+    <a class="lk" href="setscout-map.html">🗺️ System map</a>
+  </div>
+
+  <div class="foot"><b>SETScout</b> · Explainable Investment Decision Support · SET100<br>
+    For education &amp; research only · not a buy/sell recommendation · past performance ≠ future results.</div>
+</div>
+</body>
+</html>

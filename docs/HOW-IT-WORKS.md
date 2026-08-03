@@ -146,10 +146,11 @@ These are the tools that separate real signal from luck — and they're what mak
 ```bash
 pip install pandas numpy yfinance      # one-time setup
 
-python run_today.py     # refresh picks → writes today.json (all 3 engines)
-python backtest.py      # the honesty check → luck bar + writes calibration.json
+cd engine                # all the Python + data lives here
+python run_today.py      # refresh picks → writes today.json (all 3 engines)
+python backtest.py       # the honesty check → luck bar + writes calibration.json
 ```
-Then open `index.html` in a browser. **AI rule for the team:** you may use AI to draft code, but you must be able
+Then open `app/index.html` in a browser. **AI rule for the team:** you may use AI to draft code, but you must be able
 to **explain every line you commit** — Q&A day is merciless.
 
 ---

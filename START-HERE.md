@@ -48,27 +48,26 @@ It's a **Data Science class project → educational, NOT investment advice.**
 
 ```bash
 pip install pandas numpy yfinance      # one time
+cd engine
 python run_today.py                    # refresh the picks (writes today.json)
 python backtest.py                     # the honesty check (luck bar + calibration)
 ```
-Then open `index.html` in a browser to see the website.
+Then open `app/index.html` in a browser to see the website.
 
 ---
 
 ## Where's everything (repo map)
 
-| File / folder | What it is |
+The repo is sorted into three folders — **`app/`** (what users see), **`engine/`** (the Python that makes the data), **`docs/`** (explanations):
+
+| Folder / file | What it is |
 |---|---|
-| `index.html` | 🌐 **the website** — the shop window users see |
-| `run_today.py` | ⚙️ **the engine** — pulls prices, scores, writes `today.json` |
-| `today.json` | 📄 the data the website reads (made by the engine) |
-| `backtest.py` | 🧪 the honesty checks (does it beat the market? beat random?) |
-| `calibration.json` | 📊 output of the backtest (real hit-rates by score) |
-| `setscout-map.html` | 🗺️ a visual system map |
+| **`app/`** | 🌐 the website — `index.html` (shop window), `onboard.html` (this, visual), `setscout-map.html` (system map) |
+| **`engine/`** | ⚙️ the Python — `run_today.py` (scores & writes data), `backtest*.py` (honesty checks), `today.json` (the data the site reads), `calibration.json` |
+| **`docs/`** | 📖 explanations — **`HOW-IT-WORKS.md`** (read next), `HANDOFF.md`/`CONTINUE.md` (design + state) |
 | `research/` | 📋 **primary data** — the investor survey + AHP expert survey |
 | `proposals/` | 📝 how we got here (the original ideas + team workflow) |
-| `docs/HOW-IT-WORKS.md` | 📖 **the detailed explanation** — read this next |
-| `HANDOFF.md` / `CONTINUE.md` | full design + current state |
+| `START-HERE.md` | 👋 this file |
 
 ---
 
