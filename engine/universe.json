@@ -1,0 +1,588 @@
+{
+ "_comment": "Canonical stock universe. run_today.py READS this file and never writes it. Edit here to add/remove a stock. Tickers that fail to fetch are skipped for that run only - they are never dropped permanently.",
+ "universe": "SET100",
+ "disclaimer": "เพื่อการศึกษา ไม่ใช่คำแนะนำการลงทุน · ไม่รับประกันผลตอบแทน",
+ "count": 95,
+ "stocks": [
+  {
+   "ticker": "KBANK.BK",
+   "name": "Kasikornbank",
+   "name_th": "กสิกรไทย",
+   "sector": "Banking"
+  },
+  {
+   "ticker": "SCB.BK",
+   "name": "SCB X",
+   "name_th": "เอสซีบี เอกซ์",
+   "sector": "Banking"
+  },
+  {
+   "ticker": "BBL.BK",
+   "name": "Bangkok Bank",
+   "name_th": "กรุงเทพ",
+   "sector": "Banking"
+  },
+  {
+   "ticker": "KTB.BK",
+   "name": "Krung Thai Bank",
+   "name_th": "กรุงไทย",
+   "sector": "Banking"
+  },
+  {
+   "ticker": "TTB.BK",
+   "name": "TMBThanachart",
+   "name_th": "ทีเอ็มบีธนชาต",
+   "sector": "Banking"
+  },
+  {
+   "ticker": "TISCO.BK",
+   "name": "Tisco",
+   "name_th": "ทิสโก้",
+   "sector": "Banking"
+  },
+  {
+   "ticker": "KKP.BK",
+   "name": "Kiatnakin Phatra",
+   "name_th": "เกียรตินาคินภัทร",
+   "sector": "Banking"
+  },
+  {
+   "ticker": "MTC.BK",
+   "name": "Muangthai Capital",
+   "name_th": "เมืองไทยแคปปิตอล",
+   "sector": "Finance"
+  },
+  {
+   "ticker": "SAWAD.BK",
+   "name": "Srisawad",
+   "name_th": "ศรีสวัสดิ์",
+   "sector": "Finance"
+  },
+  {
+   "ticker": "TIDLOR.BK",
+   "name": "Ngern Tid Lor",
+   "name_th": "เงินติดล้อ",
+   "sector": "Finance"
+  },
+  {
+   "ticker": "KTC.BK",
+   "name": "Krungthai Card",
+   "name_th": "เคทีซี",
+   "sector": "Finance"
+  },
+  {
+   "ticker": "AEONTS.BK",
+   "name": "Aeon Thana Sinsap",
+   "name_th": "อิออน",
+   "sector": "Finance"
+  },
+  {
+   "ticker": "JMT.BK",
+   "name": "JMT Network",
+   "name_th": "เจเอ็มที",
+   "sector": "Finance"
+  },
+  {
+   "ticker": "PTT.BK",
+   "name": "PTT",
+   "name_th": "ปตท.",
+   "sector": "Energy"
+  },
+  {
+   "ticker": "PTTEP.BK",
+   "name": "PTT E&P",
+   "name_th": "ปตท.สผ.",
+   "sector": "Energy"
+  },
+  {
+   "ticker": "OR.BK",
+   "name": "PTT Oil & Retail",
+   "name_th": "โออาร์",
+   "sector": "Energy"
+  },
+  {
+   "ticker": "BCP.BK",
+   "name": "Bangchak",
+   "name_th": "บางจาก",
+   "sector": "Energy"
+  },
+  {
+   "ticker": "TOP.BK",
+   "name": "Thai Oil",
+   "name_th": "ไทยออยล์",
+   "sector": "Energy"
+  },
+  {
+   "ticker": "IRPC.BK",
+   "name": "IRPC",
+   "name_th": "ไออาร์พีซี",
+   "sector": "Energy"
+  },
+  {
+   "ticker": "PTTGC.BK",
+   "name": "PTT Global Chemical",
+   "name_th": "พีทีทีจีซี",
+   "sector": "Petrochem"
+  },
+  {
+   "ticker": "SPRC.BK",
+   "name": "Star Petroleum",
+   "name_th": "สตาร์ ปิโตรเลียม",
+   "sector": "Energy"
+  },
+  {
+   "ticker": "BANPU.BK",
+   "name": "Banpu",
+   "name_th": "บ้านปู",
+   "sector": "Energy"
+  },
+  {
+   "ticker": "GULF.BK",
+   "name": "Gulf Development",
+   "name_th": "กัลฟ์",
+   "sector": "Utilities"
+  },
+  {
+   "ticker": "GPSC.BK",
+   "name": "Global Power Synergy",
+   "name_th": "โกลบอล เพาเวอร์",
+   "sector": "Utilities"
+  },
+  {
+   "ticker": "EA.BK",
+   "name": "Energy Absolute",
+   "name_th": "พลังงานบริสุทธิ์",
+   "sector": "Utilities"
+  },
+  {
+   "ticker": "BGRIM.BK",
+   "name": "B.Grimm Power",
+   "name_th": "บี.กริม เพาเวอร์",
+   "sector": "Utilities"
+  },
+  {
+   "ticker": "EGCO.BK",
+   "name": "Electricity Generating",
+   "name_th": "เอ็กโก",
+   "sector": "Utilities"
+  },
+  {
+   "ticker": "RATCH.BK",
+   "name": "Ratch Group",
+   "name_th": "ราช กรุ๊ป",
+   "sector": "Utilities"
+  },
+  {
+   "ticker": "GUNKUL.BK",
+   "name": "Gunkul Engineering",
+   "name_th": "กันกุล",
+   "sector": "Utilities"
+  },
+  {
+   "ticker": "BCPG.BK",
+   "name": "BCPG",
+   "name_th": "บีซีพีจี",
+   "sector": "Utilities"
+  },
+  {
+   "ticker": "ADVANC.BK",
+   "name": "Advanced Info Service",
+   "name_th": "เอไอเอส",
+   "sector": "ICT"
+  },
+  {
+   "ticker": "TRUE.BK",
+   "name": "True Corporation",
+   "name_th": "ทรู",
+   "sector": "ICT"
+  },
+  {
+   "ticker": "DELTA.BK",
+   "name": "Delta Electronics",
+   "name_th": "เดลต้า อีเลคโทรนิคส์",
+   "sector": "Electronics"
+  },
+  {
+   "ticker": "HANA.BK",
+   "name": "Hana Microelectronics",
+   "name_th": "ฮานา",
+   "sector": "Electronics"
+  },
+  {
+   "ticker": "KCE.BK",
+   "name": "KCE Electronics",
+   "name_th": "เคซีอี",
+   "sector": "Electronics"
+  },
+  {
+   "ticker": "CPALL.BK",
+   "name": "CP All",
+   "name_th": "ซีพี ออลล์",
+   "sector": "Commerce"
+  },
+  {
+   "ticker": "CPAXT.BK",
+   "name": "CP Axtra",
+   "name_th": "ซีพี แอ็กซ์ตร้า",
+   "sector": "Commerce"
+  },
+  {
+   "ticker": "CRC.BK",
+   "name": "Central Retail",
+   "name_th": "เซ็นทรัล รีเทล",
+   "sector": "Commerce"
+  },
+  {
+   "ticker": "HMPRO.BK",
+   "name": "Home Product Center",
+   "name_th": "โฮมโปร",
+   "sector": "Commerce"
+  },
+  {
+   "ticker": "COM7.BK",
+   "name": "Com7",
+   "name_th": "คอมเซเว่น",
+   "sector": "Commerce"
+  },
+  {
+   "ticker": "GLOBAL.BK",
+   "name": "Global House",
+   "name_th": "สยามโกลบอลเฮ้าส์",
+   "sector": "Commerce"
+  },
+  {
+   "ticker": "DOHOME.BK",
+   "name": "Dohome",
+   "name_th": "ดูโฮม",
+   "sector": "Commerce"
+  },
+  {
+   "ticker": "BJC.BK",
+   "name": "Berli Jucker",
+   "name_th": "เบอร์ลี่ ยุคเกอร์",
+   "sector": "Commerce"
+  },
+  {
+   "ticker": "MEGA.BK",
+   "name": "Mega Lifesciences",
+   "name_th": "เมก้า ไลฟ์ไซแอ็นซ์",
+   "sector": "Commerce"
+  },
+  {
+   "ticker": "CPF.BK",
+   "name": "CP Foods",
+   "name_th": "ซีพีเอฟ",
+   "sector": "Food"
+  },
+  {
+   "ticker": "TU.BK",
+   "name": "Thai Union",
+   "name_th": "ไทยยูเนี่ยน",
+   "sector": "Food"
+  },
+  {
+   "ticker": "MINT.BK",
+   "name": "Minor International",
+   "name_th": "ไมเนอร์ อินเตอร์เนชั่นแนล",
+   "sector": "Tourism"
+  },
+  {
+   "ticker": "OSP.BK",
+   "name": "Osotspa",
+   "name_th": "โอสถสภา",
+   "sector": "Food"
+  },
+  {
+   "ticker": "CBG.BK",
+   "name": "Carabao Group",
+   "name_th": "คาราบาวกรุ๊ป",
+   "sector": "Food"
+  },
+  {
+   "ticker": "TFG.BK",
+   "name": "Thaifoods Group",
+   "name_th": "ไทยฟู้ดส์",
+   "sector": "Food"
+  },
+  {
+   "ticker": "ITC.BK",
+   "name": "I-Tail",
+   "name_th": "ไอ-เทล คอร์ปอเรชั่น",
+   "sector": "Food"
+  },
+  {
+   "ticker": "SAPPE.BK",
+   "name": "Sappe",
+   "name_th": "เซ็ปเป้",
+   "sector": "Food"
+  },
+  {
+   "ticker": "TKN.BK",
+   "name": "Taokaenoi",
+   "name_th": "เถ้าแก่น้อย",
+   "sector": "Food"
+  },
+  {
+   "ticker": "GFPT.BK",
+   "name": "GFPT",
+   "name_th": "จีเอฟพีที",
+   "sector": "Food"
+  },
+  {
+   "ticker": "LH.BK",
+   "name": "Land & Houses",
+   "name_th": "แลนด์ แอนด์ เฮ้าส์",
+   "sector": "Property"
+  },
+  {
+   "ticker": "AP.BK",
+   "name": "AP Thailand",
+   "name_th": "เอพี ไทยแลนด์",
+   "sector": "Property"
+  },
+  {
+   "ticker": "SPALI.BK",
+   "name": "Supalai",
+   "name_th": "ศุภาลัย",
+   "sector": "Property"
+  },
+  {
+   "ticker": "SIRI.BK",
+   "name": "Sansiri",
+   "name_th": "แสนสิริ",
+   "sector": "Property"
+  },
+  {
+   "ticker": "QH.BK",
+   "name": "Quality Houses",
+   "name_th": "ควอลิตี้ เฮ้าส์",
+   "sector": "Property"
+  },
+  {
+   "ticker": "ORI.BK",
+   "name": "Origin Property",
+   "name_th": "ออริจิ้น พร็อพเพอร์ตี้",
+   "sector": "Property"
+  },
+  {
+   "ticker": "SC.BK",
+   "name": "SC Asset",
+   "name_th": "เอสซี แอสเสท",
+   "sector": "Property"
+  },
+  {
+   "ticker": "WHA.BK",
+   "name": "WHA Corporation",
+   "name_th": "ดับบลิวเอชเอ",
+   "sector": "Property"
+  },
+  {
+   "ticker": "AMATA.BK",
+   "name": "Amata Corporation",
+   "name_th": "อมตะ คอร์ปอเรชัน",
+   "sector": "Property"
+  },
+  {
+   "ticker": "CPN.BK",
+   "name": "Central Pattana",
+   "name_th": "เซ็นทรัลพัฒนา",
+   "sector": "Property"
+  },
+  {
+   "ticker": "CENTEL.BK",
+   "name": "Central Plaza Hotel",
+   "name_th": "โรงแรมเซ็นทรัลพลาซา",
+   "sector": "Tourism"
+  },
+  {
+   "ticker": "ERW.BK",
+   "name": "The Erawan Group",
+   "name_th": "ดิ เอราวัณ กรุ๊ป",
+   "sector": "Tourism"
+  },
+  {
+   "ticker": "SCC.BK",
+   "name": "Siam Cement",
+   "name_th": "ปูนซิเมนต์ไทย",
+   "sector": "Materials"
+  },
+  {
+   "ticker": "SCGP.BK",
+   "name": "SCG Packaging",
+   "name_th": "เอสซีจี แพคเกจจิ้ง",
+   "sector": "Materials"
+  },
+  {
+   "ticker": "TASCO.BK",
+   "name": "Tipco Asphalt",
+   "name_th": "ทิปโก้ แอสฟัลท์",
+   "sector": "Materials"
+  },
+  {
+   "ticker": "DCC.BK",
+   "name": "Dynasty Ceramic",
+   "name_th": "ไดนาสตี้ เซรามิค",
+   "sector": "Materials"
+  },
+  {
+   "ticker": "TPIPP.BK",
+   "name": "TPI Polene Power",
+   "name_th": "ทีพีไอ โพลีน เพาเวอร์",
+   "sector": "Utilities"
+  },
+  {
+   "ticker": "AOT.BK",
+   "name": "Airports of Thailand",
+   "name_th": "ท่าอากาศยานไทย",
+   "sector": "Transportation"
+  },
+  {
+   "ticker": "BEM.BK",
+   "name": "Bangkok Expressway & Metro",
+   "name_th": "ทางด่วนและรถไฟฟ้ากรุงเทพ",
+   "sector": "Transportation"
+  },
+  {
+   "ticker": "BTS.BK",
+   "name": "BTS Group",
+   "name_th": "บีทีเอส กรุ๊ป",
+   "sector": "Transportation"
+  },
+  {
+   "ticker": "BDMS.BK",
+   "name": "Bangkok Dusit Medical",
+   "name_th": "กรุงเทพดุสิตเวชการ",
+   "sector": "Healthcare"
+  },
+  {
+   "ticker": "BH.BK",
+   "name": "Bumrungrad Hospital",
+   "name_th": "บำรุงราษฎร์",
+   "sector": "Healthcare"
+  },
+  {
+   "ticker": "BCH.BK",
+   "name": "Bangkok Chain Hospital",
+   "name_th": "บางกอก เชน ฮอสปิทอล",
+   "sector": "Healthcare"
+  },
+  {
+   "ticker": "CHG.BK",
+   "name": "Chularat Hospital",
+   "name_th": "โรงพยาบาลจุฬารัตน์",
+   "sector": "Healthcare"
+  },
+  {
+   "ticker": "PR9.BK",
+   "name": "Praram 9 Hospital",
+   "name_th": "โรงพยาบาลพระรามเก้า",
+   "sector": "Healthcare"
+  },
+  {
+   "ticker": "STGT.BK",
+   "name": "Sri Trang Gloves",
+   "name_th": "ศรีตรังโกลฟส์",
+   "sector": "Healthcare"
+  },
+  {
+   "ticker": "IVL.BK",
+   "name": "Indorama Ventures",
+   "name_th": "อินโดรามา เวนเจอร์ส",
+   "sector": "Petrochem"
+  },
+  {
+   "ticker": "VGI.BK",
+   "name": "VGI",
+   "name_th": "วีจีไอ",
+   "sector": "Media"
+  },
+  {
+   "ticker": "PLANB.BK",
+   "name": "Plan B Media",
+   "name_th": "แพลน บี มีเดีย",
+   "sector": "Media"
+  },
+  {
+   "ticker": "MAJOR.BK",
+   "name": "Major Cineplex",
+   "name_th": "เมเจอร์ ซีนีเพล็กซ์",
+   "sector": "Media"
+  },
+  {
+   "ticker": "STA.BK",
+   "name": "Sri Trang Agro",
+   "name_th": "ศรีตรังแอโกรอินดัสทรี",
+   "sector": "Agri"
+  },
+  {
+   "ticker": "NER.BK",
+   "name": "North East Rubber",
+   "name_th": "นอร์ทอีส รับเบอร์",
+   "sector": "Agri"
+  },
+  {
+   "ticker": "JMART.BK",
+   "name": "Jaymart",
+   "name_th": "เจ มาร์ท",
+   "sector": "Commerce"
+  },
+  {
+   "ticker": "SINGER.BK",
+   "name": "Singer Thailand",
+   "name_th": "ซิงเกอร์ประเทศไทย",
+   "sector": "Commerce"
+  },
+  {
+   "ticker": "M.BK",
+   "name": "MK Restaurant",
+   "name_th": "เอ็มเค เรสโตรองต์",
+   "sector": "Food"
+  },
+  {
+   "ticker": "TLI.BK",
+   "name": "Thai Life Insurance",
+   "name_th": "ไทยประกันชีวิต",
+   "sector": "Insurance"
+  },
+  {
+   "ticker": "BLA.BK",
+   "name": "Bangkok Life Assurance",
+   "name_th": "กรุงเทพประกันชีวิต",
+   "sector": "Insurance"
+  },
+  {
+   "ticker": "THG.BK",
+   "name": "Thonburi Healthcare",
+   "name_th": "ธนบุรี เฮลท์แคร์",
+   "sector": "Healthcare"
+  },
+  {
+   "ticker": "WHAUP.BK",
+   "name": "WHA Utilities & Power",
+   "name_th": "ดับบลิวเอชเอ ยูทิลิตี้ส์",
+   "sector": "Utilities"
+  },
+  {
+   "ticker": "TIPH.BK",
+   "name": "Dhipaya Group",
+   "name_th": "ทิพย กรุ๊ป",
+   "sector": "Insurance"
+  },
+  {
+   "ticker": "AURA.BK",
+   "name": "Aurora Design",
+   "name_th": "ออโรร่า ดีไซน์",
+   "sector": "Commerce"
+  }
+ ],
+ "retired": [
+  {
+   "ticker": "INTUCH.BK",
+   "name": "Intouch Holdings",
+   "name_th": "อินทัช",
+   "sector": "ICT",
+   "reason": "delisted - merged into GULF (2025)",
+   "retired_on": "2026-08-30"
+  }
+ ]
+}

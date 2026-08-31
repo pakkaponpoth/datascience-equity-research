@@ -12,11 +12,15 @@ Writes calibration.json (score -> real hit-rate) so run_today.py can stop faking
 """
 import json, os
 import numpy as np, pandas as pd, yfinance as yf
+from reportlib import capture, load_universe
+
+capture("backtest", "Monthly rotation backtest - the honesty check",
+        {"rebalance": "monthly, buy top 20%", "history": "~8y monthly", "luck bar": "300 random portfolios", "outputs": "calibration.json (score decile -> real up-rate)"})
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-uni = json.load(open(os.path.join(HERE, "today.json"), encoding="utf-8"))
-meta = {s["ticker"]: s["sector"] for s in uni["stocks"]}
+meta, _uni_src = load_universe()
 tickers = list(meta)
+print(f"universe: {len(tickers)} tickers from {_uni_src}")
 W = {"quality": 0.28, "value": 0.24, "momentum": 0.20, "health": 0.16, "growth": 0.12}
 FACT = ["momentum", "growth", "value", "quality", "health"]
 K = 300                      # random portfolios for the luck bar

@@ -10,11 +10,15 @@ same way). Runs H = 6 and 12 months. No look-ahead.
 """
 import json, os
 import numpy as np, pandas as pd, yfinance as yf
+from reportlib import capture, load_universe
+
+capture("backtest_hold", "Hold test - buy the picks and hold (the fair test)",
+        {"rebalance": "none - buy and hold", "horizons": "6 and 12 months", "history": "~8y monthly", "why": "matches how users actually behave, not monthly churn"})
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-uni = json.load(open(os.path.join(HERE, "today.json"), encoding="utf-8"))
-meta = {s["ticker"]: s["sector"] for s in uni["stocks"]}
+meta, _uni_src = load_universe()
 tickers = list(meta)
+print(f"universe: {len(tickers)} tickers from {_uni_src}")
 W = {"quality": 0.28, "value": 0.24, "momentum": 0.20, "health": 0.16, "growth": 0.12}
 FACT = ["momentum", "growth", "value", "quality", "health"]
 K = 300
