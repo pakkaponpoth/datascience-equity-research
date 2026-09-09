@@ -3,7 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>SETScout</title>
+<title>SETScout — หุ้นไทยที่น่าศึกษาต่อ | Thai Stock Screener</title>
+<meta name="description" content="SETScout ranks ~95 Thai SET100 stocks on five transparent factors and tells you the risk honestly. Educational research tool — not investment advice. จัดอันดับหุ้นไทยพร้อมบอกความเสี่ยงตรงไปตรงมา">
+<meta name="keywords" content="หุ้นไทย, SET100, stock screener, Thai stocks, คัดหุ้น, ลงทุนมือใหม่, SETScout">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://oksoimcodingnow.github.io/atlas/setscout/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="SETScout — Thai stocks worth a look, today">
+<meta property="og:description" content="Ranks ~95 SET100 stocks on five transparent factors, adapts to your risk profile, and says honestly how much to trust it.">
+<meta property="og:url" content="https://oksoimcodingnow.github.io/atlas/setscout/">
+<meta property="og:locale" content="th_TH">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary">
 <meta name="theme-color" content="#f6f7f9">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -23,7 +34,7 @@
   .brand{display:flex;align-items:center;justify-content:space-between;gap:10px;}
   .logo{font-size:20px;font-weight:800;letter-spacing:-.02em;} .logo b{color:var(--accent);}
   .tools{display:flex;gap:6px;align-items:center;}
-  .tbtn{font-size:13px;font-weight:700;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 11px;cursor:pointer;}
+  .tbtn{font-size:13px;text-decoration:none;display:inline-block;font-weight:700;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 11px;cursor:pointer;}
   .tbtn:hover{border-color:var(--faint);}
   .pill{font-size:11px;font-weight:600;color:var(--wait);background:var(--waitb);border:1px solid var(--line);border-radius:999px;padding:4px 10px;}
   h1{font-size:clamp(20px,4.5vw,28px);font-weight:800;letter-spacing:-.02em;margin:14px 0 4px;}
@@ -87,6 +98,7 @@
   <div class="brand">
     <div class="logo">SET<b>Scout</b></div>
     <div class="tools">
+      <a class="tbtn" href="onboard.html" id="learnBtn" aria-label="How SETScout works">?</a>
       <button class="tbtn" id="langBtn">EN</button>
       <button class="tbtn" id="themeBtn">🌙</button>
       <span class="pill" id="pill"></span>
@@ -131,19 +143,19 @@
      dca:{title:"เครื่องคำนวณ DCA",intro:"ลงเงินเท่ากันทุกเดือน ต่อเนื่องหลายปี จะได้เท่าไร?",perMonth:"ลงเดือนละ",perMoUnit:"/เดือน",years:"เป็นเวลา",yrUnit:"ปี",ret:"สมมติผลตอบแทนต่อปี",retUnit:"ต่อปี",invested:"เงินที่ลงไปทั้งหมด",final:"มูลค่าที่คาดว่าจะได้",gain:"กำไร (โดยประมาณ)",caveat:"เป็นการสมมติผลตอบแทน ไม่ใช่การรับประกัน · ผลจริงผันผวนขึ้นลงได้ · อดีตไม่การันตีอนาคต"},
      v:{BUY:"น่าสนใจ",WAIT:"รอก่อน",AVOID:"ยังไม่ใช่ตอนนี้"},
      riskCard:(r,w)=>`เสี่ยง <b>${r}%</b> · สูงสุด ${w} บาท/100`, empty:"ไม่มีหุ้นในกลุ่มนี้",
-     dRisk:"ความเสี่ยง (เป็นบาท)",dWhy:"เพราะอะไร",dTrust:"เชื่อได้แค่ไหน",sScore:"คะแนนรวม /100",sWin:"โอกาสเข้าทาง",sLast:"ราคาล่าสุด",
+     dRisk:"ความเสี่ยง (เป็นบาท)",dWhy:"เพราะอะไร",dTrust:"เชื่อได้แค่ไหน",sScore:"อันดับ",sWin:"ราคาขึ้นในอดีต",sLast:"ราคาล่าสุด",
      riskS:(r,w)=>`เดือนแย่ ๆ ราคาอาจลงราว <b>${r}%</b> · จึงควรใส่ไม่เกิน <b>${w} บาท</b> ต่อทุก 100 บาท`,
-     bPfx:"เพราะ",bJoin:" และ ", trust:p=>`คะแนนความมั่นใจเบื้องต้น <b>${p}%</b> · ⚠️ ยังไม่ผ่านการทดสอบย้อนหลัง (อยู่ระหว่างพัฒนา) · ไม่รับประกันกำไร บอกแค่ความเสี่ยง`,
+     bPfx:"เพราะ",bJoin:" และ ", trust:p=>p==null?`ยังไม่ได้วัดย้อนหลัง — ตัวเลขความมั่นใจจึงยังไม่แสดง`:`หุ้นที่ได้คะแนนระดับนี้ ราคาขึ้นในเดือนถัดไป <b>${p}%</b> ของครั้ง — วัดจริงจาก 84 เดือน และ<b>เท่ากันแทบทุกช่วงคะแนน</b> · แปลว่าคะแนนนี้<b>ไม่ได้ทำนายทิศทาง</b> ใช้เป็นรายชื่อไว้ไปศึกษาต่อ ไม่ใช่คำพยากรณ์`,
      forYou:(l,w)=>`สำหรับคุณ (${l}): ควรใส่ไม่เกิน <b>${w} บาท</b> ต่อ 100`,
      pbtn:"ปรับให้เหมาะกับฉัน", banner:l=>`ปรับรายการให้เหมาะกับความเสี่ยงของคุณแล้ว · <b>${l}</b>`, redo:"ทำใหม่", clear:"ล้าง",
      disc:'SETScout ชี้ให้ไป “ศึกษาต่อ” ไม่ได้บอกให้ซื้อ/ขาย',
-     foot:'<b>SETScout</b> · Explainable Investment Decision Support · SET100<br>เพื่อการศึกษาและงานวิจัยเท่านั้น ไม่ใช่คำแนะนำซื้อ/ขาย · ผลย้อนหลังไม่รับประกันอนาคต · ปรึกษาผู้แนะนำการลงทุนที่มีใบอนุญาต',
+     foot:'<b>SETScout</b> · Explainable Investment Decision Support · SET100<br>เพื่อการศึกษาและงานวิจัยเท่านั้น ไม่ใช่คำแนะนำซื้อ/ขาย · ผลย้อนหลังไม่รับประกันอนาคต · ปรึกษาผู้แนะนำการลงทุนที่มีใบอนุญาต<br><a href="legal.html" style="color:var(--muted)">ข้อกำหนดการใช้งานและความเป็นส่วนตัว</a> · <a href="onboard.html" style="color:var(--muted)">วิธีทำงาน</a>',
      pTitle:"ปรับให้เหมาะกับคุณ", pSub:"ตอบ 5 ข้อ เราจะจัดอันดับและปรับขนาดการลงทุนให้เหมาะกับความเสี่ยงที่คุณรับได้", see:"ดูผล",
      prof:{cons:"สายระมัดระวัง",bal:"สายสมดุล",agg:"สายบุก"},
      method:{title:"วิธีให้คะแนน",intro:"เราให้คะแนนหุ้นทุกตัวจาก 5 ปัจจัย (คำนวณจากราคาจริงย้อนหลัง 2 ปี)",
        factors:[["📈","โมเมนตัม","ผลตอบแทน 6 เดือน — ราคากำลังไปได้ดีไหม"],["🌱","การเติบโต","ผลตอบแทน 12 เดือน — แนวโน้มระยะยาว"],["⚖️","ราคาเทียบค่าเฉลี่ยตัวเอง","ต่ำกว่าค่าเฉลี่ย 200 วัน = มีโอกาสเด้ง (mean-reversion)"],["🛡️","คุณภาพ","ความผันผวนต่ำ — ราคานิ่ง ไม่หวือหวา"],["❤️","สุขภาพ","ขาดทุนสูงสุดน้อย — ทนตลาดขาลงได้"]],
        wLabel:"การถ่วงน้ำหนัก",weights:"คุณภาพ 28% · ราคาเทียบค่าเฉลี่ย 24% · โมเมนตัม 20% · สุขภาพ 16% · เติบโต 12%",wNote:"น้ำหนักเปลี่ยนตามโปรไฟล์ความเสี่ยงของคุณ (ทำแบบทดสอบเพื่อเปลี่ยน)",
-       vLabel:"ตัดสินอย่างไร",verdict:"คะแนนรวม ≥ 62 → น่าสนใจ ✅ · ≥ 48 → รอก่อน 🟡 · ต่ำกว่านั้น → ยังไม่ใช่ 🔴",
+       vLabel:"ตัดสินอย่างไร",verdict:"อันดับ 20% แรกของตลาด → น่าสนใจ ✅ · อันดับ 45–80% → รอก่อน 🟡 · ต่ำกว่า 45% → ยังไม่ใช่ 🔴",
        rLabel:"ความเสี่ยง",risk:"คำนวณจาก VaR รายเดือน (โอกาสขาดทุนในเดือนแย่ ๆ) แล้วแปลงเป็นขนาดลงทุนสูงสุดที่แนะนำ",
        cLabel:"⚠️ หมายเหตุซื่อสัตย์",caveats:["น้ำหนักยังเป็นค่าตั้งต้น — รอผลสำรวจผู้เชี่ยวชาญ (AHP)","ยังไม่ผ่านการทดสอบย้อนหลัง (backtest)","ปัจจัยเป็น proxy จากราคา — v2 จะเพิ่มปัจจัยพื้นฐาน (P/E, ROE)","เพื่อการศึกษา ไม่ใช่คำแนะนำการลงทุน"]},
      quiz:[
@@ -161,19 +173,19 @@
      dca:{title:"DCA calculator",intro:"Invest the same amount every month for years — how much could you get?",perMonth:"Invest per month",perMoUnit:"/mo",years:"For",yrUnit:"years",ret:"Assumed return per year",retUnit:"/yr",invested:"Total you put in",final:"Estimated value",gain:"Gain (approx.)",caveat:"This assumes a return — it's not a guarantee · real results go up and down · past is not future"},
      v:{BUY:"Worth a look",WAIT:"Wait",AVOID:"Not now"},
      riskCard:(r,w)=>`risk <b>${r}%</b> · max ฿${w}/100`, empty:"No stocks in this group",
-     dRisk:"Risk (in baht)",dWhy:"Why",dTrust:"How much to trust",sScore:"Score /100",sWin:"Hit rate",sLast:"Last price",
+     dRisk:"Risk (in baht)",dWhy:"Why",dTrust:"How much to trust",sScore:"Rank",sWin:"Past up-rate",sLast:"Last price",
      riskS:(r,w)=>`A normal-bad month could drop ~<b>${r}%</b> · so put at most <b>฿${w}</b> of every 100`,
-     bPfx:"Because ",bJoin:" and ", trust:p=>`Preliminary confidence <b>${p}%</b> · ⚠️ not yet backtested (calibration in progress) · we don't promise profit, we tell you risk`,
+     bPfx:"Because ",bJoin:" and ", trust:p=>p==null?`Not yet measured — no confidence figure is shown`:`Stocks scoring like this rose the next month <b>${p}%</b> of the time — measured over 84 months, and <b>the same across almost every score band</b>. So the score <b>does not predict direction</b>: treat it as a shortlist to research, not a forecast.`,
      forYou:(l,w)=>`For you (${l}): put at most <b>฿${w}</b> per 100`,
      pbtn:"Personalize", banner:l=>`Ranked & sized to your risk comfort · <b>${l}</b>`, redo:"Redo", clear:"Clear",
      disc:'SETScout points you to “research,” it does not tell you to buy/sell',
-     foot:'<b>SETScout</b> · Explainable Investment Decision Support · SET100<br>For education & research only · not a buy/sell recommendation · past performance ≠ future results · consult a licensed adviser',
+     foot:'<b>SETScout</b> · Explainable Investment Decision Support · SET100<br>For education & research only · not a buy/sell recommendation · past performance ≠ future results · consult a licensed adviser<br><a href="legal.html" style="color:var(--muted)">Terms &amp; Privacy</a> · <a href="onboard.html" style="color:var(--muted)">How it works</a>',
      pTitle:"Personalize to you", pSub:"5 quick questions — we rank & size the list to the risk you can handle.", see:"See results",
      prof:{cons:"Conservative",bal:"Balanced",agg:"Aggressive"},
      method:{title:"How we score",intro:"Every stock is scored on 5 factors (from 2 years of real prices)",
        factors:[["📈","Momentum","6-month return — is the price doing well?"],["🌱","Growth","12-month return — the longer trend"],["⚖️","Price vs its own average","below its 200-day average = room to bounce (mean-reversion)"],["🛡️","Quality","low volatility — calm, not wild"],["❤️","Health","small max-drawdown — survives bad markets"]],
        wLabel:"Weighting",weights:"Quality 28% · Price-vs-avg 24% · Momentum 20% · Health 16% · Growth 12%",wNote:"Weights change with your risk profile — take the quiz to switch.",
-       vLabel:"How the verdict is decided",verdict:"Total score ≥ 62 → Worth a look ✅ · ≥ 48 → Wait 🟡 · below → Not now 🔴",
+       vLabel:"How the verdict is decided",verdict:"Top 20% of the market → Worth a look ✅ · 45–80th percentile → Wait 🟡 · below 45th → Not now 🔴",
        rLabel:"Risk",risk:"From monthly VaR (how bad a bad month could be), converted to the max position size we suggest",
        cLabel:"⚠️ Honest notes",caveats:["Weights are preliminary — pending the AHP expert survey","Not yet backtested","Factors are price proxies — v2 adds fundamentals (P/E, ROE)","Educational, not investment advice"]},
      quiz:[
@@ -247,9 +259,9 @@
       <div class="m-badge" style="color:${col[c]};background:${bgc[c]}">${vemo[s.verdict]} ${tr().v[s.verdict]}</div>
       <div class="block"><div class="k">${tr().dRisk}</div><div class="v">${tr().riskS(Math.abs(s.risk_month_pct),pweight(s))}</div>${risk?`<div class="foryou">${tr().forYou(tr().prof[risk.key],pweight(s))}</div>`:''}</div>
       <div class="block"><div class="k">${tr().dWhy}</div><div class="v">${becauseS(s)}</div></div>
-      <div class="block"><div class="k">${tr().dTrust}</div><div class="v">${tr().trust(Math.round(s.p_win*100))}</div></div>
-      <div class="stats"><div class="stat"><div class="sv">${Math.round(s.score*100)}</div><div class="sk">${tr().sScore}</div></div>
-        <div class="stat"><div class="sv">${Math.round(s.p_win*100)}%</div><div class="sk">${tr().sWin}</div></div>
+      <div class="block"><div class="k">${tr().dTrust}</div><div class="v">${tr().trust(s.p_win==null?null:Math.round(s.p_win*100))}</div></div>
+      <div class="stats"><div class="stat"><div class="sv">#${activeList().findIndex(x=>x.ticker===s.ticker)+1}</div><div class="sk">${tr().sScore}</div></div>
+        <div class="stat"><div class="sv">${s.p_win==null?"—":Math.round(s.p_win*100)+"%"}</div><div class="sk">${tr().sWin}</div></div>
         <div class="stat"><div class="sv">฿${s.last.toLocaleString()}</div><div class="sk">${tr().sLast}</div></div></div>
       <div class="m-disc">${DATA.disclaimer}<br>${tr().disc}</div>`;
     $('#ov').classList.add('on');document.body.style.overflow='hidden';$('#xb').onclick=close;
@@ -317,7 +329,7 @@
   document.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
 
   applyTheme(); paintStatic();
-  fetch('../engine/today.json').then(r=>r.json()).then(d=>{DATA=d;paintStatic();populateSectors();render();})
+  fetch('today.json?v='+Date.now()).then(r=>r.json()).then(d=>{DATA=d;paintStatic();populateSectors();render();})
     .catch(()=>{$('#grid').innerHTML='<div class="err">Could not load today.json — open via the hosted link.</div>';});
 })();
 </script>

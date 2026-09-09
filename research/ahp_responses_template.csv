@@ -1,0 +1,11 @@
+respondent,profile,left,right,winner,strength
+E01,conservative,momentum,growth,growth,2
+E01,conservative,momentum,value,value,3
+E01,conservative,momentum,quality,quality,5
+E01,conservative,momentum,health,health,5
+E01,conservative,growth,value,value,2
+E01,conservative,growth,quality,quality,5
+E01,conservative,growth,health,health,4
+E01,conservative,value,quality,quality,3
+E01,conservative,value,health,health,2
+E01,conservative,quality,health,equal,1

@@ -8,11 +8,15 @@ lack long history (dropped early), and the universe = today's SURVIVORS
 """
 import json, os
 import numpy as np, pandas as pd, yfinance as yf
+from reportlib import capture, load_universe
+
+capture("backtest_long", "Long-horizon backtest - 5y and 10y per profile",
+        {"rebalance": "yearly, top 20% per profile", "horizons": "5y, 10y, full window", "caveat": "universe = today's survivors, so old returns are inflated"})
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-uni = json.load(open(os.path.join(HERE, "today.json"), encoding="utf-8"))
-meta = {s["ticker"]: s["sector"] for s in uni["stocks"]}
+meta, _uni_src = load_universe()
 tickers = list(meta)
+print(f"universe: {len(tickers)} tickers from {_uni_src}")
 FACT = ["momentum", "growth", "value", "quality", "health"]
 PROFILES = {
     "conservative": {"quality": .40, "health": .30, "value": .20, "momentum": .05, "growth": .05},

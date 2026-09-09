@@ -1,0 +1,36 @@
+{
+ "weights": {
+  "conservative": {
+   "momentum": 0.075,
+   "growth": 0.066,
+   "value": 0.182,
+   "quality": 0.373,
+   "health": 0.304
+  },
+  "balanced": {
+   "momentum": 0.142,
+   "growth": 0.155,
+   "value": 0.291,
+   "quality": 0.257,
+   "health": 0.155
+  },
+  "aggressive": {
+   "momentum": 0.4,
+   "growth": 0.284,
+   "value": 0.155,
+   "quality": 0.077,
+   "health": 0.084
+  }
+ },
+ "demo": true,
+ "kept": {
+  "conservative": 8,
+  "balanced": 8,
+  "aggressive": 8
+ },
+ "dropped": {
+  "conservative": 0,
+  "balanced": 0,
+  "aggressive": 0
+ }
+}
