@@ -8,20 +8,18 @@ differ on return + risk, and does either beat buy-and-hold?
 import json, os
 import numpy as np, pandas as pd, yfinance as yf
 from reportlib import capture, load_universe
+from factors import FACTORS as FACT, PROFILES   # single source of truth
 
 capture("backtest_profiles", "Profile comparison - do the 3 risk profiles actually differ?",
         {"rebalance": "12-month hold, point-in-time", "measures": "return AND realized volatility"})
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+# scripts live in research/, but the data and reports live one level up
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 meta, _uni_src = load_universe()
 tickers = list(meta)
 print(f"universe: {len(tickers)} tickers from {_uni_src}")
-FACT = ["momentum", "growth", "value", "quality", "health"]
-PROFILES = {
-    "conservative": {"quality": .40, "health": .30, "value": .20, "momentum": .05, "growth": .05},
-    "balanced":     {"quality": .28, "value": .24, "momentum": .20, "health": .16, "growth": .12},
-    "aggressive":   {"momentum": .40, "growth": .30, "value": .15, "quality": .10, "health": .05},
-}
+# MUST match run_today.py. "value" dropped 2026-09-09 (-0.93 with momentum).
+# This is duplicated in several files; see reports/ for the desync note.
 H, K = 12, 200
 np.random.seed(7)
 
@@ -43,7 +41,7 @@ def adj_month(i):
             continue
         eq = s.iloc[-12:]
         rows[t] = dict(momentum=s.iloc[-1] / s.iloc[-7] - 1, growth=s.iloc[-1] / s.iloc[-13] - 1,
-                       value=-(s.iloc[-1] / s.iloc[-11:].mean() - 1), quality=-r12.std() * np.sqrt(12),
+                       quality=-r12.std() * np.sqrt(12),
                        health=(eq / eq.cummax() - 1).min(), sector=meta[t])
     if len(rows) < 10:
         return None

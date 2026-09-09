@@ -44,17 +44,28 @@ is as much a finding as the mean.
 Your job is to say how important each factor is for deciding a stock is
 **worth investigating** — *not* "will go up".
 
-**All five are computed from price data only.** No revenue, earnings or debt.
+**All four are computed from price data only.** No revenue, earnings or debt.
 Our names are shorthand and may not mean what you would normally assume, so
 please judge them **as defined in the right-hand column**.
 
-| Factor | Plain meaning | **What we actually compute** |
-|---|---|---|
-| **Momentum** โมเมนตัม | Is the market already favouring it? | Return over the past **6 months** |
-| **Growth** การเติบโต | Is it trending up over a longer span? | Return over the past **12 months** — *price growth, **not** revenue or EPS* |
-| **Value** ราคาเทียบค่าเฉลี่ย | Is it cheap relative to its own recent past? | Price vs its own **200-day average** — ***not** P/E, P/B or dividend yield* |
-| **Quality** คุณภาพ | Is it calm rather than wild? | **Annualised volatility** (lower is better) — ***not** ROE, margin or debt* |
-| **Health** สุขภาพ | Did it survive bad stretches? | **Worst drawdown** over 1 year — ***not** D/E or liquidity* |
+| Factor | Plain meaning | What we compute | The exact formula |
+|---|---|---|---|
+| **Momentum** โมเมนตัม | Is the market already favouring it? | Return over the past **6 months** | `P_today / P_126d_ago - 1` |
+| **Growth** การเติบโต | Is it trending up over a longer span? | Return over the past **12 months** — *price growth, **not** revenue or EPS* | `P_today / P_252d_ago - 1` |
+| **Quality** คุณภาพ | Is it calm rather than wild? | **Annualised volatility**, lower is better — ***not** ROE, margin or debt* | `-(stdev(daily returns, 252d) x sqrt(252))` |
+| **Health** สุขภาพ | Did it survive bad stretches? | **Worst drawdown** over 1 year — ***not** D/E or liquidity* | `min(P / running_max(P) - 1)` |
+
+**Before weighting, each factor is z-scored** (clipped at ±3 so one extreme
+stock cannot dominate) **and then sector-neutralised** — a bank is compared with
+other banks, not with an airport. So you are ranking *within sector*, not across
+the whole market.
+
+> **A fifth factor, "Value", was removed on 2026-09-09.** It was defined as price
+> versus its own 200-day average. Measured across our 95 stocks that correlates
+> **−0.93** with Momentum (86% shared variance) — it was Momentum with the sign
+> flipped, not an independent dimension, and weighting both meant they cancelled.
+> We are telling you this because an earlier draft of this questionnaire asked you
+> to weight it.
 
 *If you think a factor is missing or redundant, say so at the end — that is data too.*
 
@@ -89,15 +100,11 @@ the intensity.
 | # | Pair | More important? | Intensity 1–9 |
 |---|---|---|---|
 | 1.1 | Momentum ↔ Growth | M / G | ____ |
-| 1.2 | Momentum ↔ Value | M / V | ____ |
-| 1.3 | Momentum ↔ Quality | M / Q | ____ |
-| 1.4 | Momentum ↔ Health | M / H | ____ |
-| 1.5 | Growth ↔ Value | G / V | ____ |
-| 1.6 | Growth ↔ Quality | G / Q | ____ |
-| 1.7 | Growth ↔ Health | G / H | ____ |
-| 1.8 | Value ↔ Quality | V / Q | ____ |
-| 1.9 | Value ↔ Health | V / H | ____ |
-| 1.10 | Quality ↔ Health | Q / H | ____ |
+| 1.2 | Momentum ↔ Quality | M / Q | ____ |
+| 1.3 | Momentum ↔ Health | M / H | ____ |
+| 1.4 | Growth ↔ Quality | G / Q | ____ |
+| 1.5 | Growth ↔ Health | G / H | ____ |
+| 1.6 | Quality ↔ Health | Q / H | ____ |
 
 ---
 
@@ -107,21 +114,17 @@ the intensity.
 > losing than eager to gain.
 
 **Shortcut:** start from your Block 1 answers and change only what differs for
-this investor. Most experts change three or four rows, not ten. Leave a row blank
+this investor. Most experts change two or three rows, not six. Leave a row blank
 to mean "same as Block 1".
 
 | # | Pair | More important? | Intensity 1–9 |
 |---|---|---|---|
 | 2.1 | Momentum ↔ Growth | M / G | ____ |
-| 2.2 | Momentum ↔ Value | M / V | ____ |
-| 2.3 | Momentum ↔ Quality | M / Q | ____ |
-| 2.4 | Momentum ↔ Health | M / H | ____ |
-| 2.5 | Growth ↔ Value | G / V | ____ |
-| 2.6 | Growth ↔ Quality | G / Q | ____ |
-| 2.7 | Growth ↔ Health | G / H | ____ |
-| 2.8 | Value ↔ Quality | V / Q | ____ |
-| 2.9 | Value ↔ Health | V / H | ____ |
-| 2.10 | Quality ↔ Health | Q / H | ____ |
+| 2.2 | Momentum ↔ Quality | M / Q | ____ |
+| 2.3 | Momentum ↔ Health | M / H | ____ |
+| 2.4 | Growth ↔ Quality | G / Q | ____ |
+| 2.5 | Growth ↔ Health | G / H | ____ |
+| 2.6 | Quality ↔ Health | Q / H | ____ |
 
 ---
 
@@ -135,15 +138,11 @@ Same shortcut: change only what differs from Block 1.
 | # | Pair | More important? | Intensity 1–9 |
 |---|---|---|---|
 | 3.1 | Momentum ↔ Growth | M / G | ____ |
-| 3.2 | Momentum ↔ Value | M / V | ____ |
-| 3.3 | Momentum ↔ Quality | M / Q | ____ |
-| 3.4 | Momentum ↔ Health | M / H | ____ |
-| 3.5 | Growth ↔ Value | G / V | ____ |
-| 3.6 | Growth ↔ Quality | G / Q | ____ |
-| 3.7 | Growth ↔ Health | G / H | ____ |
-| 3.8 | Value ↔ Quality | V / Q | ____ |
-| 3.9 | Value ↔ Health | V / H | ____ |
-| 3.10 | Quality ↔ Health | Q / H | ____ |
+| 3.2 | Momentum ↔ Quality | M / Q | ____ |
+| 3.3 | Momentum ↔ Health | M / H | ____ |
+| 3.4 | Growth ↔ Quality | G / Q | ____ |
+| 3.5 | Growth ↔ Health | G / H | ____ |
+| 3.6 | Quality ↔ Health | Q / H | ____ |
 
 ---
 

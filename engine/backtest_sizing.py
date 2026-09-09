@@ -83,6 +83,9 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 from reportlib import capture, load_universe
+from factors import FROZEN                     # sealed - see factors.py
+_SNAP = FROZEN["2026-08-31"]
+FACT, PROFILES = _SNAP["factors"], _SNAP["profiles"]
 
 capture("backtest_sizing", "Does risk-based sizing help? - pre-registered, one shot",
         {"hypothesis": "risk-cap weighting lowers max drawdown vs equal weight",
@@ -93,12 +96,6 @@ capture("backtest_sizing", "Does risk-based sizing help? - pre-registered, one s
 
 meta, uni_src = load_universe()
 tickers = list(meta)
-FACT = ["momentum", "growth", "value", "quality", "health"]
-PROFILES = {                                    # FROZEN - identical to run_today.py
-    "conservative": {"quality": .40, "health": .30, "value": .20, "momentum": .05, "growth": .05},
-    "balanced":     {"quality": .28, "value": .24, "momentum": .20, "health": .16, "growth": .12},
-    "aggressive":   {"momentum": .40, "growth": .30, "value": .15, "quality": .10, "health": .05},
-}
 SIZE_MULT = {"conservative": 0.6, "balanced": 1.0, "aggressive": 1.35}
 H = 12
 
