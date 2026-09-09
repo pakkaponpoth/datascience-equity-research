@@ -56,6 +56,9 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 from reportlib import capture, load_universe
+from factors import FROZEN                     # sealed - see factors.py
+_SNAP = FROZEN["2026-08-31"]
+FACT, PROFILES = _SNAP["factors"], _SNAP["profiles"]
 
 capture("blind_test", "Blind test - frozen rule on a never-inspected period",
         {"design": "pre-registered, one shot",
@@ -66,12 +69,6 @@ capture("blind_test", "Blind test - frozen rule on a never-inspected period",
 
 meta, uni_src = load_universe()
 tickers = list(meta)
-FACT = ["momentum", "growth", "value", "quality", "health"]
-PROFILES = {                                   # FROZEN - identical to run_today.py
-    "conservative": {"quality": .40, "health": .30, "value": .20, "momentum": .05, "growth": .05},
-    "balanced":     {"quality": .28, "value": .24, "momentum": .20, "health": .16, "growth": .12},
-    "aggressive":   {"momentum": .40, "growth": .30, "value": .15, "quality": .10, "health": .05},
-}
 H, K = 12, 300
 np.random.seed(7)
 

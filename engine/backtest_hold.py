@@ -11,16 +11,17 @@ same way). Runs H = 6 and 12 months. No look-ahead.
 import json, os
 import numpy as np, pandas as pd, yfinance as yf
 from reportlib import capture, load_universe
+from factors import FACTORS as FACT, PROFILES   # single source of truth
+W = PROFILES["balanced"]
 
 capture("backtest_hold", "Hold test - buy the picks and hold (the fair test)",
         {"rebalance": "none - buy and hold", "horizons": "6 and 12 months", "history": "~8y monthly", "why": "matches how users actually behave, not monthly churn"})
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+# scripts live in research/, but the data and reports live one level up
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 meta, _uni_src = load_universe()
 tickers = list(meta)
 print(f"universe: {len(tickers)} tickers from {_uni_src}")
-W = {"quality": 0.28, "value": 0.24, "momentum": 0.20, "health": 0.16, "growth": 0.12}
-FACT = ["momentum", "growth", "value", "quality", "health"]
 K = 300
 np.random.seed(7)
 
@@ -42,7 +43,7 @@ def score_month(i):
             continue
         eq = s.iloc[-12:]
         rows[t] = dict(momentum=s.iloc[-1] / s.iloc[-7] - 1, growth=s.iloc[-1] / s.iloc[-13] - 1,
-                       value=-(s.iloc[-1] / s.iloc[-11:].mean() - 1), quality=-r12.std() * np.sqrt(12),
+                       quality=-r12.std() * np.sqrt(12),
                        health=(eq / eq.cummax() - 1).min(), sector=meta[t])
     if len(rows) < 10:
         return None

@@ -31,16 +31,12 @@ import sys
 import numpy as np
 import pandas as pd
 import yfinance as yf
+from factors import FACTORS as FACT, PROFILES   # single source of truth
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+# scripts live in research/, but the data and reports live one level up
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE = os.path.join(HERE, ".price_cache.csv")
 IDX_CACHE = os.path.join(HERE, ".index_cache.csv")
-FACT = ["momentum", "growth", "value", "quality", "health"]
-PROFILES = {                                    # FROZEN - same as run_today.py
-    "conservative": {"quality": .40, "health": .30, "value": .20, "momentum": .05, "growth": .05},
-    "balanced":     {"quality": .28, "value": .24, "momentum": .20, "health": .16, "growth": .12},
-    "aggressive":   {"momentum": .40, "growth": .30, "value": .15, "quality": .10, "health": .05},
-}
 H = 12
 
 

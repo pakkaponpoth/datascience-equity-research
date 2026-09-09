@@ -7,18 +7,15 @@ the multi-engine idea is real.
 """
 import json, os
 import numpy as np, pandas as pd, yfinance as yf
+from factors import FACTORS as FACT, PROFILES as _P
+PROFILES = {k.capitalize(): v for k, v in _P.items()}
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+# scripts live in research/, but the data and reports live one level up
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 uni = json.load(open(os.path.join(HERE, "today.json"), encoding="utf-8"))
 meta = {s["ticker"]: {"name": s["name"], "sector": s["sector"]} for s in uni["stocks"]}
 tickers = list(meta)
-FACT = ["momentum", "growth", "value", "quality", "health"]
 
-PROFILES = {
-    "Conservative": {"quality": .40, "health": .30, "value": .20, "momentum": .05, "growth": .05},
-    "Balanced":     {"quality": .25, "value": .25, "momentum": .20, "health": .15, "growth": .15},
-    "Aggressive":   {"momentum": .40, "growth": .30, "value": .15, "quality": .10, "health": .05},
-}
 
 print(f"{len(tickers)} tickers - fetching ~2y prices...")
 px = yf.download(tickers, period="2y", auto_adjust=True, progress=False)["Close"].dropna(how="all")

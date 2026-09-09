@@ -32,14 +32,14 @@ risk profile, so the website's risk quiz can serve a matching list:
   conservative -> safety factors ·  balanced -> even ·  aggressive -> momentum.
 Factor WEIGHTS are placeholders until the AHP expert survey sets them.
 """
-import json, os
+import json, os, sys
 import numpy as np, pandas as pd, yfinance as yf
+from factors import FACTORS, PROFILES   # single source of truth - do not copy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FILE = os.path.join(HERE, "today.json")          # OUTPUT only - never read as input
 UNIVERSE_FILE = os.path.join(HERE, "universe.json")   # INPUT - the canonical stock list
 CAL_FILE = os.path.join(HERE, "calibration.json")     # INPUT - measured up-rate per decile
-FACTORS = ["momentum", "growth", "value", "quality", "health"]
 
 
 def load_universe():
@@ -89,12 +89,6 @@ def p_win_for(s01, calib):
         return None
     return round(calib[min(9, max(0, int(s01 * 10)))], 3)
 
-# one weight set per risk profile (AHP survey will replace these numbers)
-PROFILES = {
-    "conservative": {"quality": .40, "health": .30, "value": .20, "momentum": .05, "growth": .05},
-    "balanced":     {"quality": .28, "value": .24, "momentum": .20, "health": .16, "growth": .12},
-    "aggressive":   {"momentum": .40, "growth": .30, "value": .15, "quality": .10, "health": .05},
-}
 
 
 def main():
@@ -120,7 +114,6 @@ def main():
         rows[t] = dict(
             momentum=s.iloc[-1] / s.iloc[-126] - 1,
             growth=s.iloc[-1] / s.iloc[max(0, len(s) - 252)] - 1,
-            value=-(s.iloc[-1] / s.tail(200).mean() - 1),
             quality=-s.pct_change().tail(252).std() * np.sqrt(252),
             health=(s.tail(252) / s.tail(252).cummax() - 1).min(),
             last=round(float(s.iloc[-1]), 2),
