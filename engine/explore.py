@@ -80,7 +80,6 @@ def adj_month(mpx, rets, meta, i):
             continue
         eq = s.iloc[-12:]
         rows[t] = dict(momentum=s.iloc[-1] / s.iloc[-7] - 1, growth=s.iloc[-1] / s.iloc[-13] - 1,
-                       value=-(s.iloc[-1] / s.iloc[-11:].mean() - 1),
                        quality=-r12.std() * np.sqrt(12),
                        health=(eq / eq.cummax() - 1).min(), sector=meta[t])
     if len(rows) < 10:

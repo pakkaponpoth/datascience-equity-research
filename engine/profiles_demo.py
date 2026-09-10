@@ -28,7 +28,7 @@ for t in tickers:
     dvol = s.pct_change().tail(252).std()
     eq = s.tail(252)
     rows[t] = dict(momentum=s.iloc[-1] / s.iloc[-126] - 1, growth=s.iloc[-1] / s.iloc[max(0, len(s)-252)] - 1,
-                   value=-(s.iloc[-1] / s.tail(200).mean() - 1), quality=-dvol*np.sqrt(252),
+                   quality=-dvol*np.sqrt(252),
                    health=(eq/eq.cummax()-1).min(), sector=meta[t]["sector"],
                    risk=-int(round(min(max(1.645*dvol*np.sqrt(21)*100, 6), 35))))
 df = pd.DataFrame(rows).T

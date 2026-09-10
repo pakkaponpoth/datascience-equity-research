@@ -22,8 +22,8 @@ It's a **Data Science class project → educational, NOT investment advice.**
 
 ```
   📥 COLLECT        ⚙️ SCORE          🎚️ 3 ENGINES        📄 today.json        🌐 WEBSITE
-  daily prices  →   5 factors     →   safe / balanced  →  ranked lists    →   shows 4 plain
-  for ~92 SET       per stock,        / bold (different    saved to a file     sentences per
+  daily prices  →   4 factors     →   safe / balanced  →  ranked lists    →   shows 4 plain
+  for 95 SET        per stock,        / bold (different    saved to a file     sentences per
   stocks (Yahoo)    fair by sector    weightings)          (precomputed)       stock; quiz picks
                                                                                your engine
 ```

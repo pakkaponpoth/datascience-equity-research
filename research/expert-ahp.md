@@ -25,7 +25,7 @@
 
 ## Why we are asking / ทำไมเราถึงขอความเห็นคุณ
 
-SETScout scores SET100 stocks on five factors. **The weights are currently our
+SETScout scores SET100 stocks on four factors. **The weights are currently our
 own guesses with no evidence behind them** — nobody has measured that "quality"
 should be 40% rather than 35% for a cautious investor. This survey replaces
 guesses with judgement from people who know the market.

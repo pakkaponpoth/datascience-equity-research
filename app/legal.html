@@ -28,7 +28,7 @@
   .brand{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:26px}
   .logo{font-size:20px;font-weight:800;letter-spacing:-.02em;text-decoration:none;color:var(--ink)}
   .logo b{color:var(--accent)}
-  .back{font-size:13px;font-weight:700;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 11px;text-decoration:none}
+  .back{font-size:13px;font-weight:700;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:0 14px;min-height:42px;display:inline-flex;align-items:center;text-decoration:none}
   .back:hover{border-color:var(--faint)}
   h1{font-size:clamp(22px,4.5vw,30px);font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
   .upd{font-size:13px;color:var(--faint);margin-bottom:26px}
@@ -40,9 +40,11 @@
   ul{margin:10px 0 10px 20px;font-size:15px}
   li{margin:6px 0}
   .box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:18px 0}
-  .box.warn{border-left:3px solid var(--wait)}
-  .box.stop{border-left:3px solid var(--avoid)}
-  .box.ok{border-left:3px solid var(--buy)}
+  /* full border + tint instead of a side stripe; the coloured .k label
+     already names the severity, so the bar was redundant */
+  .box.warn{border-color:var(--wait);background:var(--waitb)}
+  .box.stop{border-color:var(--avoid);background:var(--avoidb)}
+  .box.ok{border-color:var(--buy);background:var(--buyb)}
   .k{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:6px}
   .box.warn .k{color:var(--wait)} .box.stop .k{color:var(--avoid)} .box.ok .k{color:var(--buy)}
   table{border-collapse:collapse;width:100%;font-size:14px;margin:16px 0;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
@@ -55,6 +57,20 @@
   .toc a{display:block;padding:3px 0;font-size:14.5px;text-decoration:none;color:var(--muted)}
   .toc a:hover{color:var(--ink)}
   .foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);text-align:center;font-size:12px;color:var(--faint);line-height:1.8}
+  /* Keyboard focus was invisible on this page. Every interactive element now
+     shows a ring, and only for keyboard users so mouse clicks stay clean. */
+  :where(button,a,select,input,[tabindex]):focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px;border-radius:8px;
+  }
+
+  /* legal.html had no responsive breakpoint at all */
+  @media(max-width:600px){
+    .wrap{padding:0 2px}
+    h1{font-size:22px}
+    table{font-size:13px}
+    th,td{padding:8px 10px}
+    .toc a{padding:8px 0}
+  }
 </style>
 </head>
 <body>
@@ -65,6 +81,7 @@
     <a class="back" href="index.html">&larr; กลับหน้าหลัก / Back</a>
   </div>
 
+  <main id="content">
   <h1>ข้อกำหนดการใช้งานและความเป็นส่วนตัว</h1>
   <p class="th" style="font-size:17px;margin-top:-2px">Terms of Use &amp; Privacy</p>
   <p class="upd">ปรับปรุงล่าสุด 1 กันยายน 2569 · Last updated 1 September 2026</p>
@@ -128,7 +145,7 @@
   <div class="box">
     <span class="k">ข้อจำกัดที่ต้องรู้ · Known limitations</span>
     <ul>
-      <li>ปัจจัยทั้ง 5 คำนวณจาก<strong>ราคาเท่านั้น</strong> ไม่ได้ใช้งบการเงิน กำไร หรือหนี้สิน &middot; All five factors come from price alone &mdash; no revenue, earnings or debt</li>
+      <li>ปัจจัยทั้ง 4 คำนวณจาก<strong>ราคาเท่านั้น</strong> ไม่ได้ใช้งบการเงิน กำไร หรือหนี้สิน &middot; All four factors come from price alone &mdash; no revenue, earnings or debt</li>
       <li>&ldquo;คุณภาพ&rdquo; = ความผันผวนต่ำ &middot; &ldquo;สุขภาพ&rdquo; = ขาดทุนสูงสุดน้อย &mdash; ไม่ใช่คุณภาพกำไรหรือฐานะการเงินจริง</li>
       <li>รายชื่อหุ้นที่ใช้ทดสอบคือหุ้นที่<strong>ยังอยู่ถึงวันนี้</strong> ทำให้ผลย้อนหลังดูดีเกินจริง (survivorship bias)</li>
       <li>น้ำหนักของแต่ละปัจจัยยัง<strong>ตั้งขึ้นเอง</strong> รอผลสำรวจผู้เชี่ยวชาญ &middot; Factor weights are still provisional</li>
@@ -245,6 +262,7 @@
   <a href="https://github.com/oksoimcodingnow/atlas/issues">GitHub Issues</a> ของโครงการ</p>
   <p class="th">Questions, corrections or data requests: open an issue on the project repository.</p>
 
+  </main>
   <div class="foot">
     <strong>SETScout</strong> &middot; Explainable Investment Decision Support &middot; SET100<br>
     เพื่อการศึกษาและงานวิจัยเท่านั้น ไม่ใช่คำแนะนำซื้อ/ขาย &middot; ผลย้อนหลังไม่รับประกันอนาคต<br>
