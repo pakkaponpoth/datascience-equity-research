@@ -85,7 +85,7 @@ do not have — so we measured it instead. Section 6 reports the size.
 
 ## 3. Method
 
-### 3.1 The five factors
+### 3.1 The four factors
 
 Each is computed from price alone. This is deliberate: price data exists for
 every listed stock with no gaps, whereas fundamentals are patchy for Thai
@@ -96,7 +96,6 @@ which we state plainly in Section 7.
 |---|---|---|
 | Momentum | `price / price 126 days ago − 1` | 6-month price change |
 | Growth | `price / price 252 days ago − 1` | 12-month price change |
-| Value | `−(price / 200-day average − 1)` | Cheapness vs its own recent average |
 | Quality | `−(std of daily returns × √252)` | Annualised volatility |
 | Health | `min(price / running peak − 1)` | Worst drawdown in one year |
 
@@ -125,14 +124,14 @@ market-wide.
 
 ### 3.3 Three risk profiles
 
-The same five factors are combined with three weight sets. A five-question quiz
+The same four factors are combined with three weight sets. A five-question quiz
 maps the user to one.
 
-| Profile | Momentum | Growth | Value | Quality | Health |
-|---|---|---|---|---|---|
-| Conservative | 5% | 5% | 20% | **40%** | **30%** |
-| Balanced | 20% | 12% | 24% | 28% | 16% |
-| Aggressive | **40%** | **30%** | 15% | 10% | 5% |
+| Profile | Momentum | Growth | Quality | Health |
+|---|---|---|---|---|
+| Conservative | 6% | 6% | **50%** | **38%** |
+| Balanced | 26% | 16% | 37% | 21% |
+| Aggressive | **47%** | **35%** | 12% | 6% |
 
 The composite is converted to a **percentile rank**, so a displayed score of 80
 means "top 20% of this list," not an absolute grade. Verdicts threshold that
@@ -148,14 +147,20 @@ outstanding work (Section 9).
 Taking PTT on 1 September 2026, sector-adjusted:
 
 ```
-momentum −0.63   growth −1.07   value +0.92   quality +1.70   health +1.25
+momentum −0.63   growth −1.07   quality +1.70   health +1.25
 ```
 
 | Profile | Weighted total | Rank |
 |---|---|---|
-| Conservative | +1.15 | **#1 of 95** |
-| Balanced | +0.64 | **#1 of 95** |
-| Aggressive | −0.20 | **#71 of 95** |
+| Conservative | +1.22 | *re-derive* |
+| Balanced | +0.56 | *re-derive* |
+| Aggressive | −0.39 | *re-derive* |
+
+> **Recomputed 2026-09-10 for four factors.** The weighted totals above follow
+> from the z-scores and weights already stated, so they are reproducible from
+> this page. The **ranks are not** — they depend on all 95 stocks' scores, so
+> they must be re-derived from a run of the four-factor engine before this
+> section is final. Under the five-factor model they were #1, #1 and #71.
 
 The same stock, the same day, ranks 1st or 71st depending only on the weights.
 GUNKUL — strong momentum, expensive, volatile — moves #65 → #1 in the other
@@ -163,7 +168,7 @@ direction.
 
 This makes the system's nature explicit: **it holds no view on which stocks will
 rise.** It has one opinion, about which *kind* of stock suits a given investor,
-and expresses it by re-weighting five fixed numbers.
+and expresses it by re-weighting four fixed numbers.
 
 ---
 

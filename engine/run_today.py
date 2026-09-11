@@ -16,10 +16,12 @@ calibration.json (written by backtest.py). It is flat at roughly 47% across
 every decile - the score does not predict direction - and the app must say so.
 If calibration.json is missing, p_win is emitted as null rather than invented.
 
-v1 factors are PRICE-BASED proxies (honest, always available):
+The four factors are PRICE-BASED proxies (honest, always available):
   momentum = 6-month return · growth = 12-month return ·
-  value = cheapness vs 200-day avg · quality = low volatility ·
-  health = small max-drawdown.
+  quality = low volatility · health = small max-drawdown.
+A fifth, "value" (cheapness vs the 200-day average), was removed 2026-09-09:
+it correlated -0.93 with momentum, so it was that factor negated rather than a
+separate one. See research/factors.py for the full reasoning.
 v2 upgrade = real fundamentals (P/E, ROE, earnings growth).
 
 Scoring (less biased): each factor is winsorized + z-scored, then

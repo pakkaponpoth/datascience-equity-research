@@ -27,13 +27,13 @@ It does **NOT** answer "what will the price be" or "should I buy." That distinct
 COLLECT → SCORE (the filter) → 3 ENGINES → today.json → WEBSITE
 ```
 
-**① Collect.** Every run, we download ~2 years of daily prices for ~92 SET100 stocks from Yahoo Finance
+**① Collect.** Every run, we download ~2 years of daily prices for 95 SET100 stocks from Yahoo Finance
 (`yfinance`). Free, real data.
 
-**② Score (the "filter").** For each stock we compute **5 factors** (below), turn them into fair scores, and rank.
+**② Score (the "filter").** For each stock we compute **4 factors** (below), turn them into fair scores, and rank.
 This is the core "screener."
 
-**③ 3 engines.** The same 5 factors are combined with **three different weightings** — one per risk appetite
+**③ 3 engines.** The same 4 factors are combined with **three different weightings** — one per risk appetite
 (conservative / balanced / aggressive). Each produces its own ranked list.
 
 **④ today.json.** All three lists are written to one file. The engine runs **ahead of time** (batch precompute),
@@ -47,7 +47,7 @@ which engine's list you see.
 
 ---
 
-## 3. The 5 factors (what the score is made of)
+## 3. The 4 factors (what the score is made of)
 
 Each is computed from **price history** (v1 uses price-based proxies; real fundamentals like P/E are the v2 upgrade):
 
@@ -55,7 +55,6 @@ Each is computed from **price history** (v1 uses price-based proxies; real funda
 |---|---|---|
 | 📈 **Momentum** | Is it going up lately? | 6-month return |
 | 🌱 **Growth** | Longer up-trend? | 12-month return |
-| ⚖️ **Value** | Is it "cheap" vs itself? | price below its own 200-day average (mean-reversion) |
 | 🛡️ **Quality** | Is it calm, not wild? | low volatility |
 | ❤️ **Health** | Does it survive bad markets? | small max-drawdown |
 
@@ -77,9 +76,9 @@ recommender**: user profile → matching model.
 
 | Engine | Weights (biggest first) | Character |
 |---|---|---|
-| 🛡️ **Conservative** | quality 40 · health 30 · value 20 · mom 5 · growth 5 | calm, lower-risk names |
-| ⚖️ **Balanced** | quality 28 · value 24 · mom 20 · health 16 · growth 12 | the middle default |
-| 🚀 **Aggressive** | mom 40 · growth 30 · value 15 · quality 10 · health 5 | bold, high-momentum names |
+| 🛡️ **Conservative** | quality 50 · health 38 · mom 6 · growth 6 | calm, lower-risk names |
+| ⚖️ **Balanced** | quality 37 · mom 26 · health 21 · growth 16 | the middle default |
+| 🚀 **Aggressive** | mom 47 · growth 35 · quality 12 · health 6 | bold, high-momentum names |
 
 > The weights are **placeholders** for now. They'll be replaced by real numbers from the **AHP expert survey**
 > (see `research/expert-ahp.md`) — that's how our primary data feeds the model.

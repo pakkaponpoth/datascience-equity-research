@@ -16,7 +16,7 @@
   .sub{color:var(--muted);font-size:15px;margin-top:6px;max-width:680px;}
   .th{font-family:'Noto Sans Thai',sans-serif;color:var(--faint);font-size:13.5px;margin-top:4px;}
   .tag{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:700;margin:40px 0 14px;border-bottom:1px solid var(--rule);padding-bottom:7px;}
-  .lead{background:linear-gradient(90deg,rgba(184,192,255,.10),transparent);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:16px 18px;font-size:15px;}
+  .lead{background:rgba(184,192,255,.08);border:1px solid rgba(184,192,255,.28);border-radius:12px;padding:16px 18px;font-size:15px;}
   .lead b{color:var(--accent);}
   p{font-size:14px;color:var(--muted);margin-top:10px;} p b{color:var(--text);}
   .card{background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:15px 17px;}
@@ -49,7 +49,7 @@
   th{color:var(--faint);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;}
   td.n,th.n{font-family:var(--mono);text-align:right;}
   .rails{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-top:12px;}
-  .rail{background:var(--panel);border:1px solid var(--rule);border-left:3px solid var(--gold);border-radius:12px;padding:12px 14px;font-size:12.5px;color:var(--muted);}
+  .rail{background:var(--panel);border:1px solid var(--gold);border-radius:12px;padding:12px 14px;font-size:12.5px;color:var(--muted);}
   .rail b{color:var(--gold);}
   .note{margin-top:14px;background:var(--panel2);border:1px dashed var(--rule);border-radius:12px;padding:13px 16px;font-size:12.5px;color:var(--muted);}
   .note b{color:var(--text);}
@@ -61,10 +61,23 @@
   .lk{font-size:12.5px;font-weight:600;color:var(--text);background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:9px 14px;text-decoration:none;}
   .lk:hover{border-color:var(--accent);}
   .foot{margin-top:44px;text-align:center;font-size:11.5px;color:var(--faint);line-height:1.7;}
+  /* Keyboard focus was invisible on this page. Every interactive element now
+     shows a ring, and only for keyboard users so mouse clicks stay clean. */
+  :where(button,a,select,input,[tabindex]):focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px;border-radius:8px;
+  }
+
+  /* one breakpoint was not enough for a page this dense */
+  @media(max-width:560px){
+    .pipe{flex-direction:column}
+    .arrow{transform:rotate(90deg);height:20px}
+    .lk{width:100%;justify-content:center;min-height:44px;display:inline-flex;align-items:center}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
+<main id="content">
   <h1>SET<span>Scout</span> — get up to speed</h1>
   <p class="sub">Joining today and know nothing yet? Start here. Read the 60-second version if you're curious; the detailed version if you're building.</p>
   <p class="th">เพิ่งเข้ามาวันนี้? อ่าน 60 วินาทีก่อนได้เลย · เวอร์ชันละเอียดอยู่ด้านล่าง</p>
@@ -73,15 +86,15 @@
   <div class="tag">⚡ The 60-second version</div>
   <div class="lead">
     <b>SETScout finds Thai stocks worth <u>researching</u> — and tells you the risk, honestly.</b>
-    It does <b>not</b> predict prices or tell you to buy. Every day it scores ~92 SET100 stocks on 5 simple
+    It does <b>not</b> predict prices or tell you to buy. Every day it scores 95 SET100 stocks on 5 simple
     factors, sorts them into <b>Worth a look 🟢 / Wait 🟡 / Not now 🔴</b>, and explains each in plain
     sentences with the risk in baht. It even admits when it can't beat the market — that honesty <i>is</i> the point.
   </div>
 
   <div class="pipe">
-    <div class="stage"><div class="n">1 · DATA</div><h3>📥 Collect</h3><p>Daily prices for ~92 SET100 stocks (Yahoo Finance).</p></div>
+    <div class="stage"><div class="n">1 · DATA</div><h3>📥 Collect</h3><p>Daily prices for 95 SET100 stocks (Yahoo Finance).</p></div>
     <div class="arrow">→</div>
-    <div class="stage"><div class="n">2 · FILTER</div><h3>⚙️ Score</h3><p>5 factors per stock, compared fairly within each sector.</p></div>
+    <div class="stage"><div class="n">2 · FILTER</div><h3>⚙️ Score</h3><p>4 factors per stock, compared fairly within each sector.</p></div>
     <div class="arrow">→</div>
     <div class="stage"><div class="n">3 · ENGINES</div><h3>🎚️ 3 profiles</h3><p>Same factors, 3 weightings: safe / balanced / bold.</p></div>
     <div class="arrow">→</div>
@@ -107,28 +120,31 @@
     <div class="card t"><h3>Trust label</h3><p>How much to trust it — honestly.</p><div class="ex">not a profit promise, tells risk</div></div>
   </div>
 
-  <div class="tag" style="margin-top:26px">The 5 factors (the “score”)</div>
+  <div class="tag" style="margin-top:26px">The 4 factors (the “score”)</div>
   <div class="grid">
     <div class="card"><h3><span class="e">📈</span> Momentum</h3><p>6-month return — is it going well?</p></div>
     <div class="card"><h3><span class="e">🌱</span> Growth</h3><p>12-month return — the longer trend.</p></div>
-    <div class="card"><h3><span class="e">⚖️</span> Value</h3><p>Cheap vs its own 200-day average.</p></div>
     <div class="card"><h3><span class="e">🛡️</span> Quality</h3><p>Low volatility — calm, not wild.</p></div>
     <div class="card"><h3><span class="e">❤️</span> Health</h3><p>Small max-drawdown — survives bad markets.</p></div>
   </div>
+  <div class="note">There used to be a fifth, <b>Value</b> (price vs its own 200-day average). We removed it
+    on 9 Sep 2026 after measuring that it correlated <b>&minus;0.93</b> with Momentum — it was that factor
+    with the sign flipped, not a separate one.
+    <span class="th">· เคยมีปัจจัยที่ 5 ชื่อ Value แต่ตัดออกแล้ว เพราะซ้ำกับโมเมนตัม</span></div>
   <div class="note">Each factor is <b>z-scored</b> (put on a fair 0-centred scale) and <b>sector-neutralized</b>
     — a stock is judged against <b>its own sector peers</b>, so one calm sector (like banks) can't sweep the top.
     <span class="th">· ให้คะแนนเทียบกับหุ้นในกลุ่มเดียวกัน</span></div>
 
   <div class="tag" style="margin-top:26px">The 3 engines (personalization)</div>
-  <p>Same 5 factors, <b>three weightings</b> — one per risk appetite. Your risk-quiz answer picks which list you see.
+  <p>Same 4 factors, <b>three weightings</b> — one per risk appetite. Your risk-quiz answer picks which list you see.
     This is a <b>personalized recommender</b>: user profile → matching model.</p>
   <div class="eng">
-    <div class="card c1"><h3>🛡️ Conservative</h3><div class="w">quality 40 · health 30 · value 20 · mom 5 · growth 5</div>
+    <div class="card c1"><h3>🛡️ Conservative</h3><div class="w">quality 50 · health 38 · mom 6 · growth 6</div>
       <div class="res">Calm, lower-risk picks. <span class="bad">Trails the market</span> — by design.</div></div>
-    <div class="card c2"><h3>⚖️ Balanced</h3><div class="w">quality 28 · value 24 · mom 20 · health 16 · growth 12</div>
+    <div class="card c2"><h3>⚖️ Balanced</h3><div class="w">quality 37 · mom 26 · health 21 · growth 16</div>
       <div class="res">The middle default. Also defensive-leaning.</div></div>
-    <div class="card c3"><h3>🚀 Aggressive</h3><div class="w">mom 40 · growth 30 · value 15 · quality 10 · health 5</div>
-      <div class="res"><span class="good">Beats buy-and-hold</span> at 1y/5y/10y — the momentum effect.</div></div>
+    <div class="card c3"><h3>🚀 Aggressive</h3><div class="w">mom 47 · growth 35 · quality 12 · health 6</div>
+      <div class="res">Higher raw return than the others, but <span class="bad">still no edge over buy-and-hold</span> once risk is accounted for.</div></div>
   </div>
 
   <div class="tag" style="margin-top:26px">The honest findings (from real backtests)</div>
@@ -182,6 +198,7 @@
     <a class="lk" href="../library/setscout-map.html">🗺️ System map</a>
   </div>
 
+  </main>
   <div class="foot"><b>SETScout</b> · Explainable Investment Decision Support · SET100<br>
     For education &amp; research only · not a buy/sell recommendation · past performance ≠ future results.</div>
 </div>
