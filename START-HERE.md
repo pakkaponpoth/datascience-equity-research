@@ -9,7 +9,7 @@
 
 > **SETScout finds Thai stocks worth *researching* — and tells you the risk, honestly.**
 
-It is **not** a robot that predicts prices or tells you to buy. Every day it looks at ~92 big Thai stocks (SET100),
+It is **not** a robot that predicts prices or tells you to buy. Every day it looks at 95 big Thai stocks (SET100),
 scores them on a few simple factors, sorts them into **Worth a look 🟢 / Wait 🟡 / Not now 🔴**, and explains each
 one in plain sentences *with the risk attached*. It's even honest enough to admit when it can't beat the market —
 **that honesty is the whole point.**
