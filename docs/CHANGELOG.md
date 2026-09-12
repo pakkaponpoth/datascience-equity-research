@@ -17,7 +17,8 @@
 | 11 Sep | **Every description of the engine updated to four factors** — `REPORT.md` §3.1/§3.3/§3.4, `HOW-IT-WORKS.md`, `START-HERE.md`, `CONTINUE.md`. | #3 |
 | 11 Sep | **`START-HERE.md` said "~92 stocks".** The universe has been **95** since the `universe.json` fix restored BANPU and corrected BGRIM2 → BCPG and ORIGIN → ORI (INTUCH retired into GULF). | #4 |
 | 13 Sep | **`HOW-IT-WORKS.md` still called `p_win` "a placeholder formula"** and listed wiring it under *Still to build* — two weeks after it was wired. Fixed, and logged as instance #5 of the failure mode below. | this entry |
-| 13 Sep | **`REPORT.md` §3.4 ranks re-derived** on the four-factor engine: PTT is **#1 conservative / #5 balanced / #77 aggressive** of 95 (five-factor: #1 / #1 / #71). New `engine/rederive_section34.py` reproduces them from `factors.py`. | this entry |
+| 13 Sep | **`REPORT.md` §3.4 ranks re-derived** on the four-factor engine: PTT is **#1 conservative / #5 balanced / #77 aggressive** of 95 (before value was removed: #1 / #1 / #71). New `engine/rederive_section34.py` reproduces them from `factors.py`. | this entry |
+| 13 Sep | **Outdated wording swept.** The site's search description still said "five transparent factors"; the REPORT abstract said five; §3.1 still explained negating Value; §7 still called balanced "barely distinguishable" from conservative. Re-measured on the four-factor engine (1 Sep 2026): balanced shares **7/10** of its top 10 with conservative (was 8/10) and **3/5** of its top 5 (was identical), against 3/10 with aggressive — no longer a copy, still leaning cautious. | this entry |
 
 ### Why balanced was broken
 

@@ -37,7 +37,7 @@ Five findings, all measured, all reproducible:
 - **No more engine work.** The stopping rule fired in July; the blind test confirmed it independently.
 - **Never re-run `blind_test.py` or `backtest_sizing.py`** after a model change. Pre-registered one-shots.
 - **Never quote**: sealed-period returns, +41.1% sealed B&H, full-window CAGR, +164% net 10y. Survivorship-inflated — **only 4 of 95 tickers had data in 1999**.
-- **Before adding anything**: does this duplicate a value that already exists? Four bugs so far were exactly that.
+- **Before adding anything**: does this duplicate a value that already exists? Five instances so far were exactly that — the tally is in `CONTINUE.md`.
 
 *(Run with the venv — the default `python` has no pandas:*
 `C:\Users\HOME\.venvs\quant-project\Scripts\python.exe run_today.py`*)*

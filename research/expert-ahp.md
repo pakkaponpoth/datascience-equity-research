@@ -201,7 +201,9 @@ Test the whole pipeline before any real response arrives:
 
 ### Changed from the earlier draft (1 Sep 2026)
 
-- **Six factors → five.** The earlier version asked about *Sentiment*, which the
+- **Six factors → four.** The 1 Sep draft had five; `value` was then removed from the
+  engine on 9 Sep because it was momentum negated, so the survey now covers four.
+  The earlier version also asked about *Sentiment*, which the
   engine does not compute, and defined Value as P/E, Quality as ROE and Health as
   D/E — none of which the engine computes either. Weights collected for P/E and
   ROE cannot be applied to volatility and drawdown. Question 3 above now asks

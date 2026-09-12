@@ -27,7 +27,7 @@ never wired in.
 Flat at ~47% across all ten deciles, with the **top decile the lowest**. The displayed
 number wasn't merely unvalidated — it was contradicted by our own file. *Fixed 30 Aug.*
 
-### 2. One of our five factors was another one negated
+### 2. One of our original five factors was another one negated
 `value` was price versus its own 200-day average. Across the universe that correlates
 **−0.93** with the 6-month return — 86% shared variance, regression beta **−1.00** on
 z-scores. Both formulas divide today's price by where the price used to be; the 200-day
