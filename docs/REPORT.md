@@ -10,7 +10,7 @@
 
 ## Abstract
 
-We built SETScout, a web tool that ranks ~95 Thai large-cap stocks on five
+We built SETScout, a web tool that ranks 95 Thai large-cap stocks on four
 price-based factors, adapts the ranking to a user's risk profile, and explains
 each recommendation in four plain sentences. We then asked the question most
 student projects skip: **does it actually work?**
@@ -99,9 +99,9 @@ which we state plainly in Section 7.
 | Quality | `−(std of daily returns × √252)` | Annualised volatility |
 | Health | `min(price / running peak − 1)` | Worst drawdown in one year |
 
-Two conventions worth noting. **Value and quality are negated** so that higher
-always means better — the raw quantities measure expensiveness and wildness
-respectively. **Health needs no negation** because drawdowns are already
+Two conventions worth noting. **Quality is negated** so that higher always
+means better — raw volatility measures wildness, and the calmer stock should
+score higher. **Health needs no negation** because drawdowns are already
 negative, so −8% correctly outranks −35%.
 
 The `√252` in quality converts a daily standard deviation to an annual one.
@@ -147,24 +147,28 @@ outstanding work (Section 9).
 Taking PTT on 1 September 2026, sector-adjusted:
 
 ```
-momentum −0.63   growth −1.07   quality +1.70   health +1.25
+momentum −0.67   growth −1.02   quality +1.69   health +1.25
 ```
 
-| Profile | Weighted total | Rank |
+| Profile | Weighted total | Rank of 95 |
 |---|---|---|
-| Conservative | +1.22 | *re-derive* |
-| Balanced | +0.56 | *re-derive* |
-| Aggressive | −0.39 | *re-derive* |
+| Conservative | +1.22 | **#1** |
+| Balanced | +0.55 | #5 |
+| Aggressive | −0.39 | #77 |
 
-> **Recomputed 2026-09-10 for four factors.** The weighted totals above follow
-> from the z-scores and weights already stated, so they are reproducible from
-> this page. The **ranks are not** — they depend on all 95 stocks' scores, so
-> they must be re-derived from a run of the four-factor engine before this
-> section is final. Under the five-factor model they were #1, #1 and #71.
+> **Re-derived 2026-09-13.** Produced by `engine/rederive_section34.py`, which reproduces
+> `run_today.py`'s pipeline exactly (126/252-day windows, ≥130 days of history, winsorised
+> z-scores, sector-neutralised where a sector has ≥3 names) on prices truncated at
+> 1 Sep 2026 — 95 of 95 stocks scored. The weighted totals also follow arithmetically from
+> the z-scores and weights on this page, so they are checkable by hand. Under the
+> **old model, before `value` was removed on 9 Sep,** these ranks were #1, #1 and #71: balanced agreed with conservative,
+> which is exactly what the value/momentum cancellation produced. Balanced now lands
+> mid-field at #5. The z-scores differ in the second decimal from the earlier write-up
+> because prices are dividend-adjusted and shift slightly on re-download.
 
-The same stock, the same day, ranks 1st or 71st depending only on the weights.
-GUNKUL — strong momentum, expensive, volatile — moves #65 → #1 in the other
-direction.
+The same stock, the same day, ranks **1st or 77th** depending only on the weights.
+GUNKUL — strong momentum and growth (+2.24, +2.75) but volatile — runs the other way:
+**#32 under conservative, #1 under both balanced and aggressive.**
 
 This makes the system's nature explicit: **it holds no view on which stocks will
 rise.** It has one opinion, about which *kind* of stock suits a given investor,
@@ -447,9 +451,15 @@ growth) is the clearest next improvement.
 look back 252 days, so a company that survived every crisis since 2008 but had
 one poor year scores below one that listed in 2024 and had a quiet ride.
 
-**Conservative and balanced are barely distinguishable.** Top-10 overlap is
-8/10, top-20 is 19/20, and they currently share an identical top five. Since the
-quiz routes most users to balanced, the middle profile does little work.
+**Balanced still leans toward conservative.** Under the original five-factor model
+the two were barely distinguishable — top-10 overlap 8/10, top-20 19/20, an
+identical top five — because value and momentum cancelled. Removing value fixed
+the worst of it. Measured on the four-factor engine at 1 Sep 2026, balanced shares
+7/10 of its top 10 and 13/20 of its top 20 with conservative, against 3/10 and 9/20
+with aggressive; conservative and aggressive share none of their top 10. Balanced
+now has its own top five (3 of 5 shared), but it sits nearer the cautious end
+because quality carries its largest weight (.37). Whether that is the right middle
+is exactly what the AHP survey should decide.
 
 **Survivorship bias is unfixable with our data**, as quantified above.
 

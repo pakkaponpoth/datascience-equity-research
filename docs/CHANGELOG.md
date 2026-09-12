@@ -4,6 +4,64 @@
 
 ---
 
+## 2026-09-13 — Four factors everywhere, and the docs caught up with the code
+
+**สรุปสั้น ๆ** ตัดปัจจัย `value` ออก เพราะมันคือ `momentum` กลับเครื่องหมาย (สหสัมพันธ์ −0.93) ทำให้โปรไฟล์ "สมดุล" กลายเป็น "ปลอดภัย" แฝงตัว จากนั้นไล่แก้เอกสารทุกที่ให้ตรงกับโค้ด (4 ปัจจัย, 95 หุ้น) และพบความผิดพลาดแบบเดิมเป็นครั้งที่ 5 — เอกสารยังเขียนว่า `p_win` เป็นสูตรสมมติ ทั้งที่ต่อกับค่าที่วัดจริงไปแล้ว
+
+### What changed
+
+| Date | Change | PR |
+|---|---|---|
+| 9 Sep | **`value` removed from the engine.** It correlated **−0.93** with `momentum` (86% shared variance, beta −1.00 on z-scores): momentum negated, not a fifth dimension. It was also misnamed — price vs its own 200-day average measures mean reversion, and real value needs an external anchor (earnings, book) a price-only engine does not have. | #2 |
+| 9 Sep | **Weights renormalised** over the four survivors: conservative ÷ .80, balanced ÷ .76, aggressive ÷ .85. Each profile still sums to 1.00, checked at import by `factors.check()`. | #2 |
+| 11 Sep | **Every description of the engine updated to four factors** — `REPORT.md` §3.1/§3.3/§3.4, `HOW-IT-WORKS.md`, `START-HERE.md`, `CONTINUE.md`. | #3 |
+| 11 Sep | **`START-HERE.md` said "~92 stocks".** The universe has been **95** since the `universe.json` fix restored BANPU and corrected BGRIM2 → BCPG and ORIGIN → ORI (INTUCH retired into GULF). | #4 |
+| 13 Sep | **`HOW-IT-WORKS.md` still called `p_win` "a placeholder formula"** and listed wiring it under *Still to build* — two weeks after it was wired. Fixed, and logged as instance #5 of the failure mode below. | this entry |
+| 13 Sep | **`REPORT.md` §3.4 ranks re-derived** on the four-factor engine: PTT is **#1 conservative / #5 balanced / #77 aggressive** of 95 (before value was removed: #1 / #1 / #71). New `engine/rederive_section34.py` reproduces them from `factors.py`. | this entry |
+| 13 Sep | **Outdated wording swept.** The site's search description still said "five transparent factors"; the REPORT abstract said five; §3.1 still explained negating Value; §7 still called balanced "barely distinguishable" from conservative. Re-measured on the four-factor engine (1 Sep 2026): balanced shares **7/10** of its top 10 with conservative (was 8/10) and **3/5** of its top 5 (was identical), against 3/10 with aggressive — no longer a copy, still leaning cautious. | this entry |
+
+### Why balanced was broken
+
+Because `value` outweighed `momentum` in the balanced profile (.24 vs .20), the two cancelled and
+value won the remainder. A strong riser with momentum z of +2 scored:
+
+```
+0.20 × (+2)  +  0.24 × (−2)  =  −0.08
+```
+
+Strong momentum erased, and pushed slightly negative. So "balanced" — the profile the quiz sends
+most users to — was **conservative wearing a different label**: 8 of its top 10 names shared with
+conservative, and **0.07** on a 0 = conservative → 1 = aggressive volatility scale.
+
+After removing value: **6/10** shared and **0.44** on that scale, and the realised 12-month returns
+finally form a ladder — conservative 2.1%, balanced 4.8%, aggressive 9.6%.
+
+Equal weights would **not** have fixed it: at .20 each, momentum and value cancel exactly and the
+remaining weight sits on two defensive factors. Orthogonalising was rejected too — with 86% shared
+variance the residual is mostly noise.
+
+### The failure mode, instance #5
+
+`CONTINUE.md` now counts **five** instances of one pattern: a value recorded in one place and never
+wired to the place that uses it. This one ran in the opposite direction — the code was fixed and the
+*document* was left behind, telling readers a number was fake when it had been real since 31 Aug.
+
+### Verify
+
+```bash
+cd engine && python -c "from factors import FACTORS, check; print(FACTORS); check()"
+#   ['momentum', 'growth', 'quality', 'health']   and no error (check() runs at import too)
+
+grep -rn "placeholder formula" docs/          # -> no match
+grep -rn "~92" START-HERE.md                  # -> no match
+python -c "import json;print(len(json.load(open('engine/universe.json'))['stocks']))"   # -> 95
+
+cd engine && python rederive_section34.py 2026-09-01 PTT.BK
+#   PTT.BK: conservative rank #1, balanced #5, aggressive #77 of 95
+```
+
+---
+
 ## 2026-08-31 (later) — Blind test: the aggressive edge does not replicate
 
 **สรุปสั้น ๆ** เราดูข้อมูลชุดเดิมมาแล้วประมาณ 15 รอบ แล้วเจอว่า aggressive ชนะ — ซึ่งเชื่อไม่ได้ เพราะเลือกผลที่สนใจ*หลัง*เห็นข้อมูลแล้ว จึงทำ blind test: เขียนเงื่อนไขตัดสินล่วงหน้า แล้วทดสอบบนช่วง 1999–2014 ที่ไม่เคยดูแยกมาก่อน **ผล: ไม่ replicate** (luck bar 81% ต่ำกว่าเกณฑ์ 90% ที่ตั้งไว้ก่อน และชนะแค่ 2/5 ช่วง)

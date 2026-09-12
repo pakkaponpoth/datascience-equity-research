@@ -27,7 +27,7 @@ never wired in.
 Flat at ~47% across all ten deciles, with the **top decile the lowest**. The displayed
 number wasn't merely unvalidated — it was contradicted by our own file. *Fixed 30 Aug.*
 
-### 2. One of our five factors was another one negated
+### 2. One of our original five factors was another one negated
 `value` was price versus its own 200-day average. Across the universe that correlates
 **−0.93** with the 6-month return — 86% shared variance, regression beta **−1.00** on
 z-scores. Both formulas divide today's price by where the price used to be; the 200-day
@@ -76,13 +76,14 @@ not protect in 2023 or 2024, and it missed the 2020 recovery by **29 points**.
 
 ## 🔁 The failure mode we keep repeating
 
-Four instances of the same thing — a value or intention recorded in one place and never
+Five instances of the same thing — a value or intention recorded in one place and never
 wired to the place that uses it:
 
 1. **`calibration.json`** — measured, documented, never read by the engine *(fixed)*
 2. **`ahp_analyze.py`'s bootstrap** — a whole docstring section explains why it matters. **The code was never written.** *(still missing)*
 3. **The factor definition** — copy-pasted into ten files, several labelled `# FROZEN - identical to run_today.py` while being nothing of the kind *(fixed: `research/factors.py`)*
 4. **`gen_today.js`** — a fourth copy of the engine in JavaScript, with stale weights and known-bad tickers *(deleted 9 Sep)*
+5. **`HOW-IT-WORKS.md`** — kept telling readers `p_win` was "a placeholder formula" and listed wiring it under **Still to build**, two weeks after it was wired *(fixed 13 Sep)*
 
 Noticing our own recurring failure mode is a stronger report finding than any single bug.
 **Before adding anything: does this duplicate a value that already exists somewhere?**

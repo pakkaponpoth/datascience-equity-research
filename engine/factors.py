@@ -11,7 +11,8 @@ scoring the old five-factor model, so every report in reports/ described
 software that no longer shipped. profiles_demo.py had drifted even earlier -
 its balanced weights (.25/.25/.20/.15/.15) never matched the engine at all.
 
-That is the third instance of one failure mode in this project:
+That is the third instance of one failure mode in this project (five by
+13 Sep 2026 - the running tally is in docs/CONTINUE.md):
 
   1. calibration.json was measured, documented, and never wired into run_today
   2. ahp_analyze.py's docstring promises a bootstrap that was never written

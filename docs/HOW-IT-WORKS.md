@@ -122,18 +122,20 @@ These are the tools that separate real signal from luck — and they're what mak
 - **No look-ahead** — every backtest scores using only past data, then measures the future. No cheating.
 - **Educational, not advice** — soft wording, disclaimers, non-commercial.
 
-> **What is `p_win`?** It's the "chance it works" number shown on each stock. Right now it's a placeholder
-> formula; wiring it to `calibration.json` makes it the *real* (honest ~47%) number.
+> **What is `p_win`?** It's the **measured** share of stocks in that score band that rose the following month,
+> read from `calibration.json` (84 months of history, flat at ~47%). It *was* an invented formula
+> (`0.44 + 0.22 × score`, shown as "Hit rate 66%") until 31 Aug 2026, when `run_today.py` was wired to the
+> measured file. If that file is missing, `p_win` is now emitted as `null` rather than guessed.
 
 ---
 
 ## 7. What's real vs. still to build
 
-**✅ Real now:** the scores, the verdicts, the risk numbers (VaR), the prices, the 3 engines, and the backtests
-(luck bar, calibration, hold-returns, costs).
+**✅ Real now:** the scores, the verdicts, the risk numbers (VaR), the prices, the 3 engines, the backtests
+(luck bar, calibration, hold-returns, costs), and `p_win` — which reads the measured ~47% from
+`calibration.json` (wired 31 Aug 2026, shipped in PR #1).
 
 **🔨 Still to build:**
-- Wire `calibration.json` into `run_today.py` so `p_win` is the real ~47% (not the placeholder formula).
 - **AHP survey** → real factor weights (replaces the placeholders). *Primary data — start early, it has lead time.*
 - **Investor survey** → validates the problem (also primary data).
 - **v2 fundamentals** — add P/E, ROE, earnings growth so factors aren't only price-based.

@@ -34,12 +34,12 @@ and the *highest-scoring* group was the **worst** at 44%.
 ✅ Fixed. The site now shows the measured number and says the score can't predict direction.
 ✅ แก้แล้ว ตอนนี้เว็บแสดงตัวเลขที่วัดจริง และบอกตรง ๆ ว่าคะแนนทำนายทิศทางไม่ได้
 
-### 2. Two of our five "different" measurements were the same thing 🔁
-We scored stocks on 5 things. Two of them — **"Value"** (cheap compared to its own average)
+### 2. Two of our original five "different" measurements were the same thing 🔁
+We used to score stocks on 5 things. Two of them — **"Value"** (cheap compared to its own average)
 and **"Momentum"** (went up recently) — turned out to be **the same number with a minus sign**.
 Correlation **−0.93**. A stock is "cheap" *because* it hasn't gone up.
 
-**เรามี 5 ปัจจัย แต่ 2 ตัวคือตัวเดียวกันแค่กลับเครื่องหมาย** ค่าสหสัมพันธ์ **−0.93**
+**เดิมเรามี 5 ปัจจัย แต่ 2 ตัวคือตัวเดียวกันแค่กลับเครื่องหมาย** ค่าสหสัมพันธ์ **−0.93**
 หุ้น "ถูก" ก็เพราะมันยังไม่ขึ้น นั่นแหละ
 
 That broke the **"Balanced"** option — the one most people get from the quiz.
@@ -47,8 +47,9 @@ It was giving almost the same stocks as **"Conservative"** (8 out of 10 identica
 
 ทำให้โปรไฟล์ **"สมดุล"** เสีย — ได้หุ้นเกือบเหมือน **"ปลอดภัย"** (ซ้ำกัน 8 จาก 10 ตัว)
 
-✅ Fixed. We deleted the duplicate. Now it's genuinely in the middle.
-✅ แก้แล้ว ลบตัวซ้ำออก ตอนนี้อยู่ตรงกลางจริง ๆ
+✅ Fixed. We deleted the duplicate, so SETScout now uses **4 factors**. Balanced has its own picks
+instead of copying Conservative — though it still leans a little cautious.
+✅ แก้แล้ว ลบตัวซ้ำออก ตอนนี้เหลือ **4 ปัจจัย** และโปรไฟล์สมดุลมีหุ้นของตัวเองแล้ว (แม้ยังเอียงไปทางปลอดภัยอยู่บ้าง)
 
 ### 3. Our picks do **not** beat just buying everything 📉
 We tested it many different ways — holding 6 months, 12 months, rebalancing every
