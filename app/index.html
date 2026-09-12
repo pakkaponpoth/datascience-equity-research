@@ -176,7 +176,7 @@
      riskCard:(r,w)=>`เสี่ยง <b>${r}%</b> · สูงสุด ${w} บาท/100`, empty:"ไม่มีหุ้นในกลุ่มนี้",
      dRisk:"ความเสี่ยง (เป็นบาท)",dWhy:"เพราะอะไร",dTrust:"เชื่อได้แค่ไหน",sScore:"อันดับ",sWin:"ราคาขึ้นในอดีต",sLast:"ราคาล่าสุด",
      riskS:(r,w)=>`เดือนแย่ ๆ ราคาอาจลงราว <b>${r}%</b> · จึงควรใส่ไม่เกิน <b>${w} บาท</b> ต่อทุก 100 บาท`,
-     bPfx:"เพราะ",bJoin:" และ ", trust:p=>p==null?`ยังไม่ได้วัดย้อนหลัง — ตัวเลขความมั่นใจจึงยังไม่แสดง`:`หุ้นที่ได้คะแนนระดับนี้ ราคาขึ้นในเดือนถัดไป <b>${p}%</b> ของครั้ง — วัดจริงจาก 84 เดือน และ<b>เท่ากันแทบทุกช่วงคะแนน</b> · แปลว่าคะแนนนี้<b>ไม่ได้ทำนายทิศทาง</b> ใช้เป็นรายชื่อไว้ไปศึกษาต่อ ไม่ใช่คำพยากรณ์`,
+     bPfx:"เพราะ",bJoin:" และ ", trust:p=>p==null?`ยังไม่ได้วัดย้อนหลัง — ตัวเลขความมั่นใจจึงยังไม่แสดง`:`หุ้นที่ได้คะแนนระดับนี้ ราคาขึ้นในเดือนถัดไป <b>${p}%</b> ของครั้ง — วัดจริงจาก ${calMonths()} เดือน และ<b>เท่ากันแทบทุกช่วงคะแนน</b> · แปลว่าคะแนนนี้<b>ไม่ได้ทำนายทิศทาง</b> ใช้เป็นรายชื่อไว้ไปศึกษาต่อ ไม่ใช่คำพยากรณ์`,
      forYou:(l,w)=>`สำหรับคุณ (${l}): ควรใส่ไม่เกิน <b>${w} บาท</b> ต่อ 100`,
      pbtn:"ปรับให้เหมาะกับฉัน", banner:l=>`ปรับรายการให้เหมาะกับความเสี่ยงของคุณแล้ว · <b>${l}</b>`, redo:"ทำใหม่", clear:"ล้าง",
      disc:'SETScout ชี้ให้ไป “ศึกษาต่อ” ไม่ได้บอกให้ซื้อ/ขาย',
@@ -207,7 +207,7 @@
      riskCard:(r,w)=>`risk <b>${r}%</b> · max ฿${w}/100`, empty:"No stocks in this group",
      dRisk:"Risk (in baht)",dWhy:"Why",dTrust:"How much to trust",sScore:"Rank",sWin:"Past up-rate",sLast:"Last price",
      riskS:(r,w)=>`A normal-bad month could drop ~<b>${r}%</b> · so put at most <b>฿${w}</b> of every 100`,
-     bPfx:"Because ",bJoin:" and ", trust:p=>p==null?`Not yet measured — no confidence figure is shown`:`Stocks scoring like this rose the next month <b>${p}%</b> of the time — measured over 84 months, and <b>the same across almost every score band</b>. So the score <b>does not predict direction</b>: treat it as a shortlist to research, not a forecast.`,
+     bPfx:"Because ",bJoin:" and ", trust:p=>p==null?`Not yet measured — no confidence figure is shown`:`Stocks scoring like this rose the next month <b>${p}%</b> of the time — measured over ${calMonths()} months, and <b>the same across almost every score band</b>. So the score <b>does not predict direction</b>: treat it as a shortlist to research, not a forecast.`,
      forYou:(l,w)=>`For you (${l}): put at most <b>฿${w}</b> per 100`,
      pbtn:"Personalize", banner:l=>`Ranked & sized to your risk comfort · <b>${l}</b>`, redo:"Redo", clear:"Clear",
      disc:'SETScout points you to “research,” it does not tell you to buy/sell',
@@ -234,6 +234,8 @@
   let theme = localStorage.getItem('ss_theme')||'light';
   let risk = null; try{risk=JSON.parse(localStorage.getItem('ss_risk'))}catch{}
   let filter='ALL', sector='ALL', DATA=null;
+  // months behind the measured up-rate - read from the data, so the label cannot go stale
+  const calMonths=()=>(DATA&&DATA.calibration&&DATA.calibration.months)||'?';
   const tr=()=>T[lang];
 
   function applyTheme(){ document.documentElement.setAttribute('data-theme',theme); $('#themeBtn').textContent=theme==='light'?'🌙':'☀️'; }

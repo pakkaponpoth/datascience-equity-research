@@ -123,7 +123,7 @@ These are the tools that separate real signal from luck — and they're what mak
 - **Educational, not advice** — soft wording, disclaimers, non-commercial.
 
 > **What is `p_win`?** It's the **measured** share of stocks in that score band that rose the following month,
-> read from `calibration.json` (84 months of history, flat at ~47%). It *was* an invented formula
+> read from `calibration.json` (83 complete months of history, flat at ~47%). It *was* an invented formula
 > (`0.44 + 0.22 × score`, shown as "Hit rate 66%") until 31 Aug 2026, when `run_today.py` was wired to the
 > measured file. If that file is missing, `p_win` is now emitted as `null` rather than guessed.
 

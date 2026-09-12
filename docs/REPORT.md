@@ -17,7 +17,7 @@ student projects skip: **does it actually work?**
 
 The answer is no, and establishing that carefully is the contribution.
 
-Across 84 months of point-in-time backtesting, a stock's score has **no
+Across 83 months of point-in-time backtesting, a stock's score has **no
 relationship to whether it rises**: the measured up-rate is flat at roughly
 47% across all ten score deciles. Buying the top 20% and holding trails simply
 buying everything, and beats **0%** of randomly-selected portfolios. When one
@@ -187,7 +187,7 @@ delivered as four fixed sentences:
 | **Verdict** | ✅ Worth a look |
 | **Risk, in baht** | "A normal-bad month could drop ~9%, so put at most ฿30 of every 100" |
 | **Because** | "Strong, stable earnings and a solid balance sheet" |
-| **Trust label** | "Stocks scoring like this rose the next month 44% of the time — measured over 84 months, and the same across almost every score band" |
+| **Trust label** | "Stocks scoring like this rose the next month 47% of the time — measured over 83 months, and the same across almost every score band" |
 
 Risk uses a monthly Value-at-Risk, `1.645 × σ_daily × √21`, clamped to 6–35%,
 converted into a suggested maximum position size.
@@ -212,16 +212,24 @@ Any strategy looks good in a rising market; the luck bar asks whether it beat
 
 ### 5.1 Does the score predict direction? — `backtest.py`
 
-For every stock in every month across 84 months (7,398 observations, 703–791
-per decile), we recorded its score and whether it rose the following month.
+For every stock in every month across 83 complete months (Sep 2019 – Aug 2026;
+7,319 observations, 696–783 per decile), we recorded its score and whether it rose
+the following month.
 Scores here use the **balanced** weights, which `backtest.py` hard-codes.
 
 | Score decile | 0–10 | 10–20 | 20–30 | 30–40 | 40–50 | 50–60 | 60–70 | 70–80 | 80–90 | **90–100** |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Up-rate | 46.1% | 50.4% | 47.6% | 46.1% | 48.7% | 48.2% | 48.4% | 44.9% | 47.1% | **44.2%** |
+| Up-rate | 43.5% | 52.5% | 46.8% | 48.1% | 47.3% | 48.7% | 48.0% | 43.8% | 47.3% | **47.0%** |
 
-**Flat.** Every decile sits between 44% and 50% around a base rate of 47.2%,
-with no gradient — and the top decile is the lowest of the ten.
+**Flat.** Every decile sits between 43.5% and 52.5% around a base rate of 47.3%.
+A Cochran–Armitage test for a trend from low to high scores finds none
+(z = −0.62, p = 0.53). As a group the deciles differ only borderline
+(χ² = 16.4, df = 9, p ≈ 0.06), and in no order — 10–20 sits highest, 0–10 lowest.
+
+> **Re-measured 13 Sep 2026** on the four-factor engine. `backtest.py` now drops the
+> unfinished current month, so the result no longer depends on the day it is run.
+> The first measurement (31 Aug, five-factor model) had the top decile lowest at 44.2%;
+> that ordering was noise and did not survive re-measurement. The flat line did.
 
 A sub-50% base rate is normal, not a failure: monthly stock returns are
 right-skewed, so a stock is slightly more often down than up. **The finding is

@@ -21,10 +21,12 @@ never wired in.
 
 | Score decile | 0–10 | 30–40 | 60–70 | 90–100 |
 |---|---|---|---|---|
-| **Measured up-rate** | 46.1% | 46.1% | 48.4% | **44.2%** |
+| **Measured up-rate** | 43.5% | 48.1% | 48.0% | **47.0%** |
 | **What the app showed** | 44–46% | 51–53% | 57–59% | **64–66%** |
 
-Flat at ~47% across all ten deciles, with the **top decile the lowest**. The displayed
+Flat at ~47% across all ten deciles, with **no trend** from low to high scores (p = 0.53).
+*(Re-measured 13 Sep on four factors. The 31 Aug five-factor run had the top decile lowest at
+44.2% — noise that did not survive re-measurement.)* The displayed
 number wasn't merely unvalidated — it was contradicted by our own file. *Fixed 30 Aug.*
 
 ### 2. One of our original five factors was another one negated
