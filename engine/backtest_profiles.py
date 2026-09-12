@@ -13,8 +13,6 @@ from factors import FACTORS as FACT, PROFILES   # single source of truth
 capture("backtest_profiles", "Profile comparison - do the 3 risk profiles actually differ?",
         {"rebalance": "12-month hold, point-in-time", "measures": "return AND realized volatility"})
 
-# scripts live in research/, but the data and reports live one level up
-HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 meta, _uni_src = load_universe()
 tickers = list(meta)
 print(f"universe: {len(tickers)} tickers from {_uni_src}")

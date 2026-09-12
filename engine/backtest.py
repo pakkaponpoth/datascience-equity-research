@@ -19,8 +19,8 @@ W = PROFILES["balanced"]
 capture("backtest", "Monthly rotation backtest - the honesty check",
         {"rebalance": "monthly, buy top 20%", "history": "~8y monthly", "luck bar": "300 random portfolios", "outputs": "calibration.json (score decile -> real up-rate)"})
 
-# scripts live in research/, but the data and reports live one level up
-HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# universe.json / calibration.json folder - see paths.py
+from paths import DATA
 meta, _uni_src = load_universe()
 tickers = list(meta)
 print(f"universe: {len(tickers)} tickers from {_uni_src}")
@@ -113,5 +113,5 @@ for b, row in tbl.iterrows():
     print(f"  score {b*10:>2}-{b*10+10:<3}: won {row['mean']*100:4.0f}%   (n={int(row['count'])})")
 mapping = {int(b): round(float(r["mean"]), 3) for b, r in tbl.iterrows()}
 json.dump({"by_decile": mapping, "months": n_mo, "generated": str(pd.Timestamp.today().date())},
-          open(os.path.join(HERE, "calibration.json"), "w"), indent=1)
+          open(os.path.join(DATA, "calibration.json"), "w"), indent=1)
 print("\nwrote calibration.json  (run_today.py can read this for a REAL p_win)")

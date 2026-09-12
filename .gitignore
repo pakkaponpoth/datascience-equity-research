@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# explore.py price caches (written beside universe.json)
+.price_cache.csv
+.index_cache.csv
