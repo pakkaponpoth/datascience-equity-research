@@ -17,8 +17,6 @@ W = PROFILES["balanced"]
 capture("backtest_hold", "Hold test - buy the picks and hold (the fair test)",
         {"rebalance": "none - buy and hold", "horizons": "6 and 12 months", "history": "~8y monthly", "why": "matches how users actually behave, not monthly churn"})
 
-# scripts live in research/, but the data and reports live one level up
-HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 meta, _uni_src = load_universe()
 tickers = list(meta)
 print(f"universe: {len(tickers)} tickers from {_uni_src}")

@@ -34,7 +34,7 @@ import yfinance as yf
 from factors import FACTORS as FACT, PROFILES   # single source of truth
 
 # scripts live in research/, but the data and reports live one level up
-HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from paths import DATA as HERE   # data folder - see paths.py
 CACHE = os.path.join(HERE, ".price_cache.csv")
 IDX_CACHE = os.path.join(HERE, ".index_cache.csv")
 H = 12
