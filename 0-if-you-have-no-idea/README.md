@@ -26,10 +26,10 @@ It showed **"Hit rate 66%"** — as if the top stocks went up 66% of the time.
 That number was never measured. A formula invented it: `0.44 + 0.22 × score`.
 
 When we actually measured it, every group of stocks went up about **47%** of the time —
-and the *highest-scoring* group was the **worst** at 44%.
+and the *highest-scoring* group did **no better** than the lowest.
 
 **เว็บเราเคยขึ้นว่า "โอกาสเข้าทาง 66%" ทั้งที่ไม่เคยวัดจริง** เป็นแค่สูตรที่เราแต่งขึ้นเอง
-พอวัดจริง ทุกกลุ่มขึ้นประมาณ **47%** เท่ากันหมด และกลุ่มคะแนนสูงสุดกลับ **แย่ที่สุด**
+พอวัดจริง ทุกกลุ่มขึ้นประมาณ **47%** เท่ากันหมด และกลุ่มคะแนนสูงสุดก็ **ไม่ได้ดีกว่า** กลุ่มคะแนนต่ำสุดเลย
 
 ✅ Fixed. The site now shows the measured number and says the score can't predict direction.
 ✅ แก้แล้ว ตอนนี้เว็บแสดงตัวเลขที่วัดจริง และบอกตรง ๆ ว่าคะแนนทำนายทิศทางไม่ได้

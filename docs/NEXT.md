@@ -7,7 +7,7 @@
 
 Five findings, all measured, all reproducible:
 
-1. **`p_win` was invented** — `0.44 + 0.22 × score`, shown as "Hit rate 66%". Measured up-rate is **flat ~47%** across every decile, top decile the *lowest*. *(fixed)*
+1. **`p_win` was invented** — `0.44 + 0.22 × score`, shown as "Hit rate 66%". Measured up-rate is **flat ~47%** across every decile, with no trend from low to high scores (p = 0.53). *(fixed)*
 2. **`value` was momentum negated** — correlation **−0.93**, beta **−1.00**. "Balanced" was conservative in disguise: 8/10 shared names, 0.07 on a 0→1 scale. Now 6/10 and **0.44**. *(fixed)*
 3. **Nothing beats buy-and-hold** — not raw, not risk-adjusted (`ret/vol` 0.04–0.06 vs B&H 0.06), not at any of five rebalancing frequencies.
 4. **The score doesn't predict direction** — quintile up-rates 47 / 54 / 48 / 50 / 48. Flat.

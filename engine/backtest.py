@@ -30,6 +30,11 @@ np.random.seed(7)
 print(f"{len(tickers)} tickers - fetching ~8y monthly prices...")
 px = yf.download(tickers, period="8y", auto_adjust=True, progress=False)["Close"].dropna(how="all")
 mpx = px.resample("ME").last()
+# A month that has not ended is not a month. Without this, running on the 13th
+# scores August against a 13-day "September" return, so calibration.json and
+# every figure below would depend on the day of the month the script was run.
+if mpx.index[-1] > pd.Timestamp.today().normalize():
+    mpx = mpx.iloc[:-1]
 rets = mpx.pct_change(fill_method=None)
 
 
