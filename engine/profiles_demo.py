@@ -11,7 +11,7 @@ from factors import FACTORS as FACT, PROFILES as _P
 PROFILES = {k.capitalize(): v for k, v in _P.items()}
 
 # scripts live in research/, but the data and reports live one level up
-HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from paths import DATA as HERE   # data folder - see paths.py
 uni = json.load(open(os.path.join(HERE, "today.json"), encoding="utf-8"))
 meta = {s["ticker"]: {"name": s["name"], "sector": s["sector"]} for s in uni["stocks"]}
 tickers = list(meta)

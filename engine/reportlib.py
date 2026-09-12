@@ -20,9 +20,8 @@ import datetime
 import os
 import sys
 
-# scripts live in research/, but the data and reports live one level up
-HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-REPORTS = os.path.join(HERE, "reports")
+# data and reports can sit in different folders depending on the layout - see paths.py
+from paths import DATA, REPORTS
 
 
 class _Tee:
@@ -115,7 +114,7 @@ def load_universe():
     import json
     for name in ("universe.json", "today.json"):
         try:
-            u = json.load(open(os.path.join(HERE, name), encoding="utf-8"))
+            u = json.load(open(os.path.join(DATA, name), encoding="utf-8"))
             return {s["ticker"]: s["sector"] for s in u["stocks"]}, name
         except OSError:
             continue

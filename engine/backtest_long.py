@@ -14,8 +14,6 @@ from factors import FACTORS as FACT, PROFILES   # single source of truth
 capture("backtest_long", "Long-horizon backtest - 5y and 10y per profile",
         {"rebalance": "yearly, top 20% per profile", "horizons": "5y, 10y, full window", "caveat": "universe = today's survivors, so old returns are inflated"})
 
-# scripts live in research/, but the data and reports live one level up
-HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 meta, _uni_src = load_universe()
 tickers = list(meta)
 print(f"universe: {len(tickers)} tickers from {_uni_src}")
