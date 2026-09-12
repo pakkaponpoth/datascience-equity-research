@@ -76,13 +76,14 @@ not protect in 2023 or 2024, and it missed the 2020 recovery by **29 points**.
 
 ## 🔁 The failure mode we keep repeating
 
-Four instances of the same thing — a value or intention recorded in one place and never
+Five instances of the same thing — a value or intention recorded in one place and never
 wired to the place that uses it:
 
 1. **`calibration.json`** — measured, documented, never read by the engine *(fixed)*
 2. **`ahp_analyze.py`'s bootstrap** — a whole docstring section explains why it matters. **The code was never written.** *(still missing)*
 3. **The factor definition** — copy-pasted into ten files, several labelled `# FROZEN - identical to run_today.py` while being nothing of the kind *(fixed: `research/factors.py`)*
 4. **`gen_today.js`** — a fourth copy of the engine in JavaScript, with stale weights and known-bad tickers *(deleted 9 Sep)*
+5. **`HOW-IT-WORKS.md`** — kept telling readers `p_win` was "a placeholder formula" and listed wiring it under **Still to build**, two weeks after it was wired *(fixed 13 Sep)*
 
 Noticing our own recurring failure mode is a stronger report finding than any single bug.
 **Before adding anything: does this duplicate a value that already exists somewhere?**

@@ -147,24 +147,28 @@ outstanding work (Section 9).
 Taking PTT on 1 September 2026, sector-adjusted:
 
 ```
-momentum −0.63   growth −1.07   quality +1.70   health +1.25
+momentum −0.67   growth −1.02   quality +1.69   health +1.25
 ```
 
-| Profile | Weighted total | Rank |
+| Profile | Weighted total | Rank of 95 |
 |---|---|---|
-| Conservative | +1.22 | *re-derive* |
-| Balanced | +0.56 | *re-derive* |
-| Aggressive | −0.39 | *re-derive* |
+| Conservative | +1.22 | **#1** |
+| Balanced | +0.55 | #5 |
+| Aggressive | −0.39 | #77 |
 
-> **Recomputed 2026-09-10 for four factors.** The weighted totals above follow
-> from the z-scores and weights already stated, so they are reproducible from
-> this page. The **ranks are not** — they depend on all 95 stocks' scores, so
-> they must be re-derived from a run of the four-factor engine before this
-> section is final. Under the five-factor model they were #1, #1 and #71.
+> **Re-derived 2026-09-13.** Produced by `engine/rederive_section34.py`, which reproduces
+> `run_today.py`'s pipeline exactly (126/252-day windows, ≥130 days of history, winsorised
+> z-scores, sector-neutralised where a sector has ≥3 names) on prices truncated at
+> 1 Sep 2026 — 95 of 95 stocks scored. The weighted totals also follow arithmetically from
+> the z-scores and weights on this page, so they are checkable by hand. Under the
+> **five-factor** model these ranks were #1, #1 and #71: balanced agreed with conservative,
+> which is exactly what the value/momentum cancellation produced. Balanced now lands
+> mid-field at #5. The z-scores differ in the second decimal from the five-factor write-up
+> because prices are dividend-adjusted and shift slightly on re-download.
 
-The same stock, the same day, ranks 1st or 71st depending only on the weights.
-GUNKUL — strong momentum, expensive, volatile — moves #65 → #1 in the other
-direction.
+The same stock, the same day, ranks **1st or 77th** depending only on the weights.
+GUNKUL — strong momentum and growth (+2.24, +2.75) but volatile — runs the other way:
+**#32 under conservative, #1 under both balanced and aggressive.**
 
 This makes the system's nature explicit: **it holds no view on which stocks will
 rise.** It has one opinion, about which *kind* of stock suits a given investor,
