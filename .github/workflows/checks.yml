@@ -1,0 +1,58 @@
+name: checks
+
+# Runs on every pull request, and on main after each merge.
+#
+# WHY THIS EXISTS
+# ---------------
+# Between 9 and 13 Sep 2026 four kinds of mistake reached main that a machine
+# could have caught in seconds:
+#   - scripts that could not find their data in this repo's layout
+#   - a factor count in the docs that no longer matched factors.py
+#   - a stock count ("~92") that no longer matched universe.json
+#   - a month count typed into a page instead of read from calibration.json
+#
+# Every step below is offline and dependency-free (standard library only), so
+# the whole job runs in well under a minute. Nothing here downloads prices or
+# re-runs a backtest - and it must never run the sealed tests
+# (blind_test.py, backtest_sizing.py).
+#
+# The job id `checks` is the status check name a branch ruleset requires.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Every engine script compiles
+        run: python -m py_compile engine/*.py tools/*.py
+
+      - name: Factor weights are a valid weight set
+        working-directory: engine
+        run: python -c "from factors import FACTORS, check; check(); print('factors:', FACTORS)"
+
+      - name: Data folder resolves in this layout
+        working-directory: engine
+        run: python -c "import paths, reportlib; m, src = reportlib.load_universe(); print(len(m), 'stocks from', src, 'in', paths.DATA)"
+
+      - name: The facts lint catches what it should (self-test)
+        run: python tools/facts_lint.py --selftest
+
+      - name: Docs and pages agree with the code
+        run: python tools/facts_lint.py
