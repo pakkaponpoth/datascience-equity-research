@@ -491,7 +491,7 @@ work.
 
 ## 9. Outstanding work
 
-**AHP expert survey.** Ten pairwise factor comparisons on the Saaty 1–9 scale,
+**AHP expert survey.** Six pairwise factor comparisons (four factors: 4 × 3 ÷ 2) on the Saaty 1–9 scale,
 per investor profile, from 6–10 experts. Respondents failing a consistency ratio
 of 0.10 are excluded and the exclusion count reported. Aggregation by geometric
 mean.

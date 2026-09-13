@@ -1,0 +1,14 @@
+# Store text with LF line endings no matter who commits from which OS.
+# The repo already does (checked 14 Sep 2026: `git add --renormalize .` changed
+# nothing); this makes it explicit and stops Windows printing
+# "LF will be replaced by CRLF" on every commit.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
