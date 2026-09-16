@@ -7,7 +7,7 @@
 
 Five findings, all measured, all reproducible:
 
-1. **`p_win` was invented** — `0.44 + 0.22 × score`, shown as "Hit rate 66%". Measured up-rate is **flat ~47%** across every decile, with no trend from low to high scores (p = 0.53). *(fixed)*
+1. **`p_win` was invented** — `0.44 + 0.22 × score`, shown as "Hit rate 66%". Measured up-rate is **flat ~47%**, with no trend from low to high scores (p = 0.53). *(first replaced with the measured figure, then removed from the product entirely on 16 Sep — a number identical for every stock does not belong next to one stock's name)*
 2. **`value` was momentum negated** — correlation **−0.93**, beta **−1.00**. "Balanced" was conservative in disguise: 8/10 shared names, 0.07 on a 0→1 scale. Now 6/10 and **0.44**. *(fixed)*
 3. **Nothing beats buy-and-hold** — not raw, not risk-adjusted (`ret/vol` 0.04–0.06 vs B&H 0.06), not at any of five rebalancing frequencies.
 4. **The score doesn't predict direction** — quintile up-rates 47 / 54 / 48 / 50 / 48. Flat.
@@ -17,6 +17,8 @@ Five findings, all measured, all reproducible:
 
 ## ✅ Done recently
 
+- **`growth` → `ROE`** (16 Sep). The 12-month return overlapped the 6-month one at **+0.66**, so two of four slots asked one question. ROE, built from **1,591 annual filings** in SEC Thailand's archive, passed the independence screen (trial 79) and was **neutral on returns** (trial 80: +0.0%/yr, t = 0.01) — adopted for independence and interpretability, **not** for performance. Trial 81 settled which return kept its place: dropping the 6-month one costs 1.7%/yr, so the 12-month one was the replaceable slot.
+- **The hit rate is gone from the product** (16 Sep) — and the "because" chips stopped claiming "strong, stable earnings" for a factor that only measures price volatility.
 - **Firebase auto-deploys** (8 Sep). It never did before — the daily job committed data and stopped, so the live site fell a day further behind every day. Was 3 days stale when found.
 - **The monitor stopped lying** — it blamed the cron for stale data when the cron was fine. It now compares Firebase against the source and names the real culprit.
 - **`research/factors.py`** — one definition, eleven importers. Was copy-pasted into ten files, several falsely labelled "FROZEN - identical to run_today.py".
@@ -30,7 +32,7 @@ Five findings, all measured, all reproducible:
 1. **Send the AHP survey.** The only task needing other people's time — it sets the real deadline, not the presentation date.
 2. **Build the bootstrap** in `ahp_analyze.py`. Its own docstring promises it and calls it the intended replacement for the invented `p_win`. The code does not exist.
 3. **Say the holding period on the site.** Every backtest assumes 6–12 months; the page refreshes daily and shows a *monthly* risk number. That quietly invites monthly trading — the worst of the five frequencies we tested.
-4. **Merge PR #1, then #2** on the team repo (#2 is stacked on #1).
+4. **Ask the repo owner to fix the branch rule** — `main` still requires the website-build checks, which never run on a pull request, instead of `checks`. Until that changes a green PR cannot merge.
 
 ## ⚠️ Do NOT
 

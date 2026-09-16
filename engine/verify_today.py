@@ -64,8 +64,13 @@ def main():
         elif len(profiles[name]) != n:
             problems.append(f"profile {name!r} has {len(profiles[name])} rows, expected {n}")
 
-    if d.get("calibration") is None:
-        problems.append("calibration is null - p_win would render blank; run backtest.py")
+    cov = d.get("roe_coverage") or {}
+    if not cov:
+        problems.append("roe_coverage is missing - the engine wrote an old-format file")
+    elif cov.get("with_roe", 0) < 0.8 * (cov.get("scored") or n):
+        problems.append(f"only {cov.get('with_roe')} of {cov.get('scored')} stocks have a "
+                        "filed ROE - the rest were scored at the median; refresh "
+                        "roe_history.csv before trusting this run")
 
     no_price = [s.get("ticker") for s in stocks if not s.get("last")]
     if no_price:
@@ -79,10 +84,8 @@ def main():
         print("Re-run from the Actions tab, or run the engine locally and commit that.")
         return 1
 
-    cal = d.get("calibration") or {}
     print(f"OK - {n} stocks scored, generated {d.get('generated')}, "
-          f"calibration measured {cal.get('generated')} over {cal.get('months')} months "
-          f"(base rate {cal.get('base_rate')})")
+          f"ROE filed for {cov.get('with_roe')}/{cov.get('scored')}")
     return 0
 
 

@@ -81,7 +81,7 @@ not protect in 2023 or 2024, and it missed the 2020 recovery by **29 points**.
 Five instances of the same thing — a value or intention recorded in one place and never
 wired to the place that uses it:
 
-1. **`calibration.json`** — measured, documented, never read by the engine *(fixed)*
+1. **`calibration.json`** — measured, documented, never read by the engine *(fixed 31 Aug; the file was then retired entirely on 16 Sep, because the honest presentation of a flat up-rate is no figure at all — `backtest.py` still prints the table as a finding)*
 2. **`ahp_analyze.py`'s bootstrap** — a whole docstring section explains why it matters. **The code was never written.** *(still missing)*
 3. **The factor definition** — copy-pasted into ten files, several labelled `# FROZEN - identical to run_today.py` while being nothing of the kind *(fixed: `research/factors.py`)*
 4. **`gen_today.js`** — a fourth copy of the engine in JavaScript, with stale weights and known-bad tickers *(deleted 9 Sep)*
@@ -97,7 +97,8 @@ Noticing our own recurring failure mode is a stronger report finding than any si
 - **`index.html`** — the site. Verdict + 4 sentences · filter by verdict + sector · TH/EN · light/dark · risk-quiz personalisation · "ⓘ How we score" panel · 💰 DCA calculator · `legal.html`
 - **`universe.json`** — **the canonical stock list, read-only for the engine.** Edit here to add or remove a stock. Added 30 Aug so a failed fetch can no longer delete a ticker forever (it had already lost four).
 - **`research/factors.py`** — **the single source of truth for `FACTORS` and `PROFILES`.** Eleven files import it. `factors.check()` raises at import if a weight set stops summing to 1. Pre-registered tests import a dated `FROZEN` snapshot instead of the live weights, so a weight change cannot silently re-run a sealed test.
-- **`run_today.py`** — the engine: `universe.json` → yfinance → **4 factors** → z-score → sector-neutralise → weighted rank → `today.json`. `p_win` is the measured up-rate from `calibration.json`.
+- **`run_today.py`** — the engine: `universe.json` + `roe_history.csv` → yfinance → **4 factors** → z-score → sector-neutralise → weighted rank → `today.json`. **No `p_win`**: the measured up-rate was flat (p = 0.53), so the field was removed on 16 Sep rather than shown per stock.
+- **`roe_history.csv` + `roe_data.py`** — 1,591 stock-years of ROE read from SEC Thailand filings (2001–2026), and the one place the point-in-time rule lives: a fiscal year is usable from 1 April of the next year. Replaced `growth` on 16 Sep — see REPORT 3.5, including the part where it did **not** improve returns.
 - **`verify_today.py`** — health check, runs **before** the commit step so a crashed engine fails loudly instead of committing nothing and reporting success.
 - **`research/`** — backtests, blind test, sizing test, explorer, `expert-ahp.md` (**exists — 214 lines**, an earlier version of this file wrongly said it didn't), `ahp_analyze.py`, `reportlib.py`.
 - **Deployment** — the daily Action now **deploys to Firebase**, gated on `FIREBASE_SERVICE_ACCOUNT`. Before 8 Sep it committed data and stopped; Pages updated itself, Firebase did not, and the live site fell a day further behind every day.
@@ -138,5 +139,5 @@ declared the Action dead from a local clone that was 22 commits behind.
 ## 🔒 Non-negotiables
 
 - Disclaimer everywhere: **educational, not investment advice.**
-- Never claim an edge you haven't shown. The trust label cites the **measured** up-rate (~47%, flat across every decile).
+- Never claim an edge you haven't shown. The app publishes **no hit rate, p_win or trust label** — the up-rate was measured flat (~47%, p = 0.53), and the honest way to publish that is to show nothing per stock and state the finding in the report.
 - Any AI-drafted code: **you must be able to explain every line.**

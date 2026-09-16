@@ -16,8 +16,8 @@ HOW IT WORKS
 The truth comes from the code, never from this file:
 
     factor count      len(FACTORS)                 engine/factors.py
+    factor names      FACTORS                      engine/factors.py
     stock count       len(stocks)                  engine/universe.json
-    months measured   months                       engine/calibration.json
 
 Then every current-tense doc and page is scanned for statements that disagree.
 
@@ -25,11 +25,9 @@ RULES
 -----
   factor-count   "N factors" / "N ปัจจัย" where N >= 3 and N != len(FACTORS)
   stock-count    "N stocks|tickers|SET|หุ้น" where 50 <= N <= 250 and N != stock count
-  months-page    a month count (24-240) typed into app/*.html - pages must read it
-                 from the data (DATA.calibration.months), or it goes stale on the
-                 next re-measurement
-  months-doc     a month count on a doc line about calibration / p_win / up-rate /
-                 deciles that differs from calibration.json
+  retired-factor a current-tense line calling "growth" or "value" one of the
+                 engine's factors. value went on 2026-09-09, growth on
+                 2026-09-16 - both are in FACTORS' history, not in FACTORS
   pairwise-count "N pairwise" comparisons where N != F x (F-1) / 2 - the AHP survey
                  size follows the factor count (its first real catch: REPORT 9 still
                  said "ten", the five-factor number)
@@ -79,19 +77,23 @@ STOCK_RE = re.compile(
     r"~?\b(\d{2,3})\b\s+(?:[A-Za-z0-9-]+\s+){0,3}?(?:stocks|tickers)\b"
     r"|~?\b(\d{2,3})\s+SET\b"
     r"|(\d{2,3})\s*หุ้น", re.I)
-MONTHS_RE = re.compile(r"\b(\d{2,3})\s*(?:complete\s+)?(?:months?|เดือน)", re.I)
-CALIB_CONTEXT = re.compile(r"calibration|p_win|up-rate|decile|trust label", re.I)
+RETIRED = {"growth": "2026-09-16, replaced by roe", "value": "2026-09-09, it was momentum negated"}
+RETIRED_RE = re.compile(
+    r"\b(growth|value)\b(?=[^.]{0,60}\bfactors?\b)|\bfactors?\b(?=[^.]{0,60}\b(growth|value)\b)", re.I)
 PAIR_RE = re.compile(
     r"\b(one|two|three|four|five|six|seven|eight|nine|ten|\d+)\b"
     r"\s+(?:[A-Za-z-]+\s+){0,1}?pairwise\b", re.I)
 
 STALE = [
     (re.compile(r"placeholder formula", re.I),
-     "p_win reads the measured calibration.json; it is not a placeholder"),
+     "p_win was removed outright on 2026-09-16 - the app publishes no hit rate at all"),
+    (re.compile(r"(shows?|displays?|publishes?)\s+(?:a\s+|the\s+)?(hit rate|p_win|trust label|confidence figure)", re.I),
+     "the app no longer shows any hit rate, p_win or trust label"),
     (re.compile(r"top decile (?:is |was )?the lowest", re.I),
      "re-measured on four factors, the top decile is not the lowest (noise, p = 0.53)"),
     (re.compile(r"wire calibration", re.I),
-     "calibration is wired into run_today.py"),
+     "calibration.json is gone - backtest.py reports the up-rate as a finding, "
+     "and nothing reads it at runtime"),
     (re.compile(r"\*re-derive\*", re.I),
      "REPORT 3.4 ranks have been re-derived"),
     (re.compile(r"barely distinguishable", re.I),
@@ -105,9 +107,8 @@ def load_truth():
     sys.path.insert(0, str(ENGINE))
     from factors import FACTORS  # noqa: E402 - factors.py has no imports of its own
     uni = json.loads((ENGINE / "universe.json").read_text(encoding="utf-8"))
-    cal = json.loads((ENGINE / "calibration.json").read_text(encoding="utf-8"))
-    return {"factors": len(FACTORS), "stocks": len(uni["stocks"]),
-            "months": int(cal["months"])}
+    return {"factors": len(FACTORS), "names": list(FACTORS),
+            "stocks": len(uni["stocks"])}
 
 
 def as_int(token):
@@ -149,16 +150,15 @@ def check_line(line, truth, is_page):
             found.append(("stock-count",
                           f'"{m.group(0).strip()}" but universe.json has {truth["stocks"]}'))
 
-    for m in MONTHS_RE.finditer(line):
-        n = int(m.group(1))
-        if not 24 <= n <= 240 or history:
-            continue
-        if is_page:
-            found.append(("months-page",
-                          f'"{m.group(0)}" typed into a page - read DATA.calibration.months instead'))
-        elif CALIB_CONTEXT.search(line) and n != truth["months"]:
-            found.append(("months-doc",
-                          f'"{m.group(0)}" but calibration.json measured {truth["months"]} months'))
+    if not history:
+        for m in RETIRED_RE.finditer(line):
+            name = (m.group(1) or m.group(2)).lower()
+            if name in truth["names"]:
+                continue        # still live - nothing to flag
+            found.append(("retired-factor",
+                          f'"{name}" is written as a factor, but it was retired '
+                          f'({RETIRED[name]}) and factors.py now has '
+                          f'{", ".join(truth["names"])}'))
 
     if not history:
         for pattern, why in STALE:
@@ -183,7 +183,7 @@ def scan(truth):
 
 
 def selftest():
-    t = {"factors": 4, "stocks": 95, "months": 83}
+    t = {"factors": 4, "stocks": 95, "names": ["momentum", "roe", "quality", "health"]}
     cases = [
         # (text, is_page, expected rule or None)
         ("SETScout ranks stocks on five transparent factors.", False, "factor-count"),
@@ -198,13 +198,17 @@ def selftest():
         ('pipeline diagram said "~92 SET"', False, None),
         ("pipeline diagram shows ~92 SET", False, "stock-count"),
         ("only 4 of 95 tickers had data in 1999", False, None),
-        ("measured over 84 months, and the same across almost every score band", True, "months-page"),
-        ("measured over ${calMonths()} months", True, None),
         ("hold for 6 to 12 months", True, None),
-        ("the calibration covers 84 months of history", False, "months-doc"),
-        ("the calibration covers 83 complete months of history", False, None),
         ("168 start-points across 14 years, 96 months apart", False, None),
+        ("The four factors are momentum, growth, quality and health.", False, "retired-factor"),
+        ("The four factors are momentum, roe, quality and health.", False, None),
+        ("growth was removed as a factor on 16 Sep", False, None),
+        ("the growth of the dataset is not a factor here", False, "retired-factor"),
+        ("a factor that measures value", False, "retired-factor"),
+        ("ROE is the one factor that is not a price measure", False, None),
         ("It's a placeholder formula for now.", False, "stale-claim"),
+        ("the card shows a hit rate under the risk figure", False, "stale-claim"),
+        ("the app used to show a trust label", False, None),
         ("kept telling readers p_win was a placeholder formula", False, None),
         ("Flat, and the top decile is the lowest of the ten.", False, "stale-claim"),
         ("| Conservative | +1.22 | *re-derive* |", False, "stale-claim"),
@@ -230,8 +234,8 @@ def main():
     if "--selftest" in sys.argv:
         return selftest()
     truth = load_truth()
-    print(f"truth from code: {truth['factors']} factors, {truth['stocks']} stocks, "
-          f"calibration over {truth['months']} months")
+    print(f"truth from code: {truth['factors']} factors "
+          f"({', '.join(truth['names'])}), {truth['stocks']} stocks")
     findings = scan(truth)
     for rel, line, rule, msg in findings:
         print(f"{rel}:{line}: [{rule}] {msg}")

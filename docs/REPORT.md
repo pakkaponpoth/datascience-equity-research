@@ -87,15 +87,17 @@ do not have — so we measured it instead. Section 6 reports the size.
 
 ### 3.1 The four factors
 
-Each is computed from price alone. This is deliberate: price data exists for
+Three are computed from price alone, which is deliberate: price data exists for
 every listed stock with no gaps, whereas fundamentals are patchy for Thai
-small-caps. The cost is that our factors measure less than their names suggest,
-which we state plainly in Section 7.
+small-caps. The cost is that those three measure less than their names suggest,
+which we state plainly in Section 8. The fourth, ROE, is read from the companies'
+own filed accounts — Section 3.5 explains where it came from and what replacing
+a price factor with it did and did not achieve.
 
 | Factor | Formula | Measures |
 |---|---|---|
 | Momentum | `price / price 126 days ago − 1` | 6-month price change |
-| Growth | `price / price 252 days ago − 1` | 12-month price change |
+| ROE | `net profit to owners / average shareholders' equity` | Profitability on the owners' capital |
 | Quality | `−(std of daily returns × √252)` | Annualised volatility |
 | Health | `min(price / running peak − 1)` | Worst drawdown in one year |
 
@@ -147,28 +149,30 @@ outstanding work (Section 9).
 Taking PTT on 1 September 2026, sector-adjusted:
 
 ```
-momentum −0.67   growth −1.02   quality +1.69   health +1.25
+momentum −0.67   roe +0.13   quality +1.69   health +1.25
 ```
 
 | Profile | Weighted total | Rank of 95 |
 |---|---|---|
-| Conservative | +1.22 | **#1** |
-| Balanced | +0.55 | #5 |
-| Aggressive | −0.39 | #77 |
+| Conservative | +1.29 | **#2** |
+| Balanced | +0.74 | #3 |
+| Aggressive | +0.01 | #47 |
 
-> **Re-derived 2026-09-13.** Produced by `engine/rederive_section34.py`, which reproduces
+> **Re-derived 2026-09-16, on the engine with ROE in place of growth.** Produced by `engine/rederive_section34.py`, which reproduces
 > `run_today.py`'s pipeline exactly (126/252-day windows, ≥130 days of history, winsorised
 > z-scores, sector-neutralised where a sector has ≥3 names) on prices truncated at
 > 1 Sep 2026 — 95 of 95 stocks scored. The weighted totals also follow arithmetically from
 > the z-scores and weights on this page, so they are checkable by hand. Under the
 > **old model, before `value` was removed on 9 Sep,** these ranks were #1, #1 and #71: balanced agreed with conservative,
-> which is exactly what the value/momentum cancellation produced. Balanced now lands
-> mid-field at #5. The z-scores differ in the second decimal from the earlier write-up
-> because prices are dividend-adjusted and shift slightly on re-download.
+> which is exactly what the value/momentum cancellation produced. With four price factors they were
+> #1, #5 and #77. Replacing growth with ROE moves PTT up under the aggressive weights (#77 → #47),
+> because its 12-month price change was poor while its return on equity is ordinary rather than bad —
+> a concrete example of the two factors asking different questions. The z-scores differ in the second
+> decimal from earlier write-ups because prices are dividend-adjusted and shift slightly on re-download.
 
-The same stock, the same day, ranks **1st or 77th** depending only on the weights.
-GUNKUL — strong momentum and growth (+2.24, +2.75) but volatile — runs the other way:
-**#32 under conservative, #1 under both balanced and aggressive.**
+The same stock, the same day, ranks **2nd or 47th** depending only on the weights.
+GUNKUL — strong momentum (+2.24) and a good ROE (+0.83) but volatile — runs the other way:
+**#40 under conservative, #5 under balanced, #1 under aggressive.**
 
 This makes the system's nature explicit: **it holds no view on which stocks will
 rise.** It has one opinion, about which *kind* of stock suits a given investor,
@@ -176,18 +180,119 @@ and expresses it by re-weighting four fixed numbers.
 
 ---
 
+### 3.5 Replacing growth with ROE — and why it is not a performance claim
+
+The four factors above shared a weakness: all of them were price. Momentum and
+growth shared more than that. Measured across 62 non-overlapping three-month
+periods, the 6-month and 12-month returns correlate **+0.66** — inside the
+±0.80 line we use to call two factors duplicates (Section 7), but close enough
+that the engine was spending two of its four slots on one idea.
+
+**The data source.** Return on equity is
+
+```
+ROE = net profit attributable to owners of the parent
+      ÷ ((shareholders' equity this year end + last year end) / 2)
+```
+
+Profit is earned across a year while equity is a snapshot on one day, so the
+denominator is the average of the two year-ends. "Attributable to owners of the
+parent" matters: a company consolidating a subsidiary it owns 60% of reports
+all of that subsidiary's profit, and the 40% belonging to other people has to
+come out. Using the wrong line makes CPALL, which owns part of Makro, read 7.4%
+instead of 17.0%.
+
+Yahoo Finance and the SET website publish three to five years of this. We needed
+decades, so we read it out of the annual statements in **SEC Thailand's
+disclosure archive**, which holds the spreadsheet attached to every filing back
+to about 2000.
+
+| | |
+|---|---|
+| Annual filings examined | 1,741 |
+| Stock-years successfully read | **1,591 (91%)** |
+| Companies covered | 94 of 95 <!-- facts-lint: ignore - ROE coverage, not the universe --> |
+| Period | 2001–2026; 54 companies with 15 years or more |
+| Agreement with Yahoo, where both exist | **93% within 2 points**, median gap 0.01 |
+
+The 150 unread filings split into 91 whose row labels the parser did not
+recognise and **58 that exist only as Word or PDF documents**, which is why 100%
+is not reachable by code alone. Two extraction bugs were found and fixed: MEGA
+reported an ROE of 9,959% because its filing states profit in baht and equity in
+thousands, and CRC reported 25,436,242% because its income statement says
+"million Baht" where its balance sheet says only "Baht". After reading the unit
+words in each sheet header and treating a bare "Baht" as unknown, impossible
+values fell from 13 to 0.
+
+Where our figure and Yahoo's disagree materially, ours is the one to prefer:
+for TRUE's 2022 year we read **−5.6%** against Yahoo's **−30.0%**, because the
+2022 accounts were restated after the DTAC merger and Yahoo carries the restated
+number. An investor standing in 2023 could only have seen the original.
+
+**Point-in-time availability.** Thai listed companies must file audited annual
+statements within three months of their year end, so a fiscal year's ROE is
+treated as unavailable until **1 April of the following year**. A backtest
+standing in February 2013 therefore scores on 2011's ROE, not 2012's.
+
+**The tests, pre-registered before they ran.**
+
+| Trial | Hypothesis | Result |
+|---|---|---|
+| 79 | ROE is not a duplicate: \|r\| < 0.80 against every live factor, judged before any return is examined | **Pass** — −0.04 momentum, −0.02 growth, +0.11 quality, +0.04 health |
+| 80 | ROE replaces growth at the same weight, and beats the current engine with t > 2.0 and a Sharpe above the deflated bar of 0.82 | **Fail** — +0.0%/yr, t = 0.01 |
+| 81 | ROE replaces momentum instead, since the two returns overlap and only data should choose | **Fail** — −1.7%/yr, t = −1.14 |
+
+Trial 81 is the one that settles which return keeps its slot. Removing the
+6-month return costs 1.7 points a year; removing the 12-month one costs nothing
+measurable. The 12-month return is therefore the interchangeable factor, and it
+is the one that was replaced.
+
+Because roughly 9% of the filings could not be read, the same comparison was
+re-run under every treatment that could plausibly change it — these are
+robustness checks on one hypothesis, not five new trials:
+
+| Treatment | Difference per year | t |
+|---|---|---|
+| Baseline | +0.0% | 0.01 |
+| Only the 51 companies with an unbroken record | −0.0% | −0.01 |
+| Filings assumed available 1 July rather than 1 April | −0.4% | −0.25 |
+| The 12 stock-years that disagree with Yahoo removed | +0.2% | 0.18 |
+| ROE winsorised at the 5th/95th percentile each period | +0.3% | 0.22 |
+
+Every t lies between −0.25 and +0.22, against a pass mark of 2.0. The remaining
+data errors cannot flip the verdict.
+
+**What we claim, and what we do not.** We do not claim that adding ROE improved
+returns. It did not: the effect is indistinguishable from zero, and an earlier
+run that appeared to show **+0.8%/yr (t = 0.65)** was measured on the data before
+the unit bugs were fixed — the entire apparent gain was an artifact, which is
+its own small lesson about weak positive results. The change was adopted because
+it costs nothing measurable and buys two things: the four factors become four
+different questions rather than three, and one of them finally comes from the
+company's accounts instead of its price chart.
+
+**Missing values.** A stock with no filed ROE is scored at the universe median
+on that factor rather than dropped — a deliberate "no opinion" that neither
+rewards nor punishes it, and that keeps the live list and the backtests doing
+the same thing. On 16 September 2026 that affects one stock of 95 (BANPU, whose
+filings are not reachable through the SEC search); `today.json` publishes the
+coverage count, and the card shows a dash rather than a number the company never
+reported.
+
+---
+
 ## 4. The product
 
 The website reads a single precomputed file, `today.json`, so nothing is
 calculated in the browser and no server is needed. Every recommendation is
-delivered as four fixed sentences:
+delivered as a small fixed set of sentences:
 
 | Element | Example |
 |---|---|
 | **Verdict** | ✅ Worth a look |
 | **Risk, in baht** | "A normal-bad month could drop ~9%, so put at most ฿30 of every 100" |
-| **Because** | "Strong, stable earnings and a solid balance sheet" |
-| **Trust label** | "Stocks scoring like this rose the next month 47% of the time — measured over 83 months, and the same across almost every score band" |
+| **Because** | "Up over the last 6 months and high return on equity" |
+| **Latest ROE** | "18.0%" — the figure from the company's own accounts, or a dash where no filing could be read |
 
 Risk uses a monthly Value-at-Risk, `1.645 × σ_daily × √21`, clamped to 6–35%,
 converted into a suggested maximum position size.
@@ -213,18 +318,26 @@ Any strategy looks good in a rising market; the luck bar asks whether it beat
 ### 5.1 Does the score predict direction? — `backtest.py`
 
 For every stock in every month across 83 complete months (Sep 2019 – Aug 2026;
-7,319 observations, 696–783 per decile), we recorded its score and whether it rose
+7,319 stock-months, 696–783 per decile), we recorded its score and whether it rose
 the following month.
 Scores here use the **balanced** weights, which `backtest.py` hard-codes.
 
 | Score decile | 0–10 | 10–20 | 20–30 | 30–40 | 40–50 | 50–60 | 60–70 | 70–80 | 80–90 | **90–100** |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Up-rate | 43.5% | 52.5% | 46.8% | 48.1% | 47.3% | 48.7% | 48.0% | 43.8% | 47.3% | **47.0%** |
+| Up-rate | 46.1% | 48.9% | 48.6% | 48.1% | 48.3% | 46.9% | 47.2% | 45.7% | 49.6% | **44.1%** |
 
-**Flat.** Every decile sits between 43.5% and 52.5% around a base rate of 47.3%.
+**Flat.** Every decile sits between 44.1% and 49.6% around a base rate of 47.4%.
 A Cochran–Armitage test for a trend from low to high scores finds none
-(z = −0.62, p = 0.53). As a group the deciles differ only borderline
-(χ² = 16.4, df = 9, p ≈ 0.06), and in no order — 10–20 sits highest, 0–10 lowest.
+(z = −1.04, p = 0.30). As a group the deciles are not distinguishable either
+(χ² = 7.7, df = 9, below the 16.92 critical value), and the ordering is
+meaningless — the highest decile, 90–100, has the *lowest* up-rate of the ten.
+Both statistics are computed inside `backtest.py` rather than typed here, so
+they cannot drift the next time the engine changes.
+
+> **Re-measured 16 Sep 2026** on the engine with ROE in place of growth. The
+> four-factor price-only engine gave a base rate of 47.3% with z = −0.62,
+> p = 0.53 and χ² = 16.4 — the same verdict, and if anything the group test is
+> now *further* from significance.
 
 > **Re-measured 13 Sep 2026** on the four-factor engine. `backtest.py` now drops the
 > unfinished current month, so the result no longer depends on the day it is run.
@@ -235,8 +348,14 @@ A sub-50% base rate is normal, not a failure: monthly stock returns are
 right-skewed, so a stock is slightly more often down than up. **The finding is
 that the score does not move the number.**
 
-This result is now published inside the product. The trust label shows the
-measured up-rate for each stock's decile rather than a figure we invented.
+This result is now published inside the product by **subtraction**. Between
+31 August and 16 September 2026 the app showed the measured up-rate for each
+stock's score band instead of the figure it had previously invented; on
+16 September the figure was removed altogether. A number that is identical for
+every stock, rendered per stock next to that stock's name, invites precisely
+the reading the measurement rules out. The honest presentation of "the score
+does not predict direction" is not a better confidence figure - it is no
+confidence figure, and the finding stated in the report.
 
 ### 5.2 Does buying the top 20% beat buying everything? — `backtest_hold.py`
 
@@ -245,12 +364,15 @@ churning monthly.
 
 | Horizon | Picks | Buy & hold | Luck bar |
 |---|---|---|---|
-| 6 months | +0.8% | +3.4% | **0%** |
-| 12 months | +1.5% | +8.2% | **0%** |
+| 6 months | +0.8% | +3.9% | **0%** |
+| 12 months | +2.8% | +8.7% | **0%** |
 
 The picks trail, and beat **zero** of 300 random portfolios. Monthly rotation
-(`backtest.py`) performs similarly: +13.1% against +44.0% for buy-and-hold, an
-11% luck bar.
+(`backtest.py`) performs similarly: +14.4% against +46.8% for buy-and-hold, an
+8% luck bar. *(Figures re-measured 16 Sep 2026 on the engine with ROE; the
+price-only engine gave +1.5% / +8.2% at 12 months and +13.1% vs +44.0% monthly —
+the same verdict, and this is one of the two windows where the ROE version is
+slightly the weaker of the two. See 3.5: no performance claim is made for it.)*
 
 ### 5.3 Does the risk-based sizing help? — `backtest_sizing.py`
 
@@ -450,10 +572,13 @@ quote levels.
 
 ## 8. Limitations
 
-**The factor names promise more than the mathematics delivers.** "Quality" is
-low volatility, "health" is shallow drawdown, "growth" is price change. None
-touches revenue, profit or debt. Adding real fundamentals (P/E, ROE, earnings
-growth) is the clearest next improvement.
+**Three of the four factor names still promise more than the mathematics
+delivers.** "Quality" is low volatility and "health" is shallow drawdown -
+neither touches revenue, profit or debt. ROE, added on 16 September 2026, is the
+first factor that does (Section 3.5), and it did not improve returns; P/E and
+earnings growth are the obvious next candidates. The interface wording was
+corrected at the same time: the "because" chips used to say "strong, stable
+earnings" for a factor that only ever looked at price volatility.
 
 **A one-year window measures recent calm, not resilience.** Quality and health
 look back 252 days, so a company that survived every crisis since 2008 but had

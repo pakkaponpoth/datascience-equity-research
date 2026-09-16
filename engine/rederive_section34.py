@@ -23,6 +23,7 @@ import pandas as pd
 import yfinance as yf
 
 from factors import FACTORS, PROFILES
+from roe_data import roe_asof, neutral_fill              # point-in-time ROE, see roe_data.py
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ASOF = pd.Timestamp(sys.argv[1] if len(sys.argv) > 1 else "2026-09-01")
@@ -48,10 +49,11 @@ def main():
         if len(s) < 130:
             continue
         rows[t] = dict(momentum=s.iloc[-1] / s.iloc[-126] - 1,
-                       growth=s.iloc[-1] / s.iloc[max(0, len(s) - 252)] - 1,
+                       roe=roe_asof(t, s.index[-1]),
                        quality=-s.pct_change().tail(252).std() * np.sqrt(252),
                        health=(s.tail(252) / s.tail(252).cummax() - 1).min())
     df = pd.DataFrame(rows).T
+    df["roe"] = neutral_fill(list(df["roe"]))   # see roe_data.py
     df["sector"] = [meta[t] for t in df.index]
     print(f"scored: {len(df)} of {len(tickers)} stocks\n")
 

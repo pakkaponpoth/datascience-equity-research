@@ -4,6 +4,70 @@
 
 ---
 
+## 2026-09-16 — ROE replaces growth, and the hit rate leaves the product
+
+**สรุปสั้น ๆ** เปลี่ยนปัจจัย `growth` (ผลตอบแทน 12 เดือน) เป็น `roe` (กำไรต่อส่วนของผู้ถือหุ้น อ่านจากงบการเงินจริง 1,591 ปี-หุ้น จากคลังเอกสาร ก.ล.ต.) เพราะ `growth` กับ `momentum` ซ้ำกันที่ +0.66 — และการทดสอบบอกว่า **ผลตอบแทนไม่ได้ดีขึ้นเลย** (t = 0.01) เรารับมาเพราะทำให้ปัจจัยทั้งสี่ถามคนละคำถาม ไม่ใช่เพราะทำเงินได้มากขึ้น พร้อมกันนั้นเอา `p_win` / "hit rate" ออกจากเว็บทั้งหมด เพราะค่าที่วัดได้แบนที่ ~47% ทุกช่วงคะแนน
+
+### What changed
+
+| Change | Why |
+|---|---|
+| **`growth` → `roe` in `factors.py`**, at the same weight in all three profiles (conservative 6, balanced 16, aggressive 35). | The 6-month and 12-month returns correlate **+0.66** across 62 non-overlapping periods: two of four slots asking one question. |
+| **`engine/roe_history.csv` + `engine/roe_data.py`** — 1,591 stock-years, 94 of 95 companies, 2001–2026, read from the annual statements in SEC Thailand's disclosure archive. `roe_data.py` is the only place the point-in-time rule lives: a fiscal year is usable from **1 April of the following year**. | Yahoo and the SET site publish 3–5 years. A backtest needs decades, and it must not see a statement before it was filed. |
+| **Missing ROE is scored at the universe median**, not dropped, by one shared function (`neutral_fill`). Today that is one stock of 95 (BANPU). `today.json` publishes the coverage count and the card shows a dash. | Dropping stocks would shrink the universe most where coverage is thinnest and change what the backtest measures. |
+| **`p_win` removed from `today.json`, the card, `verify_today.py` and `calibration.json` deleted.** `backtest.py` still prints the up-rate table, and now computes the Cochran–Armitage and χ² statistics itself. | The measured up-rate is flat (47.4%, z = −1.04, p = 0.30). A number identical for every stock, rendered next to one stock's name, invites the reading the measurement rules out. |
+| **The "because" chips stopped lying.** They said *"strong, stable earnings"* for a factor that only measures price volatility, and *"solid balance sheet, low debt"* for one that only measures drawdown. | Instance #6 of the same failure mode: a description written once and never re-checked against the code. |
+| **Every figure describing the engine re-measured**: REPORT §3.4, §5.1, §5.2; HOW-IT-WORKS and `onboard.html` findings tables. | The engine changed, so numbers measured on the old one describe software that no longer ships. |
+| **The facts lint learnt the change**: the calibration-month rules are gone, and a new `retired-factor` rule fails any current-tense line calling `growth` or `value` one of the engine's factors. 30 self-tests. | Nothing in this list should need a human to notice it next time. |
+
+### The evidence, in order
+
+| Trial | Hypothesis, written before it ran | Result |
+|---|---|---|
+| 79 | ROE is not a duplicate: \|r\| < 0.80 against every live factor, judged before any return is examined | **Pass** — −0.04 momentum, −0.02 growth, +0.11 quality, +0.04 health |
+| 80 | ROE replaces growth and beats the current engine, t > 2.0 and Sharpe above the deflated bar of 0.82 | **Fail** — +0.0%/yr, t = 0.01 |
+| 81 | ROE replaces momentum instead | **Fail** — −1.7%/yr, t = −1.14 |
+
+Trial 81 is what settles the design: dropping the **6-month** return costs 1.7 points a year, dropping the
+**12-month** one costs nothing measurable, so the 12-month return was the replaceable slot. Five robustness
+treatments (complete-record stocks only, a 1 July filing lag, dropping the stock-years that disagree with
+Yahoo, winsorised ROE) all land between t = −0.25 and +0.22 — the 9% of filings we could not read cannot
+flip the verdict.
+
+**This is not a performance change and must not be presented as one.** An earlier run showed +0.8%/yr
+(t = 0.65) before two unit bugs were fixed — MEGA's filing states profit in baht and equity in thousands
+(ROE read as 9,959%), CRC's income statement says "million Baht" where its balance sheet says only "Baht"
+(25,436,242%). The whole apparent gain was a data artifact.
+
+### What it did to the numbers
+
+| Measure | Price-only engine | With ROE |
+|---|---|---|
+| Up-rate across score bands | 47.3%, z = −0.62, χ² = 16.4 | 47.4%, z = −1.04, χ² = 7.7 |
+| Hold 12 months, balanced | +1.5% vs +8.2% B&H | +2.8% vs +8.7% B&H |
+| 12-month returns: cons / bal / agg | 2.1% / 4.8% / 9.6% | 1.9% / 3.2% / 8.4% (B&H 7.5%) |
+| Aggressive luck bar | 98% | 82% |
+| PTT on 1 Sep, ranks cons / bal / agg | #1 / #5 / #77 | #2 / #3 / #47 |
+
+On this 8-year window the ROE engine is slightly the weaker of the two; on the 15-year non-overlapping test
+the two are indistinguishable. Both are consistent with the finding that has held all along: **neither
+version beats buying everything.**
+
+### How to check it
+
+```bash
+cd engine
+python run_today.py        # 95 stocks, prints the ROE coverage count
+python verify_today.py     # fails if coverage collapses or the format is old
+python backtest.py         # the up-rate table + the trend statistics
+python rederive_section34.py   # the REPORT §3.4 ranks
+python ../tools/facts_lint.py --selftest && python ../tools/facts_lint.py
+python -c "import roe_data; print(roe_data.roe_asof('PTT.BK','2013-03-31'), roe_data.roe_asof('PTT.BK','2013-04-01'))"
+# -> 0.203153 0.180218  : the 2012 figure appears only on 1 April 2013
+```
+
+---
+
 ## 2026-09-13 — Four factors everywhere, and the docs caught up with the code
 
 **สรุปสั้น ๆ** ตัดปัจจัย `value` ออก เพราะมันคือ `momentum` กลับเครื่องหมาย (สหสัมพันธ์ −0.93) ทำให้โปรไฟล์ "สมดุล" กลายเป็น "ปลอดภัย" แฝงตัว จากนั้นไล่แก้เอกสารทุกที่ให้ตรงกับโค้ด (4 ปัจจัย, 95 หุ้น) และพบความผิดพลาดแบบเดิมเป็นครั้งที่ 5 — เอกสารยังเขียนว่า `p_win` เป็นสูตรสมมติ ทั้งที่ต่อกับค่าที่วัดจริงไปแล้ว

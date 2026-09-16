@@ -54,7 +54,7 @@ Each is computed from **price history** (v1 uses price-based proxies; real funda
 | Factor | Plain meaning | How |
 |---|---|---|
 | 📈 **Momentum** | Is it going up lately? | 6-month return |
-| 🌱 **Growth** | Longer up-trend? | 12-month return |
+| 🏭 **ROE** | Does it earn well on its capital? | net profit ÷ average shareholders' equity, from the filed accounts |
 | 🛡️ **Quality** | Is it calm, not wild? | low volatility |
 | ❤️ **Health** | Does it survive bad markets? | small max-drawdown |
 
@@ -76,9 +76,9 @@ recommender**: user profile → matching model.
 
 | Engine | Weights (biggest first) | Character |
 |---|---|---|
-| 🛡️ **Conservative** | quality 50 · health 38 · mom 6 · growth 6 | calm, lower-risk names |
-| ⚖️ **Balanced** | quality 37 · mom 26 · health 21 · growth 16 | the middle default |
-| 🚀 **Aggressive** | mom 47 · growth 35 · quality 12 · health 6 | bold, high-momentum names |
+| 🛡️ **Conservative** | quality 50 · health 38 · mom 6 · ROE 6 | calm, lower-risk names |
+| ⚖️ **Balanced** | quality 37 · mom 26 · health 21 · ROE 16 | the middle default |
+| 🚀 **Aggressive** | mom 47 · ROE 35 · quality 12 · health 6 | bold, high-momentum names |
 
 > The weights are **placeholders** for now. They'll be replaced by real numbers from the **AHP expert survey**
 > (see `research/expert-ahp.md`) — that's how our primary data feeds the model.
@@ -91,16 +91,23 @@ We tested the engines the way people actually use them: **buy the top picks, hol
 
 | Engine | Return (12mo) | vs Buy-and-Hold | Beats random |
 |---|---|---|---|
-| 🛡️ Conservative | +1.3% | −5.4 pts | 0% |
-| ⚖️ Balanced | +1.9% | −4.8 pts | 0% |
-| 🚀 Aggressive | **+9.0%** | **+2.3 pts** | **96%** |
+| 🛡️ Conservative | +1.9% | −5.6 pts | 0% |
+| ⚖️ Balanced | +3.2% | −4.3 pts | 0% |
+| 🚀 Aggressive | **+8.4%** | **+0.9 pts** | 82% |
+
+*(Re-measured 16 Sep 2026 on the engine with ROE, against a buy-and-hold average
+of +7.5%. The earlier five-factor run read +1.3 / +1.9 / +9.0 with a 96% luck bar
+for aggressive.)*
 
 **How to read this honestly:**
 - The **defensive engines don't beat the market.** That's *expected* (efficient markets say you can't reliably
   beat it with price patterns) — and it's **our thesis, not a bug.** Underperforming buy-and-hold puts us in the
   same boat as most professional funds.
-- The **aggressive engine does show a real edge** — this is the well-documented **momentum premium**. And it
-  **survives trading costs**: +126% net over 10 years vs +86% for buy-and-hold, even at a pessimistic 1% round-trip fee.
+- The **aggressive engine looked like an edge, and then did not survive a fair test.** On this window it edges
+  buy-and-hold by 0.9 points and beats 82% of random portfolios — under the 90% bar we set in advance. When the
+  same hypothesis was taken to a period we had never examined (`blind_test.py`, one shot, pass mark written
+  first), it reached **81%** and beat buy-and-hold in only **2 of 5** three-year blocks. Its advantage on costs
+  is real arithmetic but says nothing about whether the advantage exists: **do not describe this as an edge.**
 
 **Caveats we keep out loud (honesty is the brand):**
 - Long-history returns suffer **survivorship bias** (we only have today's survivors) — so we report the *relative*
@@ -115,30 +122,34 @@ We tested the engines the way people actually use them: **buy the top picks, hol
 These are the tools that separate real signal from luck — and they're what makes the project trustworthy:
 
 - **Luck bar** — we compare the strategy against hundreds of *random* portfolios. Real skill beats most of them;
-  luck doesn't. (The aggressive engine beat 96% of random; the defensive ones beat 0%.)
-- **Calibration** (`calibration.json`) — we checked: does a higher score actually mean a higher chance of going
-  up? **It doesn't** — every score bucket went up ~47% of the time (a flat line). So the honest **`p_win` ≈ 47%**
-  for everything: *we rank research-worthiness, we do NOT predict short-term direction.*
+  luck doesn't. (The aggressive engine beat 82% of random — under our 90% pass mark; the defensive ones beat 0%.)
+- **Calibration** — we checked: does a higher score actually mean a higher chance of going up? **It doesn't** —
+  every score band went up ~47% of the time, a flat line (trend test p = 0.53). So the app shows **no hit-rate
+  figure at all**: one that says the same thing about every stock only looks like a forecast. *We rank
+  research-worthiness, we do NOT predict short-term direction.* The measurement itself lives in
+  `reports/backtest.md`, as a finding.
 - **No look-ahead** — every backtest scores using only past data, then measures the future. No cheating.
 - **Educational, not advice** — soft wording, disclaimers, non-commercial.
 
-> **What is `p_win`?** It's the **measured** share of stocks in that score band that rose the following month,
-> read from `calibration.json` (83 complete months of history, flat at ~47%). It *was* an invented formula
-> (`0.44 + 0.22 × score`, shown as "Hit rate 66%") until 31 Aug 2026, when `run_today.py` was wired to the
-> measured file. If that file is missing, `p_win` is now emitted as `null` rather than guessed.
+> **Where did `p_win` go?** It was an invented formula (`0.44 + 0.22 × score`, shown as "Hit rate 66%") until
+> 31 Aug 2026, then the **measured** figure, which turned out to be flat at ~47% across every score band over
+> 83 complete months. A number that is the same for every stock but rendered per stock invites exactly the
+> reading it cannot support, so on **16 Sep 2026** it was removed from the product altogether. The finding
+> stays in the report; the field is gone from `today.json`.
 
 ---
 
 ## 7. What's real vs. still to build
 
 **✅ Real now:** the scores, the verdicts, the risk numbers (VaR), the prices, the 3 engines, the backtests
-(luck bar, calibration, hold-returns, costs), and `p_win` — which reads the measured ~47% from
-`calibration.json` (wired 31 Aug 2026, shipped in PR #1).
+(luck bar, calibration, hold-returns, costs), and **ROE read from 1,591 annual filings** in SEC Thailand's
+archive (2001–2026, 94 of 95 stocks). <!-- facts-lint: ignore - ROE coverage, not the universe -->
 
 **🔨 Still to build:**
 - **AHP survey** → real factor weights (replaces the placeholders). *Primary data — start early, it has lead time.*
 - **Investor survey** → validates the problem (also primary data).
-- **v2 fundamentals** — add P/E, ROE, earnings growth so factors aren't only price-based.
+- **More fundamentals** — ROE landed on 16 Sep 2026; P/E and earnings growth are the obvious next two,
+  so that more than one of the four factors comes from the accounts.
 
 ---
 
@@ -149,7 +160,7 @@ pip install pandas numpy yfinance      # one-time setup
 
 cd engine                # all the Python + data lives here
 python run_today.py      # refresh picks → writes today.json (all 3 engines)
-python backtest.py       # the honesty check → luck bar + writes calibration.json
+python backtest.py       # the honesty check → luck bar + the up-rate table
 ```
 Then open `app/index.html` in a browser. **AI rule for the team:** you may use AI to draft code, but you must be able
 to **explain every line you commit** — Q&A day is merciless.
