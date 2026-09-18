@@ -65,6 +65,9 @@ Each is computed from **price history** (v1 uses price-based proxies; real funda
   one naturally-calm sector (banks) would sweep the top just for being calm. This fixed a real bias.
 
 The **final score** = a weighted sum of the sector-adjusted factors, turned into a 0–100 percentile.
+On the site this is shown as a plain **rank out of the universe** — "#7 / 95" — because a position on a
+list needs no explanation, while "0.93" invites one. The rank is always computed against **every** scored
+stock; filtering to one sector does not renumber the survivors.
 Verdict bands: **top ~20% = Worth a look 🟢**, next chunk = Wait 🟡, rest = Not now 🔴.
 
 ---

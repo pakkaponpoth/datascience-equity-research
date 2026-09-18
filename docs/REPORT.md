@@ -289,6 +289,7 @@ delivered as a small fixed set of sentences:
 
 | Element | Example |
 |---|---|
+| **Rank** | "#7 / 95" — its position among all scored stocks today, never among the ones currently filtered on screen |
 | **Verdict** | ✅ Worth a look |
 | **Risk, in baht** | "A normal-bad month could drop ~9%, so put at most ฿30 of every 100" |
 | **Because** | "Up over the last 6 months and high return on equity" |
@@ -356,6 +357,32 @@ every stock, rendered per stock next to that stock's name, invites precisely
 the reading the measurement rules out. The honest presentation of "the score
 does not predict direction" is not a better confidence figure - it is no
 confidence figure, and the finding stated in the report.
+
+#### 5.1.1 The same question from the ordering side — the information coefficient
+
+Section 5.1 asks about **direction**: did the stock go up. A score can order
+stocks correctly while getting the direction wrong, or the reverse, so the
+ordering deserves its own test. The standard one is the **information
+coefficient**: the rank correlation between this month's score and next month's
+return, computed per month and averaged.
+
+| | |
+|---|---|
+| Months measured | 83 |
+| Mean information coefficient | **+0.0055** |
+| t-statistic | **+0.28** |
+| Months with a positive IC | 43 of 83 (52%) |
+| Month-to-month standard deviation | 0.180 |
+
+A useful equity signal runs an IC of roughly **0.03 to 0.05**. Ours is an order
+of magnitude below that, indistinguishable from zero, and positive in barely
+half of months — the same result a coin flip would give. `backtest.py` computes
+this, so the figure cannot drift out of step with the engine.
+
+**Why this matters for the product.** The site displays a stock's rank among the
+95. That is a description of where it sits on today's list, and the wording says
+so. It is not a forecast, and this measurement is why: the ordering carries no
+more information about next month than the direction does.
 
 ### 5.2 Does buying the top 20% beat buying everything? — `backtest_hold.py`
 

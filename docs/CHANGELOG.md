@@ -4,6 +4,57 @@
 
 ---
 
+## 2026-09-18 — The rank is a rank of 95, not a rank of whatever is on screen
+
+**สรุปสั้น ๆ** เปลี่ยนการ์ดจากเลข 0–1 มาแสดงอันดับ "#7 / 95" และแก้บั๊กที่การกรองตามหมวดทำให้อันดับเริ่มนับใหม่จาก 1 พร้อมวัด information coefficient ของอันดับ ได้ +0.0055 (t = 0.28) แปลว่าอันดับไม่ได้ทำนายผลตอบแทน — ผลเดียวกับอัตราขึ้นที่แบน แต่มองจากอีกด้าน
+
+### What changed
+
+| Change | Why |
+|---|---|
+| **The card shows `#7 / 95`** instead of a bare `#7` beside a score bar. | A position on a list needs no explanation; "0.93" invites one. |
+| **The rank is computed against the whole active profile list, not the filtered view.** | This was a real misrepresentation, not a cosmetic issue — see below. |
+| **The stat label is now "Rank today" / "อันดับวันนี้".** | It describes where a stock sits on today's list. It is not a forecast, and section 5.1.1 is why. |
+| **`backtest.py` now computes the information coefficient.** | The report quotes it, so the code produces it. Instance seven of the failure mode would have been typing it by hand. |
+
+### The bug the rank change exposed
+
+The card read `#${i+1}` where `i` was the index **in the filtered list**. Filter to Banking and its best
+name rendered as **#1** — which reads as "best of 95" when it might be 63rd of 95. Every sector filter and
+every verdict filter produced the same false impression, and it had been there since the filters shipped.
+
+```
+before:  filter to Banking  ->  first two cards read  #1, #2
+after :  filter to Banking  ->  first two cards read  #1/95, #8/95
+```
+
+### What the rank is worth — measured, not assumed
+
+Before changing how the rank is displayed, we measured whether the rank means anything at all.
+The **information coefficient** is the rank correlation between this month's score and next month's return:
+
+| | |
+|---|---|
+| Months measured | 83 |
+| Mean IC | **+0.0055** |
+| t | **+0.28** |
+| Positive in | 43 of 83 months (52%) |
+
+A useful equity signal runs 0.03–0.05. **Ours is an order of magnitude below that and statistically zero.**
+Section 5.1 tested *direction* (the flat 47.4% up-rate); this tests *ordering*. Both land in the same place,
+which is why the rank is presented as a position on a list and nothing more.
+
+### How to check it
+
+```bash
+cd engine
+python backtest.py        # the up-rate table, the trend tests, and now the IC
+python ../tools/facts_lint.py --selftest && python ../tools/facts_lint.py
+# then open app/index.html, pick a sector in the filter, and read the rank badges
+```
+
+---
+
 ## 2026-09-16 — ROE replaces growth, and the hit rate leaves the product
 
 **สรุปสั้น ๆ** เปลี่ยนปัจจัย `growth` (ผลตอบแทน 12 เดือน) เป็น `roe` (กำไรต่อส่วนของผู้ถือหุ้น อ่านจากงบการเงินจริง 1,591 ปี-หุ้น จากคลังเอกสาร ก.ล.ต.) เพราะ `growth` กับ `momentum` ซ้ำกันที่ +0.66 — และการทดสอบบอกว่า **ผลตอบแทนไม่ได้ดีขึ้นเลย** (t = 0.01) เรารับมาเพราะทำให้ปัจจัยทั้งสี่ถามคนละคำถาม ไม่ใช่เพราะทำเงินได้มากขึ้น พร้อมกันนั้นเอา `p_win` / "hit rate" ออกจากเว็บทั้งหมด เพราะค่าที่วัดได้แบนที่ ~47% ทุกช่วงคะแนน

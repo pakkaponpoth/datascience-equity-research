@@ -63,7 +63,7 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;transition:border-color .18s,transform .18s,box-shadow .18s;}
   .card:hover{border-color:var(--faint);transform:translateY(-2px);box-shadow:0 10px 26px var(--shadow);}
   .c-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
-  .rank{font-size:11px;font-weight:700;color:var(--faint);} .tkr{font-size:15px;font-weight:800;}
+  .rank{font-size:11px;font-weight:700;color:var(--faint);} .rof{font-weight:600;opacity:.65;} .tkr{font-size:15px;font-weight:800;}
   .badge{font-size:12px;font-weight:700;border-radius:999px;padding:4px 10px;white-space:nowrap;}
   .badge.buy{color:var(--buy);background:var(--buyb);} .badge.wait{color:var(--wait);background:var(--waitb);} .badge.avoid{color:var(--avoid);background:var(--avoidb);}
   .nm{font-size:14px;font-weight:700;margin-top:9px;} .nm-en{font-size:12px;color:var(--faint);font-weight:500;}
@@ -177,7 +177,7 @@
      dca:{title:"เครื่องคำนวณ DCA",intro:"ลงเงินเท่ากันทุกเดือน ต่อเนื่องหลายปี จะได้เท่าไร?",perMonth:"ลงเดือนละ",perMoUnit:"/เดือน",years:"เป็นเวลา",yrUnit:"ปี",ret:"สมมติผลตอบแทนต่อปี",retUnit:"ต่อปี",invested:"เงินที่ลงไปทั้งหมด",final:"มูลค่าที่คาดว่าจะได้",gain:"กำไร (โดยประมาณ)",caveat:"เป็นการสมมติผลตอบแทน ไม่ใช่การรับประกัน · ผลจริงผันผวนขึ้นลงได้ · อดีตไม่การันตีอนาคต"},
      v:{BUY:"น่าสนใจ",WAIT:"รอก่อน",AVOID:"ยังไม่ใช่ตอนนี้"},
      riskCard:(r,w)=>`เสี่ยง <b>${r}%</b> · สูงสุด ${w} บาท/100`, empty:"ไม่มีหุ้นในกลุ่มนี้",
-     dRisk:"ความเสี่ยง (เป็นบาท)",dWhy:"เพราะอะไร",sScore:"อันดับ",sRoe:"ROE ล่าสุด",sLast:"ราคาล่าสุด",
+     dRisk:"ความเสี่ยง (เป็นบาท)",dWhy:"เพราะอะไร",sScore:"อันดับวันนี้",sRoe:"ROE ล่าสุด",sLast:"ราคาล่าสุด",
      riskS:(r,w)=>`เดือนแย่ ๆ ราคาอาจลงราว <b>${r}%</b> · จึงควรใส่ไม่เกิน <b>${w} บาท</b> ต่อทุก 100 บาท`,
      bPfx:"เพราะ",bJoin:" และ ",
      forYou:(l,w)=>`สำหรับคุณ (${l}): ควรใส่ไม่เกิน <b>${w} บาท</b> ต่อ 100`,
@@ -208,7 +208,7 @@
      dca:{title:"DCA calculator",intro:"Invest the same amount every month for years — how much could you get?",perMonth:"Invest per month",perMoUnit:"/mo",years:"For",yrUnit:"years",ret:"Assumed return per year",retUnit:"/yr",invested:"Total you put in",final:"Estimated value",gain:"Gain (approx.)",caveat:"This assumes a return — it's not a guarantee · real results go up and down · past is not future"},
      v:{BUY:"Worth a look",WAIT:"Wait",AVOID:"Not now"},
      riskCard:(r,w)=>`risk <b>${r}%</b> · max ฿${w}/100`, empty:"No stocks in this group",
-     dRisk:"Risk (in baht)",dWhy:"Why",sScore:"Rank",sRoe:"Latest ROE",sLast:"Last price",
+     dRisk:"Risk (in baht)",dWhy:"Why",sScore:"Rank today",sRoe:"Latest ROE",sLast:"Last price",
      riskS:(r,w)=>`A normal-bad month could drop ~<b>${r}%</b> · so put at most <b>฿${w}</b> of every 100`,
      bPfx:"Because ",bJoin:" and ",
      forYou:(l,w)=>`For you (${l}): put at most <b>฿${w}</b> per 100`,
@@ -273,15 +273,21 @@
   }
   function render(){
     if(!DATA)return;
-    let list=activeList().filter(s=>(filter==='ALL'||s.verdict===filter)&&(sector==='ALL'||s.sector===sector)).sort((a,b)=>b.score-a.score);
+    // Rank is a position among ALL scored stocks, never among the ones currently
+    // on screen. Filtering to Banking used to renumber its top name to #1, which
+    // read as "best of 95" when it might be 63rd.
+    const full=activeList().slice().sort((a,b)=>b.score-a.score);
+    const rankOf={}; full.forEach((s,i)=>{rankOf[s.ticker]=i+1;});
+    const UNIV=full.length;
+    let list=full.filter(s=>(filter==='ALL'||s.verdict===filter)&&(sector==='ALL'||s.sector===sector));
     // personalization banner
     const pb=$('#pbanner');
     if(risk){ pb.classList.add('on'); pb.innerHTML=`<span>${tr().banner(tr().prof[risk.key])}</span><span><a id="redoQ">${tr().redo}</a><a id="clrQ">${tr().clear}</a></span>`;
       $('#redoQ').onclick=openQuiz; $('#clrQ').onclick=()=>{risk=null;localStorage.removeItem('ss_risk');render();}; }
     else pb.classList.remove('on');
     if(!list.length){ $('#grid').innerHTML=`<div class="empty">${tr().empty}</div>`; return; }
-    $('#grid').innerHTML=list.map((s,i)=>{const c=vcls[s.verdict],up=s.chg_pct>=0;
-      return `<div class="card" data-t="${s.ticker}"><div class="c-top"><div><span class="rank">#${i+1}</span> <span class="tkr">${s.ticker.replace('.BK','')}</span></div>
+    $('#grid').innerHTML=list.map(s=>{const c=vcls[s.verdict],up=s.chg_pct>=0;
+      return `<div class="card" data-t="${s.ticker}"><div class="c-top"><div><span class="rank">#${rankOf[s.ticker]}<span class="rof">/${UNIV}</span></span> <span class="tkr">${s.ticker.replace('.BK','')}</span></div>
         <span class="badge ${c}">${vemo[s.verdict]} ${tr().v[s.verdict]}</span></div>
         <div class="nm">${s.name_th} <span class="nm-en">· ${s.sector}</span></div>
         <div class="bar"><i style="width:${Math.round(s.score*100)}%;background:${col[c]}"></i></div>
@@ -296,7 +302,7 @@
       <div class="m-badge" style="color:${col[c]};background:${bgc[c]}">${vemo[s.verdict]} ${tr().v[s.verdict]}</div>
       <div class="block"><div class="k">${tr().dRisk}</div><div class="v">${tr().riskS(Math.abs(s.risk_month_pct),pweight(s))}</div>${risk?`<div class="foryou">${tr().forYou(tr().prof[risk.key],pweight(s))}</div>`:''}</div>
       <div class="block"><div class="k">${tr().dWhy}</div><div class="v">${becauseS(s)}</div></div>
-      <div class="stats"><div class="stat"><div class="sv">#${activeList().findIndex(x=>x.ticker===s.ticker)+1}</div><div class="sk">${tr().sScore}</div></div>
+      <div class="stats"><div class="stat"><div class="sv">#${activeList().slice().sort((a,b)=>b.score-a.score).findIndex(x=>x.ticker===s.ticker)+1}<span class="rof">/${activeList().length}</span></div><div class="sk">${tr().sScore}</div></div>
         <div class="stat"><div class="sv">${s.roe_pct==null?"—":s.roe_pct+"%"}</div><div class="sk">${tr().sRoe}</div></div>
         <div class="stat"><div class="sv">฿${s.last.toLocaleString()}</div><div class="sk">${tr().sLast}</div></div></div>
       <div class="m-disc">${DATA.disclaimer}<br>${tr().disc}</div>`;

@@ -1,6 +1,6 @@
 # Monthly rotation backtest - the honesty check
 
-*Run 2026-09-16 14:57 &middot; took 24s &middot; reproduce with `python backtest.py`*
+*Run 2026-09-18 21:25 &middot; took 29s &middot; reproduce with `python backtest.py`*
 
 ## Parameters
 
@@ -39,4 +39,11 @@ LUCK BAR: beat 8% of 300 random portfolios (random median +43.4%)  -> within luc
   trend from low scores to high (Cochran-Armitage): z = -1.04, p = 0.30  -> NO trend
   any difference at all (chi-square): 7.7 on df 9, below the 5% critical value 16.919
   -> the score does not predict direction. No p_win is published.
+
+=== information coefficient (83 months) ===
+  mean rank correlation, score vs next-month return: +0.0055
+  t = +0.28   ·   positive in 43/83 months (52%)   ·   month-to-month sd 0.180
+  a useful equity signal runs 0.03-0.05. Ours is an order of magnitude
+  below that and statistically indistinguishable from zero, which is the
+  same finding as the flat up-rate, reached from the ordering side.
 ```

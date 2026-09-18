@@ -73,6 +73,7 @@ def score_month(i):
 
 
 strat, bench, rand, calib = [], [], [[] for _ in range(K)], []
+ics = []                     # one rank-correlation per month - see the IC block below
 months = mpx.index
 for i in range(12, len(months) - 1):
     sc = score_month(i)
@@ -90,6 +91,16 @@ for i in range(12, len(months) - 1):
         rp = np.random.choice(pool, min(n, len(pool)), replace=False)
         rr = fwd[rp].dropna()
         rand[k].append(rr.mean() if len(rr) else 0.0)
+    # The up-rate below asks about DIRECTION - did it go up. This asks about
+    # ORDERING - did the better-ranked stocks earn more than the worse-ranked
+    # ones. Both need answering, because a score can order stocks correctly
+    # while getting the sign wrong, or the reverse. This is the information
+    # coefficient, and it is the number a quant would ask for first.
+    # Spearman = Pearson on the ranks of both sides, so no scipy is needed.
+    common = sc.index.intersection(fwd.dropna().index)
+    if len(common) >= 30:
+        ics.append(float(sc[common].rank().corr(fwd[common].rank())))
+
     for t in sc.index:
         f = fwd.get(t)
         if pd.notna(f):
@@ -148,3 +159,16 @@ print(f"  trend from low scores to high (Cochran-Armitage): z = {z:+.2f}, p = {p
 print(f"  any difference at all (chi-square): {chi2:.1f} on df 9, "
       f"{'above' if chi2 > CRIT_95_DF9 else 'below'} the 5% critical value {CRIT_95_DF9}")
 print("  -> the score does not predict direction. No p_win is published.")
+
+# ---- and does it get the ORDER right? (the information coefficient) ----
+ica = np.array(ics, dtype=float)
+ica = ica[~np.isnan(ica)]
+mean_ic = ica.mean()
+ic_t = mean_ic / (ica.std(ddof=1) / math.sqrt(len(ica)))
+print(f"\n=== information coefficient ({len(ica)} months) ===")
+print(f"  mean rank correlation, score vs next-month return: {mean_ic:+.4f}")
+print(f"  t = {ic_t:+.2f}   ·   positive in {int((ica > 0).sum())}/{len(ica)} months "
+      f"({(ica > 0).mean()*100:.0f}%)   ·   month-to-month sd {ica.std(ddof=1):.3f}")
+print("  a useful equity signal runs 0.03-0.05. Ours is an order of magnitude")
+print("  below that and statistically indistinguishable from zero, which is the")
+print("  same finding as the flat up-rate, reached from the ordering side.")
