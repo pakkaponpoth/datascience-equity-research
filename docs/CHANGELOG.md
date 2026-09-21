@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-09-21 — the report says what the backtests actually measured
+
+**สรุปสั้น ๆ** แก้รายงานให้ตรงกับโค้ดก่อนนำเสนอ ไม่มีการแก้ engine: (1) บอกชัดว่า backtest ทุกตัวคำนวณปัจจัยจากราคาปลายเดือน ส่วนเว็บใช้ราคารายวัน และวัดแล้วว่าอันดับตรงกันราว 0.91 (2) เขียนกฎ quality gate ของ ROE ให้ตรงโค้ดครบ 3 ข้อ (3) บอกว่าสูตร position cap `0.42 × (1 − risk/32)` เป็น heuristic ที่ยังไม่มีการทดสอบรองรับ และเพิ่มงานหลังนำเสนอสองข้อใน NEXT.md
+
+| Change | Why |
+|---|---|
+| **REPORT §3.1 and §5: the monthly sampling is disclosed.** Every backtest builds the price factors from month-end prices (six monthly steps, twelve monthly returns × √12, twelve month-ends); the site uses daily prices. Measured on the same twelve month-ends: rankings correlate at **0.91**, and the monthly version holds 72% / 79% / 91% of the live BUY list (conservative / balanced / aggressive). | The factor table gave only the daily formulas, so the backtests appeared to test exactly what the site shows. They test the same factors at a different frequency. |
+| **REPORT §3.5.1: the quality gate is described as the code runs it** — magnitude above 100%, an exact repeat of the previous filing, or under 0.5% *and* over fifty times smaller than the median of up to two filings on each side, in filing order. | The report said "neighbouring years" and "the previous year to six decimal places", and omitted the 100% rule. The code compares filings, not calendar years, so a gap in the record widens the comparison. It changes one value (KCE 2001, 0.14% beside 8.5%), which the gate correctly withholds either way. |
+| **REPORT §4: the position cap is labelled an unvalidated heuristic**, with its formula and the site's 0.6 / 1.0 / 1.35 profile scaling. | `0.42` and `32` came from the deleted mock generator `gen_today.js`; no test chose them. §5.3 tested the rule as it stands, which is not the same as justifying the constants. |
+| **NEXT.md**: the survey is marked sent (21 Sep); new *After the presentation* list — momentum looks back 125 trading days where the docs say 126 (rank correlation 0.992; BUY lists change by 0, 0, 1 stock), and replacing the cap only as a new pre-registered trial. | Found in the four-factor verification on 21 Sep. Neither changes anything shown tomorrow. |
+
+### Verify
+
+```
+python tools/facts_lint.py --selftest     # all self-tests pass
+python tools/facts_lint.py                # docs and pages agree with the code
+grep -n "s.iloc\[-126\]" engine/run_today.py   # the 125-step momentum window NEXT.md describes
+```
+
+---
+
 ## 2026-09-21 — the survey catches up with the engine, and the site says how long to hold
 
 **สรุปสั้น ๆ** แบบสอบถามผู้เชี่ยวชาญ (AHP) ที่ยังไม่ได้ส่ง ยังให้เปรียบเทียบปัจจัย Growth ซึ่งถูกถอดออกจาก engine ไปแล้วตั้งแต่ 16 ก.ย. — แก้เป็น ROE ครบทุกแถว และเพิ่มกฎใน facts lint ให้ fail ทันทีถ้าแบบสอบถามไม่ตรงกับ `FACTORS` เว็บบอกแล้วว่าออกแบบสำหรับถือ 6–12 เดือน และลบหมายเหตุสองข้อที่ไม่จริงแล้ว ("ยังไม่ผ่านการทดสอบย้อนหลัง", "v2 จะเพิ่ม ROE") สุดท้าย bootstrap ใน `ahp_analyze.py` ที่ docstring สัญญาไว้แต่ไม่เคยเขียน ตอนนี้มีแล้ว

@@ -110,6 +110,16 @@ The `√252` in quality converts a daily standard deviation to an annual one.
 Uncertainty grows with the square root of time, not linearly: a month is about
 5.5× as uncertain as a day, not 30×.
 
+**The backtests sample these factors monthly; the live list uses daily prices.**
+Every backtest in this report computes the price factors from month-end prices:
+momentum over six monthly steps, quality from the volatility of twelve monthly
+returns × √12, health as the worst fall across twelve month-ends. The table above
+gives the daily formulas the site uses. We measured the gap on the same twelve
+month-ends: the two rankings correlate at about **0.91**, and the monthly version
+contains **72%** of the live BUY list for conservative, **79%** for balanced and
+**91%** for aggressive. They are the same factors sampled at a different
+frequency, so the backtests describe the live product closely but not exactly.
+
 ### 3.2 Normalisation
 
 Raw factors are incomparable — a 6-month return and a volatility figure are
@@ -304,9 +314,12 @@ compared before one was trusted to fill the other: PTT's fiscal 2025 is **7.92%*
 from both.
 
 **A quality gate withholds what the data itself contradicts.** A value is
-withheld when it is near zero *and* fifty times smaller than the same company's
-neighbouring years, or when it repeats the previous year to six decimal places.
-Either test alone would suppress real break-even years, so both are conjunctions.
+withheld in three cases: its magnitude exceeds 100%, which no annual ROE reaches;
+it repeats the same company's previous filing exactly; or it is near zero (under
+0.5%) *and* more than fifty times smaller than the median of the company's nearby
+filings — up to two on each side, counted in filing order, so a gap in the
+record widens the comparison rather than shrinking it. Near zero alone would
+suppress real break-even years, so that rule needs both conditions.
 Sixteen values are withheld. Some are probably real — CRC 2020–21 and PTTGC 2020
 fell close to zero in the pandemic — and suppressing them is a known cost of a
 rule that cannot tell a catastrophic year from a parse error.
@@ -345,7 +358,11 @@ delivered as a small fixed set of sentences:
 | **Latest ROE** | "18.0%" — the figure from the company's own accounts, or a dash where no filing could be read |
 
 Risk uses a monthly Value-at-Risk, `1.645 × σ_daily × √21`, clamped to 6–35%,
-converted into a suggested maximum position size.
+converted into a suggested maximum position size by `0.42 × (1 − risk/32)`,
+clamped to 8–40%, which the site then scales by 0.6 / 1.0 / 1.35 for the three
+profiles (clamped to 5–60%). **These constants are an unvalidated heuristic:** no
+test chose 0.42 or 32 — they were carried over from an early mock-data
+generator. §5.3 tests the rule as it stands; it does not justify the numbers.
 
 The interface is bilingual (Thai/English), works in light and dark, and carries
 an educational-use disclaimer on every card. Verdict wording avoids "buy" —
@@ -358,7 +375,8 @@ investment advice.
 
 All tests are **point-in-time**: at each month, stocks are scored using only
 data available up to that month, and returns are measured strictly afterwards.
-There is no look-ahead.
+There is no look-ahead. The price factors are sampled at month-ends, not daily;
+§3.1 measures how far that moves the ranking.
 
 Each test also reports a **luck bar** — the share of 300 randomly-chosen
 portfolios of the same size that our picks beat. This is the critical control.

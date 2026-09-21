@@ -31,8 +31,13 @@ Five findings, all measured, all reproducible:
 
 ## ▶️ Do FIRST
 
-1. **Send the AHP survey.** The only task needing other people's time — it sets the real deadline, not the presentation date. It is ready as of 21 Sep: until then it still asked experts to weigh Growth, five days after the engine dropped it, and its answer template would have crashed the analysis. The facts lint now fails if the survey and `FACTORS` disagree.
+1. **Collect the AHP answers.** The survey went out on 21 Sep (Growth → ROE fixed first; the facts lint now fails if the survey and `FACTORS` disagree). Answers set the real deadline, not the presentation date. When they arrive, save them as `research/ahp_responses.csv` (same columns as `ahp_responses_template.csv`) and run `python research/ahp_analyze.py`.
 2. **Ask the repo owner to fix the branch rule** — `main` still requires the website-build checks, which never run on a pull request, instead of `checks`. Until that changes a green PR cannot merge.
+
+## 🗓️ After the presentation (22 Sep)
+
+1. **Momentum looks back 125 trading days; the docs say 126.** `run_today.py` computes `s.iloc[-1] / s.iloc[-126] - 1`, which is 125 steps. Measured: rank correlation with a true 126-day window **0.992**, and the BUY lists change by 0, 0 and 1 stock. Make the code match the documented definition, then `run_today.py` + `verify_today.py`. This is a correction, not a new model search, and it touches no pre-registered one-shot.
+2. **The position cap has no recorded rationale.** `cap = 0.42 × (1 − risk/32)`, clamped to 8–40%, was carried over from the mock generator `gen_today.js` (31 Jul, since deleted); no test chose 0.42 or 32. The site then scales it by 0.6 / 1.0 / 1.35 per profile, clamped to 5–60%. The report now calls it an unvalidated heuristic (§4). Replacing it is a **new pre-registered trial**: write it into `TRIALS.md` before running anything, and **never re-run `backtest_sizing.py`**.
 
 ## ⚠️ Do NOT
 
