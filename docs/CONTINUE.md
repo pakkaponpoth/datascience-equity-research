@@ -119,7 +119,7 @@ declared the Action dead from a local clone that was 22 commits behind.
 ## ▶️ What's next
 
 1. **Send the AHP survey.** It is the only task that needs other people's calendar time, so it sets the real deadline. Four factors → 6 comparisons per profile, 18 per expert (was 45). Ready as of 21 Sep, when it was brought up to date with ROE.
-2. **Merge PRs #1 and #2** on the team repo. #2 is stacked on #1.
+2. **Open the pull request for `roe-replaces-growth`** (ROE replaces growth, rank out of 95, the ROE audit, the survey update, the holding period). PRs #1–#8 are all merged. A green PR still cannot merge until the branch rule requires `checks` instead of the website-build checks.
 3. **Finish `REPORT.md`** — needs team review and real names/IDs.
 
 ## ⚠️ Do NOT
