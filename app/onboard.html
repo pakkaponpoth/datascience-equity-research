@@ -117,7 +117,7 @@
     <div class="card"><h3>Verdict</h3><p>Worth a look / Wait / Not now.</p><div class="ex">🟢 Worth a look</div></div>
     <div class="card v"><h3>Risk in baht</h3><p>A normal-bad month, in real money.</p><div class="ex">bad month ≈ −16% → max ฿23/100</div></div>
     <div class="card b"><h3>Because</h3><p>The top reasons, in plain words.</p><div class="ex">above its long average, not spiked</div></div>
-    <div class="card t"><h3>Trust label</h3><p>How much to trust it — honestly.</p><div class="ex">not a profit promise, tells risk</div></div>
+    <div class="card t"><h3>Risk, in baht</h3><p>How far it could fall in a bad month.</p><div class="ex">not a profit promise, tells risk</div></div>
   </div>
 
   <div class="tag" style="margin-top:26px">The 4 factors (the “score”)</div>
@@ -131,39 +131,40 @@
     on 9 Sep 2026 after measuring that it correlated <b>&minus;0.93</b> with Momentum — it was that factor
     with the sign flipped, not a separate one.
     <span class="th">· เคยมีปัจจัยที่ 5 ชื่อ Value แต่ตัดออกแล้ว เพราะซ้ำกับโมเมนตัม</span></div>
-  <div class="note">Each factor is <b>z-scored</b> (put on a fair 0-centred scale) and <b>sector-neutralized</b>
-    — a stock is judged against <b>its own sector peers</b>, so one calm sector (like banks) can't sweep the top.
-    <span class="th">· ให้คะแนนเทียบกับหุ้นในกลุ่มเดียวกัน</span></div>
+  <div class="note">Each factor is <b>z-scored</b> (put on a fair 0-centred scale) across <b>all 95 stocks</b> —
+    the same group the rank "#7 / 95" compares against. Until 21 Sep 2026 scores were also adjusted within each
+    sector; that step was dropped, so the calmest sector, <b>banks</b>, now fills much of the safer lists.
+    <span class="th">· ให้คะแนนเทียบกับหุ้นทั้ง 95 ตัว (เลิกปรับตามกลุ่มอุตสาหกรรมแล้ว) หุ้นธนาคารซึ่งราคานิ่งจึงติดรายการสายปลอดภัยมาก</span></div>
 
   <div class="tag" style="margin-top:26px">The 3 engines (personalization)</div>
   <p>Same 4 factors, <b>three weightings</b> — one per risk appetite. Your risk-quiz answer picks which list you see.
     This is a <b>personalized recommender</b>: user profile → matching model.</p>
   <div class="eng">
-    <div class="card c1"><h3>🛡️ Conservative</h3><div class="w">quality 50 · health 38 · mom 6 · growth 6</div>
+    <div class="card c1"><h3>🛡️ Conservative</h3><div class="w">quality 50 · health 38 · mom 6 · ROE 6</div>
       <div class="res">Calm, lower-risk picks. <span class="bad">Trails the market</span> — by design.</div></div>
-    <div class="card c2"><h3>⚖️ Balanced</h3><div class="w">quality 37 · mom 26 · health 21 · growth 16</div>
+    <div class="card c2"><h3>⚖️ Balanced</h3><div class="w">quality 37 · mom 26 · health 21 · ROE 16</div>
       <div class="res">The middle default. Also defensive-leaning.</div></div>
-    <div class="card c3"><h3>🚀 Aggressive</h3><div class="w">mom 47 · growth 35 · quality 12 · health 6</div>
+    <div class="card c3"><h3>🚀 Aggressive</h3><div class="w">mom 47 · ROE 35 · quality 12 · health 6</div>
       <div class="res">Higher raw return than the others, but <span class="bad">still no edge over buy-and-hold</span> once risk is accounted for.</div></div>
   </div>
 
   <div class="tag" style="margin-top:26px">The honest findings (from real backtests)</div>
   <table>
     <tr><th>Engine (buy picks, hold 12mo)</th><th class="n">return</th><th class="n">vs buy&hold</th><th class="n">beats random</th></tr>
-    <tr><td>🛡️ Conservative</td><td class="n">+1.3%</td><td class="n bad">−5.4</td><td class="n">0%</td></tr>
-    <tr><td>⚖️ Balanced</td><td class="n">+1.9%</td><td class="n bad">−4.8</td><td class="n">0%</td></tr>
-    <tr><td>🚀 Aggressive</td><td class="n good">+9.0%</td><td class="n good">+2.3</td><td class="n good">96%</td></tr>
+    <tr><td>🛡️ Conservative</td><td class="n">+1.9%</td><td class="n bad">−5.6</td><td class="n">0%</td></tr>
+    <tr><td>⚖️ Balanced</td><td class="n">+3.2%</td><td class="n bad">−4.3</td><td class="n">0%</td></tr>
+    <tr><td>🚀 Aggressive</td><td class="n">+8.4%</td><td class="n">+0.9</td><td class="n">82%</td></tr>
   </table>
   <p><b>Read it honestly:</b> the defensive engines <b>don't beat the market</b> — that's expected (efficient
-  markets) and it's <b>the thesis, not a bug</b>. The aggressive engine <b>does</b> show a real edge (the
-  well-documented <b>momentum premium</b>) — and it <b>survives trading costs</b> (+126% net over 10y vs +86%
-  buy&hold, even at 1% round-trip). Caveats we keep out loud: survivorship bias in old data, momentum can crash,
-  one market/period.</p>
+  markets) and it's <b>the thesis, not a bug</b>. The aggressive engine edges it by 0.9 points and beats 82% of
+  random portfolios — <b>under the 90% bar we set in advance</b>, and on a period we had already examined many
+  times. Taken to a sealed period it reached 81% and won only 2 of 5 blocks, so we <b>do not call it an edge</b>.
+  Caveats we keep out loud: survivorship bias in old data, momentum can crash, one market/period.</p>
 
   <div class="tag" style="margin-top:26px">The honesty rails (why judges trust it)</div>
   <div class="rails">
     <div class="rail"><b>Luck bar</b> — we compare against hundreds of random portfolios. Real skill beats most of them; luck doesn't.</div>
-    <div class="rail"><b>Calibration</b> — we checked if a high score predicts an up-move. It <b>doesn't</b> (flat ~47%). So the honest <code>p_win</code> is ~47% — we rank research-worthiness, not direction.</div>
+    <div class="rail"><b>Calibration</b> — we checked if a high score predicts an up-move. It <b>doesn't</b> (flat ~47%, p = 0.53). So the app shows <b>no hit rate at all</b> — a figure that says the same thing about every stock is not information. We rank research-worthiness, not direction.</div>
     <div class="rail"><b>No look-ahead</b> — every backtest scores using only past data, then measures the future.</div>
     <div class="rail"><b>Educational, not advice</b> — soft wording, disclaimers everywhere, non-commercial.</div>
   </div>
@@ -174,7 +175,7 @@
     <span class="p2 p-real">✓ real: risk (VaR) · prices</span>
     <span class="p2 p-real">✓ real: backtests + costs</span>
     <span class="p2 p-real">✓ real: 3 engines</span>
-    <span class="p2 p-real">✓ real: p_win (measured ~47%)</span>
+    <span class="p2 p-real">✓ real: ROE from the filed accounts</span>
     <span class="p2 p-todo">◷ factor weights → AHP survey</span>
     <span class="p2 p-todo">◷ v2 fundamentals (P/E, ROE)</span>
     <span class="p2 p-todo">◷ investor survey (primary data)</span>

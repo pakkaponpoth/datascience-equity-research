@@ -32,5 +32,5 @@ def _data_dir():
     return PARENT   # nothing found: callers raise their own clear error
 
 
-# universe.json, today.json, calibration.json and the price caches live here
+# universe.json, today.json, roe_history.csv and the price caches live here
 DATA = _data_dir()

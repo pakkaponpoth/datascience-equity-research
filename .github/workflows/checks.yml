@@ -56,3 +56,9 @@ jobs:
 
       - name: Docs and pages agree with the code
         run: python tools/facts_lint.py
+
+      # Breaks 200 known-good ROE rows with the four faults found in the real
+      # data and checks the gate catches them, flags nothing clean, and never
+      # repairs a row to a wrong value. Fails the PR if any of those slip.
+      - name: ROE quality gate catches known faults (self-test)
+        run: python tools/roe_selftest.py

@@ -7,7 +7,8 @@ the multi-engine idea is real.
 """
 import json, os
 import numpy as np, pandas as pd, yfinance as yf
-from factors import FACTORS as FACT, PROFILES as _P
+from factors import FACTORS as FACT, PROFILES as _P, zscore
+from roe_data import roe_asof, neutral_fill              # point-in-time ROE, see roe_data.py
 PROFILES = {k.capitalize(): v for k, v in _P.items()}
 
 # scripts live in research/, but the data and reports live one level up
@@ -27,20 +28,17 @@ for t in tickers:
         continue
     dvol = s.pct_change().tail(252).std()
     eq = s.tail(252)
-    rows[t] = dict(momentum=s.iloc[-1] / s.iloc[-126] - 1, growth=s.iloc[-1] / s.iloc[max(0, len(s)-252)] - 1,
+    rows[t] = dict(momentum=s.iloc[-1] / s.iloc[-126] - 1,
+                   roe=roe_asof(t, s.index[-1]),
                    quality=-dvol*np.sqrt(252),
                    health=(eq/eq.cummax()-1).min(), sector=meta[t]["sector"],
                    risk=-int(round(min(max(1.645*dvol*np.sqrt(21)*100, 6), 35))))
 df = pd.DataFrame(rows).T
+df["roe"] = neutral_fill(list(df["roe"]))   # see roe_data.py
 
-# z-score + sector-neutralize (same as the real engine)
+# universe-wide z-score (same as the real engine; no sector step since 2026-09-21)
 for f in FACT:
-    c = df[f].astype(float); sd = c.std(ddof=0)
-    df[f + "z"] = ((c - c.mean()) / (sd if sd > 0 else 1)).clip(-3, 3)
-big = set(df["sector"].value_counts().loc[lambda c: c >= 3].index)
-inb = df["sector"].isin(big)
-for f in FACT:
-    df[f + "z"] = df[f + "z"] - df.groupby("sector")[f + "z"].transform("mean").where(inb, 0.0)
+    df[f + "z"] = zscore(df[f])
 
 for name, W in PROFILES.items():
     df["sc"] = sum(W[f] * df[f + "z"] for f in FACT)

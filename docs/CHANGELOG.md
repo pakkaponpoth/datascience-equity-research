@@ -4,6 +4,260 @@
 
 ---
 
+## 2026-09-21 — the sector adjustment is dropped, and banks fill the safer lists
+
+**สรุปสั้น ๆ** ทีมตัดสินใจเลิกปรับคะแนนตามกลุ่มอุตสาหกรรม (sector neutralisation) เพราะเว็บจัดอันดับ "#k จาก 95" เทียบทั้งตลาด ตอนนี้คะแนนทุกปัจจัยเป็น z-score เทียบหุ้นทั้ง 95 ตัว วัดผลก่อนเปลี่ยนด้วยราคาชุดเดียวกัน: หุ้นธนาคารทั้ง 7 ตัวเข้ารายการ BUY ของสายปลอดภัยและสายสมดุล และอยู่ใน 10 อันดับแรก 6–7 ตัว (เดิมไม่มีเลย) ทีมยอมรับผลนี้และเขียนไว้ในรายงาน ส่วน backtest ที่รันใหม่ดูดีขึ้นเล็กน้อย แต่ไม่ใช่หลักฐานว่าการเปลี่ยนนี้ช่วย ข้อสรุปเดิมไม่เปลี่ยน
+
+| Change | Why |
+|---|---|
+| **The sector step is gone from the live engine and every descriptive backtest.** Each factor is z-scored across all 95 stocks and clipped to ±3; nothing is subtracted per sector. | Team decision (trial 82 in the lab, recorded before anything was measured): the site ranks every stock "#k of 95" across the whole universe, and scores built sector by sector do not compare a stock with all 95. |
+| **One normalisation, `factors.zscore`, replaces nine copies** in `run_today.py`, `backtest.py`, `backtest_hold.py`, `backtest_costs.py`, `backtest_long.py`, `backtest_profiles.py`, `explore.py`, `profiles_demo.py` and `rederive_section34.py`. It needs no pandas import, so the facts lint still loads `factors.py` without it. | The same five lines had been pasted into every script; changing the model meant nine edits and a chance to miss one. `blind_test.py` and `backtest_sizing.py` keep their own copy of the old step on purpose - they are sealed. |
+| **Measured on identical closing prices before shipping:** BUY lists keep 8, 11 and 15 of 20 names (conservative / balanced / aggressive); all 7 banks enter the conservative and balanced BUY lists; banks in the top 10 go 0 → 6, 0 → 7 and 0 → 1. Balanced now shares 18 of its top 20 with conservative (15 with the step). | This is the concentration the step was added in July to prevent. It is accepted, stated in REPORT 3.2, HOW-IT-WORKS and the onboarding page, not hidden. |
+| **Backtests re-run** (`backtest`, `backtest_hold`, `backtest_profiles`, `backtest_costs`, `backtest_long`, `explore --years`, `rederive_section34`) and REPORT 3.4, 5.1, 5.1.1, 5.2 and 8 updated. Up-rate still flat (p 0.28), IC +0.0050 (t 0.20), top 20% still trails buy-and-hold with a 1–2% luck bar. The numbers are a little better than before. | Kept consistent with the shipped model. REPORT 5.2 states plainly that the improvement is not evidence the change helped: same survivorship-biased window, after a model change. The sealed one-shots were not re-run. |
+| **REPORT 3.3's weight table said "Growth"** where the column is ROE. | Missed on 16 Sep; the lint checks table rows for retired factors, not header rows. |
+| **Facts lint: a `sector` stale-claim rule** (sector-neutral / sector-adjusted / "its own sector peers" / "within sector"), waived only for the two sealed scripts. 50 self-tests. | So the old description cannot quietly return in a doc or on a page. |
+| **The survey text** (`research/expert-ahp.md`) says scores are ranked across the whole market, with a note that the copy sent on 21 Sep still said sector-neutralised. | It does not change what experts are asked to compare. |
+
+### Verify
+
+```
+python tools/facts_lint.py --selftest     # 50/50
+python tools/facts_lint.py                # docs and pages agree with the code
+grep -ln 'groupby("sector")' engine/*.py  # only blind_test.py and backtest_sizing.py
+cd engine && python run_today.py && python verify_today.py
+python rederive_section34.py              # PTT #4 / #6 / #43, GUNKUL #53 / #14 / #2
+```
+
+---
+
+## 2026-09-21 — the report says what the backtests actually measured
+
+**สรุปสั้น ๆ** แก้รายงานให้ตรงกับโค้ดก่อนนำเสนอ ไม่มีการแก้ engine: (1) บอกชัดว่า backtest ทุกตัวคำนวณปัจจัยจากราคาปลายเดือน ส่วนเว็บใช้ราคารายวัน และวัดแล้วว่าอันดับตรงกันราว 0.91 (2) เขียนกฎ quality gate ของ ROE ให้ตรงโค้ดครบ 3 ข้อ (3) บอกว่าสูตร position cap `0.42 × (1 − risk/32)` เป็น heuristic ที่ยังไม่มีการทดสอบรองรับ และเพิ่มงานหลังนำเสนอสองข้อใน NEXT.md
+
+| Change | Why |
+|---|---|
+| **REPORT §3.1 and §5: the monthly sampling is disclosed.** Every backtest builds the price factors from month-end prices (six monthly steps, twelve monthly returns × √12, twelve month-ends); the site uses daily prices. Measured on the same twelve month-ends: rankings correlate at **0.91**, and the monthly version holds 72% / 79% / 91% of the live BUY list (conservative / balanced / aggressive). | The factor table gave only the daily formulas, so the backtests appeared to test exactly what the site shows. They test the same factors at a different frequency. |
+| **REPORT §3.5.1: the quality gate is described as the code runs it** — magnitude above 100%, an exact repeat of the previous filing, or under 0.5% *and* over fifty times smaller than the median of up to two filings on each side, in filing order. | The report said "neighbouring years" and "the previous year to six decimal places", and omitted the 100% rule. The code compares filings, not calendar years, so a gap in the record widens the comparison. It changes one value (KCE 2001, 0.14% beside 8.5%), which the gate correctly withholds either way. |
+| **REPORT §4: the position cap is labelled an unvalidated heuristic**, with its formula and the site's 0.6 / 1.0 / 1.35 profile scaling. | `0.42` and `32` came from the deleted mock generator `gen_today.js`; no test chose them. §5.3 tested the rule as it stands, which is not the same as justifying the constants. |
+| **NEXT.md**: the survey is marked sent (21 Sep); new *After the presentation* list — momentum looks back 125 trading days where the docs say 126 (rank correlation 0.992; BUY lists change by 0, 0, 1 stock), and replacing the cap only as a new pre-registered trial. | Found in the four-factor verification on 21 Sep. Neither changes anything shown tomorrow. |
+
+### Verify
+
+```
+python tools/facts_lint.py --selftest     # all self-tests pass
+python tools/facts_lint.py                # docs and pages agree with the code
+grep -n "s.iloc\[-126\]" engine/run_today.py   # the 125-step momentum window NEXT.md describes
+```
+
+---
+
+## 2026-09-21 — the survey catches up with the engine, and the site says how long to hold
+
+**สรุปสั้น ๆ** แบบสอบถามผู้เชี่ยวชาญ (AHP) ที่ยังไม่ได้ส่ง ยังให้เปรียบเทียบปัจจัย Growth ซึ่งถูกถอดออกจาก engine ไปแล้วตั้งแต่ 16 ก.ย. — แก้เป็น ROE ครบทุกแถว และเพิ่มกฎใน facts lint ให้ fail ทันทีถ้าแบบสอบถามไม่ตรงกับ `FACTORS` เว็บบอกแล้วว่าออกแบบสำหรับถือ 6–12 เดือน และลบหมายเหตุสองข้อที่ไม่จริงแล้ว ("ยังไม่ผ่านการทดสอบย้อนหลัง", "v2 จะเพิ่ม ROE") สุดท้าย bootstrap ใน `ahp_analyze.py` ที่ docstring สัญญาไว้แต่ไม่เคยเขียน ตอนนี้มีแล้ว
+
+| Change | Why |
+|---|---|
+| **`research/expert-ahp.md` and `ahp_responses_template.csv`: Growth → ROE** in the definitions, all three comparison blocks, and the matrix note (4×4, RI = 0.90 for n = 4). | The survey had not been sent, and it still asked experts to weigh a factor the engine dropped five days earlier. The template would have crashed the analysis (`FACTORS.index("growth")`). Instance #7 of the same failure mode. |
+| **`ahp_analyze.py`**: `--demo` runs again (its fake panel still had growth and value), the usage line no longer offers an `--apply` flag that never existed, and the matrix and pair counts follow `FACTORS`. | Found by the lint's new docstring scan and by running the demo. |
+| **The bootstrap exists.** 1,000 resamples of the panel, re-aggregated the same way (AIJ), re-ranking today's stocks; it reports how often each stays in the top 10 and writes it to `reports/ahp_weights.json`. | The docstring promised it since 1 Sep and called it the honest replacement for `p_win`. |
+| **`today.json` publishes `factor_z`**, each stock's four sector-adjusted z-scores. | The bootstrap needs them. Checked: re-scoring from `factor_z` and the weights reproduces all three published lists exactly. |
+| **The site states the holding period**: *built for holding 6–12 months, not for trading the daily changes*, under the title in both languages. The "Honest notes" drop *not yet backtested* and *v2 adds fundamentals (P/E, ROE)*, both false now. | Every backtest assumed 6–12 months, and monthly trading was the worst of the five frequencies tested, while the page refreshed daily and showed a monthly risk figure. |
+| **The facts lint learnt three rules and a new place to look.** `survey-factor` (a comparison row or template row naming anything but `FACTORS`), `matrix-size` ("5×5 matrix", "RI … for n = 5"), two new stale claims, and it now reads **docstrings** in `engine/`, `tools/` and `research/`. "92 of 95 stocks" no longer counts as a universe size. 46 self-tests. | Run against the old files, the new rules catch all 30 problems above. Run against today's files, it passes. |
+
+### Verify
+
+```
+python tools/facts_lint.py --selftest     # 46/46
+python tools/facts_lint.py                # docs and pages agree with the code
+python research/ahp_analyze.py --demo     # runs; prints TOP-10 STABILITY (demo data)
+cd engine && python run_today.py && python verify_today.py
+```
+
+---
+
+## 2026-09-21 — ROE audited, repaired, 95 of 95
+
+**สรุปสั้น ๆ** ตรวจข้อมูล ROE ทุกแถวด้วยห้าวิธีที่ผิดได้อย่างอิสระต่อกัน ได้ ROE ครบทั้ง 95 บริษัท (BANPU ไม่ได้อ่านไม่ออก แต่ไม่มีเอกสารในคลังของ ก.ล.ต. เลย จึงดึงจากงบของ SET โดยตรง) แก้กฎวันที่ข้อมูลใช้ได้สำหรับบริษัทที่ปิดงบไม่ใช่เดือนธันวาคม และเพิ่มด่านตรวจที่กันค่าที่ขัดแย้งกับข้อมูลของบริษัทเองไว้ 16 ค่า เทียบกับตัวเลขของ SET ปีเดียวกัน ห่างกันแค่ค่ามัธยฐาน 0.002 จุด
+
+### Before and after
+
+| | before | after |
+|---|---|---|
+| Companies with ROE | 94 of 95 | **all 95** |
+| Cards showing a value | 94 | **95 — no dashes** |
+| Rows published | 1,591, none independently checked | **1,570 of 1,586**, 16 withheld |
+| Agreement with SET, same fiscal year | never measured | **median gap 0.002 pts** over 282 stock-years |
+| Values on the site within 2 pts of Yahoo | 88 of 94 | **92 of 95** |
+| Disagreements over 5 pts | BTS, DOHOME | **GULF** — a merger year where Yahoo's own two figures differ by 4.5 pts |
+
+### What changed, and which approach found it
+
+| Change | Found by |
+|---|---|
+| **Availability follows each company's real fiscal year end.** Four close outside December — AEONTS (Feb), BTS and VGI (Mar), AOT (Sep). BTS showed **+4.0%** against a latest filed **−2.0%**; VGI **+1.7%** against **−3.0%**. The date is now computed in `roe_data.py`, and the `usable_from` column was deleted from the CSV so a stale copy cannot contradict the rule. | cross-checking the displayed values against Yahoo, then reading year ends off 95 balance sheets' period dates |
+| **BANPU filled from SET's own statements**, with GULF and TIDLOR's fiscal 2025. BANPU's annual filings are **not indexed in SEC's archive**: every query returns one 2026 Q2 document, and one year at a time returns none, where PTT returns 208 across 26 years. `settfex` also refused BANPU outright over a single null `downloadUrl`. Checked first: PTT's fiscal 2025 is **7.92% from both** sources. | probing the search six ways, then reading SET's API directly |
+| **Full 95-stock re-parse with the current parser.** DOHOME fixed — eight sign flips, its 2025 now +4.58% against Yahoo's +4.6%, and nine pre-2018 years removed that predate its 2019 listing. **It also broke three**: KBANK 2024, TTB 2023 and AEONTS 2002 were each overwritten with the following year's value. Restored from the pre-re-parse data and tagged `sec-prior`. | diffing every value before shipping, rather than trusting the re-run |
+| **A quality gate** withholds a value that is near zero *and* 50x off its neighbours, or that repeats the previous year to six decimals. 16 withheld. Some are probably real pandemic years (CRC 2020–21, PTTGC 2020) — a cost accepted knowingly. | nine internal consistency checks that need no outside source |
+| **Five values repaired, only where provable.** The parser divided net profit by up to a million whenever a ratio exceeded 1.0; AOT 2005 became 0.0001%. It now stores the prior-year profit the filing states beside the current one, so year Y can be checked against year Y+1's statement of it. AOT 2005 **12.05%**, KTB 2008 **12.32%**, MEGA 2018 **10.67%** and 2019 **19.14%** from the next filing's comparative; SCB 2012 **26.06%** once an equity of 154 trillion baht is read in thousands. KKP 2014 and M 2012 also rescaled into a plausible range and were **rejected anyway** — the corrected equity contradicted each company's own balance sheets. | a magnitude bound, the next year's comparative, and a check against the company's own equity trajectory |
+| **`tools/roe_selftest.py`, run on every PR.** Breaks 200 rows the gate accepts with the four faults found in the real data. | fault injection — ground truth we manufactured ourselves |
+
+### How the checks were themselves tested
+
+```
+TEST A  ours vs SET, same fiscal year, 282 stock-years
+        within 0.5 pts 80.9%  ·  within 2 pts 96.1%  ·  within 5 pts 98.9%
+        median gap 0.002  ·  mean SIGNED gap +0.187   <- no systematic drift
+        7 of the 11 gaps over 2 pts are the test's own artifact: SET held only
+        one year of equity there, so it compared year-end against our average
+
+TEST B  detection   equity x1000 99.5%  ·  profit x1e-6 99.5%
+                    repeated year 100%  ·  driven to zero 100%
+                    false positives on 1,570 untouched rows: 0
+
+TEST C  recovery    169 of 199 restored exactly (84.9%)
+                    30 declined and left withheld (15.1%)
+                    0 restored to a wrong value
+```
+
+**What this does not prove.** Tests B and C inject the faults we already know
+about; they cannot rule out a fifth kind. The equity-chain check is blind to an
+error made *consistently* in two consecutive filings — SCB's 154 trillion passed
+it, and only an absolute magnitude bound caught it.
+
+**A lesson about the lint.** `docs/REPORT.md` and `docs/HOW-IT-WORKS.md` carried
+"94 of 95" behind a `facts-lint: ignore` marker, correctly, because it described
+ROE coverage rather than the universe. When coverage reached 95 the line became
+false, and the marker kept the lint from ever saying so. Both markers are gone.
+An ignore marker silences a line permanently, including after its fact changes.
+
+### How to check it
+
+```bash
+python tools/roe_selftest.py          # PASS: detection, false positives, wrong repairs
+python tools/facts_lint.py --selftest && python tools/facts_lint.py
+cd engine && python run_today.py      # "ROE: 95/95 tickers have a filed ROE usable today"
+python verify_today.py
+python -c "import roe_data as r; print(r.usable_from('BTS', 2026), len(r.flagged()))"
+# -> 2026-07-01 16
+```
+
+---
+
+## 2026-09-18 — The rank is a rank of 95, not a rank of whatever is on screen
+
+**สรุปสั้น ๆ** เปลี่ยนการ์ดจากเลข 0–1 มาแสดงอันดับ "#7 / 95" และแก้บั๊กที่การกรองตามหมวดทำให้อันดับเริ่มนับใหม่จาก 1 พร้อมวัด information coefficient ของอันดับ ได้ +0.0055 (t = 0.28) แปลว่าอันดับไม่ได้ทำนายผลตอบแทน — ผลเดียวกับอัตราขึ้นที่แบน แต่มองจากอีกด้าน
+
+### What changed
+
+| Change | Why |
+|---|---|
+| **The card shows `#7 / 95`** instead of a bare `#7` beside a score bar. | A position on a list needs no explanation; "0.93" invites one. |
+| **The rank is computed against the whole active profile list, not the filtered view.** | This was a real misrepresentation, not a cosmetic issue — see below. |
+| **The stat label is now "Rank today" / "อันดับวันนี้".** | It describes where a stock sits on today's list. It is not a forecast, and section 5.1.1 is why. |
+| **`backtest.py` now computes the information coefficient.** | The report quotes it, so the code produces it. Instance seven of the failure mode would have been typing it by hand. |
+
+### The bug the rank change exposed
+
+The card read `#${i+1}` where `i` was the index **in the filtered list**. Filter to Banking and its best
+name rendered as **#1** — which reads as "best of 95" when it might be 63rd of 95. Every sector filter and
+every verdict filter produced the same false impression, and it had been there since the filters shipped.
+
+```
+before:  filter to Banking  ->  first two cards read  #1, #2
+after :  filter to Banking  ->  first two cards read  #1/95, #8/95
+```
+
+### What the rank is worth — measured, not assumed
+
+Before changing how the rank is displayed, we measured whether the rank means anything at all.
+The **information coefficient** is the rank correlation between this month's score and next month's return:
+
+| | |
+|---|---|
+| Months measured | 83 |
+| Mean IC | **+0.0055** |
+| t | **+0.28** |
+| Positive in | 43 of 83 months (52%) |
+
+A useful equity signal runs 0.03–0.05. **Ours is an order of magnitude below that and statistically zero.**
+Section 5.1 tested *direction* (the flat 47.4% up-rate); this tests *ordering*. Both land in the same place,
+which is why the rank is presented as a position on a list and nothing more.
+
+### How to check it
+
+```bash
+cd engine
+python backtest.py        # the up-rate table, the trend tests, and now the IC
+python ../tools/facts_lint.py --selftest && python ../tools/facts_lint.py
+# then open app/index.html, pick a sector in the filter, and read the rank badges
+```
+
+---
+
+## 2026-09-16 — ROE replaces growth, and the hit rate leaves the product
+
+**สรุปสั้น ๆ** เปลี่ยนปัจจัย `growth` (ผลตอบแทน 12 เดือน) เป็น `roe` (กำไรต่อส่วนของผู้ถือหุ้น อ่านจากงบการเงินจริง 1,591 ปี-หุ้น จากคลังเอกสาร ก.ล.ต.) เพราะ `growth` กับ `momentum` ซ้ำกันที่ +0.66 — และการทดสอบบอกว่า **ผลตอบแทนไม่ได้ดีขึ้นเลย** (t = 0.01) เรารับมาเพราะทำให้ปัจจัยทั้งสี่ถามคนละคำถาม ไม่ใช่เพราะทำเงินได้มากขึ้น พร้อมกันนั้นเอา `p_win` / "hit rate" ออกจากเว็บทั้งหมด เพราะค่าที่วัดได้แบนที่ ~47% ทุกช่วงคะแนน
+
+### What changed
+
+| Change | Why |
+|---|---|
+| **`growth` → `roe` in `factors.py`**, at the same weight in all three profiles (conservative 6, balanced 16, aggressive 35). | The 6-month and 12-month returns correlate **+0.66** across 62 non-overlapping periods: two of four slots asking one question. |
+| **`engine/roe_history.csv` + `engine/roe_data.py`** — 1,591 stock-years, 94 of 95 companies, 2001–2026, read from the annual statements in SEC Thailand's disclosure archive. `roe_data.py` is the only place the point-in-time rule lives: a fiscal year is usable from **1 April of the following year**. | Yahoo and the SET site publish 3–5 years. A backtest needs decades, and it must not see a statement before it was filed. |
+| **Missing ROE is scored at the universe median**, not dropped, by one shared function (`neutral_fill`). Today that is one stock of 95 (BANPU). `today.json` publishes the coverage count and the card shows a dash. | Dropping stocks would shrink the universe most where coverage is thinnest and change what the backtest measures. |
+| **`p_win` removed from `today.json`, the card, `verify_today.py` and `calibration.json` deleted.** `backtest.py` still prints the up-rate table, and now computes the Cochran–Armitage and χ² statistics itself. | The measured up-rate is flat (47.4%, z = −1.04, p = 0.30). A number identical for every stock, rendered next to one stock's name, invites the reading the measurement rules out. |
+| **The "because" chips stopped lying.** They said *"strong, stable earnings"* for a factor that only measures price volatility, and *"solid balance sheet, low debt"* for one that only measures drawdown. | Instance #6 of the same failure mode: a description written once and never re-checked against the code. |
+| **Every figure describing the engine re-measured**: REPORT §3.4, §5.1, §5.2; HOW-IT-WORKS and `onboard.html` findings tables. | The engine changed, so numbers measured on the old one describe software that no longer ships. |
+| **The facts lint learnt the change**: the calibration-month rules are gone, and a new `retired-factor` rule fails any current-tense line calling `growth` or `value` one of the engine's factors. 30 self-tests. | Nothing in this list should need a human to notice it next time. |
+
+### The evidence, in order
+
+| Trial | Hypothesis, written before it ran | Result |
+|---|---|---|
+| 79 | ROE is not a duplicate: \|r\| < 0.80 against every live factor, judged before any return is examined | **Pass** — −0.04 momentum, −0.02 growth, +0.11 quality, +0.04 health |
+| 80 | ROE replaces growth and beats the current engine, t > 2.0 and Sharpe above the deflated bar of 0.82 | **Fail** — +0.0%/yr, t = 0.01 |
+| 81 | ROE replaces momentum instead | **Fail** — −1.7%/yr, t = −1.14 |
+
+Trial 81 is what settles the design: dropping the **6-month** return costs 1.7 points a year, dropping the
+**12-month** one costs nothing measurable, so the 12-month return was the replaceable slot. Five robustness
+treatments (complete-record stocks only, a 1 July filing lag, dropping the stock-years that disagree with
+Yahoo, winsorised ROE) all land between t = −0.25 and +0.22 — the 9% of filings we could not read cannot
+flip the verdict.
+
+**This is not a performance change and must not be presented as one.** An earlier run showed +0.8%/yr
+(t = 0.65) before two unit bugs were fixed — MEGA's filing states profit in baht and equity in thousands
+(ROE read as 9,959%), CRC's income statement says "million Baht" where its balance sheet says only "Baht"
+(25,436,242%). The whole apparent gain was a data artifact.
+
+### What it did to the numbers
+
+| Measure | Price-only engine | With ROE |
+|---|---|---|
+| Up-rate across score bands | 47.3%, z = −0.62, χ² = 16.4 | 47.4%, z = −1.04, χ² = 7.7 |
+| Hold 12 months, balanced | +1.5% vs +8.2% B&H | +2.8% vs +8.7% B&H |
+| 12-month returns: cons / bal / agg | 2.1% / 4.8% / 9.6% | 1.9% / 3.2% / 8.4% (B&H 7.5%) |
+| Aggressive luck bar | 98% | 82% |
+| PTT on 1 Sep, ranks cons / bal / agg | #1 / #5 / #77 | #2 / #3 / #47 |
+
+On this 8-year window the ROE engine is slightly the weaker of the two; on the 15-year non-overlapping test
+the two are indistinguishable. Both are consistent with the finding that has held all along: **neither
+version beats buying everything.**
+
+### How to check it
+
+```bash
+cd engine
+python run_today.py        # 95 stocks, prints the ROE coverage count
+python verify_today.py     # fails if coverage collapses or the format is old
+python backtest.py         # the up-rate table + the trend statistics
+python rederive_section34.py   # the REPORT §3.4 ranks
+python ../tools/facts_lint.py --selftest && python ../tools/facts_lint.py
+python -c "import roe_data; print(roe_data.roe_asof('PTT.BK','2013-03-31'), roe_data.roe_asof('PTT.BK','2013-04-01'))"
+# -> 0.203153 0.180218  : the 2012 figure appears only on 1 April 2013
+```
+
+---
+
 ## 2026-09-13 — Four factors everywhere, and the docs caught up with the code
 
 **สรุปสั้น ๆ** ตัดปัจจัย `value` ออก เพราะมันคือ `momentum` กลับเครื่องหมาย (สหสัมพันธ์ −0.93) ทำให้โปรไฟล์ "สมดุล" กลายเป็น "ปลอดภัย" แฝงตัว จากนั้นไล่แก้เอกสารทุกที่ให้ตรงกับโค้ด (4 ปัจจัย, 95 หุ้น) และพบความผิดพลาดแบบเดิมเป็นครั้งที่ 5 — เอกสารยังเขียนว่า `p_win` เป็นสูตรสมมติ ทั้งที่ต่อกับค่าที่วัดจริงไปแล้ว

@@ -10,7 +10,7 @@
 <link rel="canonical" href="https://setscout-th.web.app/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="SETScout — Thai stocks worth a look, today">
-<meta property="og:description" content="Ranks 95 SET100 stocks on four transparent factors, adapts to your risk profile, and says honestly how much to trust it.">
+<meta property="og:description" content="Ranks 95 SET100 stocks on four transparent factors, adapts to your risk profile, and states the risk in baht.">
 <meta property="og:url" content="https://setscout-th.web.app/">
 <meta property="og:locale" content="th_TH">
 <meta property="og:locale:alternate" content="en_US">
@@ -63,7 +63,7 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;transition:border-color .18s,transform .18s,box-shadow .18s;}
   .card:hover{border-color:var(--faint);transform:translateY(-2px);box-shadow:0 10px 26px var(--shadow);}
   .c-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
-  .rank{font-size:11px;font-weight:700;color:var(--faint);} .tkr{font-size:15px;font-weight:800;}
+  .rank{font-size:11px;font-weight:700;color:var(--faint);} .rof{font-weight:600;opacity:.65;} .tkr{font-size:15px;font-weight:800;}
   .badge{font-size:12px;font-weight:700;border-radius:999px;padding:4px 10px;white-space:nowrap;}
   .badge.buy{color:var(--buy);background:var(--buyb);} .badge.wait{color:var(--wait);background:var(--waitb);} .badge.avoid{color:var(--avoid);background:var(--avoidb);}
   .nm{font-size:14px;font-weight:700;margin-top:9px;} .nm-en{font-size:12px;color:var(--faint);font-weight:500;}
@@ -158,25 +158,28 @@
 (function(){
   const $=s=>document.querySelector(s);
   const REASON = {
-    "value:pos":{th:"ราคาต่ำกว่าค่าเฉลี่ยตัวเอง (มีโอกาสเด้ง)",en:"below its own average (mean-reversion)"},"value:neg":{th:"ราคาสูงกว่าค่าเฉลี่ยตัวเอง",en:"above its own average"},
-    "quality:pos":{th:"กำไรแข็งแรง ผันผวนต่ำ",en:"strong, stable earnings"},"quality:neg":{th:"กำไรผันผวน",en:"volatile earnings"},
-    "momentum:pos":{th:"ราคายืนเหนือค่าเฉลี่ยระยะยาว",en:"price above its long average"},"momentum:neg":{th:"โมเมนตัมยังเป็นขาลง",en:"momentum still weak"},
-    "growth:pos":{th:"ธุรกิจเติบโตต่อเนื่อง",en:"steady business growth"},"growth:neg":{th:"การเติบโตชะลอ",en:"slowing growth"},
-    "health:pos":{th:"งบการเงินแข็งแรง หนี้ต่ำ",en:"solid balance sheet, low debt"},"health:neg":{th:"หนี้สูง งบเปราะ",en:"high debt, fragile"},
+    // Each string must describe what the engine actually measures. The old set
+    // said "strong, stable earnings" for a factor that only looks at price
+    // volatility, and "solid balance sheet, low debt" for one that only looks
+    // at drawdown - the app was describing fundamentals it never had.
+    "momentum:pos":{th:"ราคา 6 เดือนที่ผ่านมาปรับขึ้น",en:"up over the last 6 months"},"momentum:neg":{th:"ราคา 6 เดือนที่ผ่านมาปรับลง",en:"down over the last 6 months"},
+    "roe:pos":{th:"ทำกำไรต่อทุนได้สูง (ROE สูง)",en:"high return on equity"},"roe:neg":{th:"ทำกำไรต่อทุนได้ต่ำ (ROE ต่ำ)",en:"low return on equity"},
+    "quality:pos":{th:"ราคานิ่ง ผันผวนรายวันต่ำ",en:"low day-to-day volatility"},"quality:neg":{th:"ราคาผันผวนรายวันสูง",en:"swings a lot day to day"},
+    "health:pos":{th:"ย่อจากจุดสูงสุดไม่ลึก",en:"shallow falls from its peak"},"health:neg":{th:"เคยร่วงลึกจากจุดสูงสุด",en:"deep falls from its peak"},
   };
   const PROFILES = { cons:{riskAv:0.6,sizeMult:0.6}, bal:{riskAv:0.3,sizeMult:1.0}, agg:{riskAv:0.1,sizeMult:1.35} };
   const T = {
    th:{ lang:"EN", title:"หุ้นไทยที่น่าศึกษาต่อ วันนี้",
-     sub:'ระบบช่วย<b>ค้นหา</b>หุ้นที่ควรไปศึกษาต่อ พร้อมบอก<b>ความเสี่ยง</b>อย่างตรงไปตรงมา',
+     sub:'ระบบช่วย<b>ค้นหา</b>หุ้นที่ควรไปศึกษาต่อ พร้อมบอก<b>ความเสี่ยง</b>อย่างตรงไปตรงมา · ออกแบบสำหรับการถือ <b>6–12 เดือน</b> ไม่ใช่ซื้อขายตามการเปลี่ยนแปลงรายวัน',
      pill:"เพื่อการศึกษา · ไม่ใช่คำแนะนำการลงทุน",
      meta:(d,u,n)=>`ข้อมูลวันที่ ${d} · จาก ${u} · ${n} หุ้น`,
      f:{ALL:"ทั้งหมด",BUY:"✅ น่าสนใจ",WAIT:"🟡 รอก่อน",AVOID:"🔴 ยังไม่ใช่"}, allSectors:"ทุกกลุ่ม",
      dca:{title:"เครื่องคำนวณ DCA",intro:"ลงเงินเท่ากันทุกเดือน ต่อเนื่องหลายปี จะได้เท่าไร?",perMonth:"ลงเดือนละ",perMoUnit:"/เดือน",years:"เป็นเวลา",yrUnit:"ปี",ret:"สมมติผลตอบแทนต่อปี",retUnit:"ต่อปี",invested:"เงินที่ลงไปทั้งหมด",final:"มูลค่าที่คาดว่าจะได้",gain:"กำไร (โดยประมาณ)",caveat:"เป็นการสมมติผลตอบแทน ไม่ใช่การรับประกัน · ผลจริงผันผวนขึ้นลงได้ · อดีตไม่การันตีอนาคต"},
      v:{BUY:"น่าสนใจ",WAIT:"รอก่อน",AVOID:"ยังไม่ใช่ตอนนี้"},
      riskCard:(r,w)=>`เสี่ยง <b>${r}%</b> · สูงสุด ${w} บาท/100`, empty:"ไม่มีหุ้นในกลุ่มนี้",
-     dRisk:"ความเสี่ยง (เป็นบาท)",dWhy:"เพราะอะไร",dTrust:"เชื่อได้แค่ไหน",sScore:"อันดับ",sWin:"ราคาขึ้นในอดีต",sLast:"ราคาล่าสุด",
+     dRisk:"ความเสี่ยง (เป็นบาท)",dWhy:"เพราะอะไร",sScore:"อันดับวันนี้",sRoe:"ROE ล่าสุด",sLast:"ราคาล่าสุด",
      riskS:(r,w)=>`เดือนแย่ ๆ ราคาอาจลงราว <b>${r}%</b> · จึงควรใส่ไม่เกิน <b>${w} บาท</b> ต่อทุก 100 บาท`,
-     bPfx:"เพราะ",bJoin:" และ ", trust:p=>p==null?`ยังไม่ได้วัดย้อนหลัง — ตัวเลขความมั่นใจจึงยังไม่แสดง`:`หุ้นที่ได้คะแนนระดับนี้ ราคาขึ้นในเดือนถัดไป <b>${p}%</b> ของครั้ง — วัดจริงจาก ${calMonths()} เดือน และ<b>เท่ากันแทบทุกช่วงคะแนน</b> · แปลว่าคะแนนนี้<b>ไม่ได้ทำนายทิศทาง</b> ใช้เป็นรายชื่อไว้ไปศึกษาต่อ ไม่ใช่คำพยากรณ์`,
+     bPfx:"เพราะ",bJoin:" และ ",
      forYou:(l,w)=>`สำหรับคุณ (${l}): ควรใส่ไม่เกิน <b>${w} บาท</b> ต่อ 100`,
      pbtn:"ปรับให้เหมาะกับฉัน", banner:l=>`ปรับรายการให้เหมาะกับความเสี่ยงของคุณแล้ว · <b>${l}</b>`, redo:"ทำใหม่", clear:"ล้าง",
      disc:'SETScout ชี้ให้ไป “ศึกษาต่อ” ไม่ได้บอกให้ซื้อ/ขาย',
@@ -185,11 +188,11 @@
      notice:{t:"<b>เว็บนี้ไม่ใช้คุกกี้ และไม่มีการติดตามผู้ใช้</b> เราเก็บแค่ภาษา ธีม และผลแบบทดสอบความเสี่ยง ไว้ในเครื่องของคุณเอง ไม่เคยส่งมาหาเรา · ฟอนต์โหลดจาก Google ซึ่งจะเห็นหมายเลข IP ของคุณตามนโยบายของ Google",ok:"เข้าใจแล้ว",more:"รายละเอียด"},
      prof:{cons:"สายระมัดระวัง",bal:"สายสมดุล",agg:"สายบุก"},
      method:{title:"วิธีให้คะแนน",intro:"เราให้คะแนนหุ้นทุกตัวจาก 4 ปัจจัย (คำนวณจากราคาจริงย้อนหลัง 2 ปี)",
-       factors:[["📈","โมเมนตัม","ผลตอบแทน 6 เดือน — ราคากำลังไปได้ดีไหม"],["🌱","การเติบโต","ผลตอบแทน 12 เดือน — แนวโน้มระยะยาว"],["🛡️","คุณภาพ","ความผันผวนต่ำ — ราคานิ่ง ไม่หวือหวา"],["❤️","สุขภาพ","ขาดทุนสูงสุดน้อย — ทนตลาดขาลงได้"]],
-       wLabel:"การถ่วงน้ำหนัก",weights:"คุณภาพ 37% · โมเมนตัม 26% · สุขภาพ 21% · เติบโต 16%",wNote:"น้ำหนักเปลี่ยนตามโปรไฟล์ความเสี่ยงของคุณ (ทำแบบทดสอบเพื่อเปลี่ยน)",
+       factors:[["📈","โมเมนตัม","ผลตอบแทน 6 เดือน — ราคากำลังไปได้ดีไหม"],["🏭","ROE","กำไรต่อส่วนของผู้ถือหุ้น — จากงบการเงินจริงที่บริษัทยื่น"],["🛡️","คุณภาพ","ความผันผวนต่ำ — ราคานิ่ง ไม่หวือหวา"],["❤️","สุขภาพ","ขาดทุนสูงสุดน้อย — ทนตลาดขาลงได้"]],
+       wLabel:"การถ่วงน้ำหนัก",weights:"คุณภาพ 37% · โมเมนตัม 26% · สุขภาพ 21% · ROE 16%",wNote:"น้ำหนักเปลี่ยนตามโปรไฟล์ความเสี่ยงของคุณ (ทำแบบทดสอบเพื่อเปลี่ยน)",
        vLabel:"ตัดสินอย่างไร",verdict:"อันดับ 20% แรกของตลาด → น่าสนใจ ✅ · อันดับ 45–80% → รอก่อน 🟡 · ต่ำกว่า 45% → ยังไม่ใช่ 🔴",
        rLabel:"ความเสี่ยง",risk:"คำนวณจาก VaR รายเดือน (โอกาสขาดทุนในเดือนแย่ ๆ) แล้วแปลงเป็นขนาดลงทุนสูงสุดที่แนะนำ",
-       cLabel:"⚠️ หมายเหตุซื่อสัตย์",caveats:["น้ำหนักยังเป็นค่าตั้งต้น — รอผลสำรวจผู้เชี่ยวชาญ (AHP)","ยังไม่ผ่านการทดสอบย้อนหลัง (backtest)","ปัจจัยเป็น proxy จากราคา — v2 จะเพิ่มปัจจัยพื้นฐาน (P/E, ROE)","เพื่อการศึกษา ไม่ใช่คำแนะนำการลงทุน"]},
+       cLabel:"⚠️ หมายเหตุซื่อสัตย์",caveats:["น้ำหนักยังเป็นค่าตั้งต้น — รอผลสำรวจผู้เชี่ยวชาญ (AHP)","ทดสอบย้อนหลังกับราคาตั้งแต่ปี 1999 แล้ว: หุ้นที่เลือกไม่ชนะการซื้อทั้งตลาด และอันดับไม่ได้ทำนายเดือนถัดไป","สามในสี่ปัจจัยคำนวณจากราคา มีเพียง ROE ที่อ่านจากงบการเงินของบริษัท","ทุกการทดสอบสมมติว่าถือ 6–12 เดือน การซื้อขายตามการเปลี่ยนแปลงทุกเดือนให้ผลแย่ที่สุดใน 5 ความถี่ที่ทดสอบ","เพื่อการศึกษา ไม่ใช่คำแนะนำการลงทุน"]},
      quiz:[
       ["ถ้าหุ้นที่ถือลง 20% ใน 1 เดือน คุณจะ:",[["ซื้อเพิ่ม",2],["ถือไว้",1],["ขายบางส่วน",0],["ขายทั้งหมด",-1]]],
       ["เงินก้อนนี้ต้องใช้เมื่อไร:",[["ภายใน 1 ปี",-1],["1–5 ปี",1],["5 ปีขึ้นไป",2]]],
@@ -198,16 +201,16 @@
       ["ลงหุ้นได้กี่ % ของเงินออม:",[["ไม่เกิน 10%",-1],["10–30%",1],["เกิน 30%",2]]],
      ] },
    en:{ lang:"ไทย", title:"Thai stocks worth a look, today",
-     sub:'Finds Thai stocks worth <b>researching</b> — and tells you the <b>risk</b>, honestly.',
+     sub:'Finds Thai stocks worth <b>researching</b> — and tells you the <b>risk</b>, honestly. Built for holding <b>6–12 months</b>, not for trading the daily changes.',
      pill:"Educational · not investment advice",
      meta:(d,u,n)=>`Data ${d} · from ${u} · ${n} stocks`,
      f:{ALL:"All",BUY:"✅ Worth a look",WAIT:"🟡 Wait",AVOID:"🔴 Not now"}, allSectors:"All sectors",
      dca:{title:"DCA calculator",intro:"Invest the same amount every month for years — how much could you get?",perMonth:"Invest per month",perMoUnit:"/mo",years:"For",yrUnit:"years",ret:"Assumed return per year",retUnit:"/yr",invested:"Total you put in",final:"Estimated value",gain:"Gain (approx.)",caveat:"This assumes a return — it's not a guarantee · real results go up and down · past is not future"},
      v:{BUY:"Worth a look",WAIT:"Wait",AVOID:"Not now"},
      riskCard:(r,w)=>`risk <b>${r}%</b> · max ฿${w}/100`, empty:"No stocks in this group",
-     dRisk:"Risk (in baht)",dWhy:"Why",dTrust:"How much to trust",sScore:"Rank",sWin:"Past up-rate",sLast:"Last price",
+     dRisk:"Risk (in baht)",dWhy:"Why",sScore:"Rank today",sRoe:"Latest ROE",sLast:"Last price",
      riskS:(r,w)=>`A normal-bad month could drop ~<b>${r}%</b> · so put at most <b>฿${w}</b> of every 100`,
-     bPfx:"Because ",bJoin:" and ", trust:p=>p==null?`Not yet measured — no confidence figure is shown`:`Stocks scoring like this rose the next month <b>${p}%</b> of the time — measured over ${calMonths()} months, and <b>the same across almost every score band</b>. So the score <b>does not predict direction</b>: treat it as a shortlist to research, not a forecast.`,
+     bPfx:"Because ",bJoin:" and ",
      forYou:(l,w)=>`For you (${l}): put at most <b>฿${w}</b> per 100`,
      pbtn:"Personalize", banner:l=>`Ranked & sized to your risk comfort · <b>${l}</b>`, redo:"Redo", clear:"Clear",
      disc:'SETScout points you to “research,” it does not tell you to buy/sell',
@@ -216,11 +219,11 @@
      notice:{t:"<b>No cookies, and no tracking of any kind.</b> Your language, theme and quiz result stay on your own device and are never sent to us · Fonts load from Google, which sees your IP address under its own policy.",ok:"Got it",more:"Details"},
      prof:{cons:"Conservative",bal:"Balanced",agg:"Aggressive"},
      method:{title:"How we score",intro:"Every stock is scored on 4 factors (from 2 years of real prices)",
-       factors:[["📈","Momentum","6-month return — is the price doing well?"],["🌱","Growth","12-month return — the longer trend"],["🛡️","Quality","low volatility — calm, not wild"],["❤️","Health","small max-drawdown — survives bad markets"]],
-       wLabel:"Weighting",weights:"Quality 37% · Momentum 26% · Health 21% · Growth 16%",wNote:"Weights change with your risk profile — take the quiz to switch.",
+       factors:[["📈","Momentum","6-month return — is the price doing well?"],["🏭","ROE","profit ÷ owners' equity — from the company's filed accounts"],["🛡️","Quality","low volatility — calm, not wild"],["❤️","Health","small max-drawdown — survives bad markets"]],
+       wLabel:"Weighting",weights:"Quality 37% · Momentum 26% · Health 21% · ROE 16%",wNote:"Weights change with your risk profile — take the quiz to switch.",
        vLabel:"How the verdict is decided",verdict:"Top 20% of the market → Worth a look ✅ · 45–80th percentile → Wait 🟡 · below 45th → Not now 🔴",
        rLabel:"Risk",risk:"From monthly VaR (how bad a bad month could be), converted to the max position size we suggest",
-       cLabel:"⚠️ Honest notes",caveats:["Weights are preliminary — pending the AHP expert survey","Not yet backtested","Factors are price proxies — v2 adds fundamentals (P/E, ROE)","Educational, not investment advice"]},
+       cLabel:"⚠️ Honest notes",caveats:["Weights are preliminary — pending the AHP expert survey","Backtested on prices back to 1999: the picks do not beat buying the whole market, and the rank does not predict next month","Three of the four factors come from price; ROE is the one read from company accounts","Every test assumed holding 6–12 months. Trading monthly on the changes was the worst of the five frequencies we tested","Educational, not investment advice"]},
      quiz:[
       ["A stock you own drops 20% in a month, you:",[["Buy more",2],["Hold",1],["Sell some",0],["Sell all",-1]]],
       ["When do you need this money:",[["Within 1 yr",-1],["1–5 yrs",1],["5+ yrs",2]]],
@@ -235,7 +238,6 @@
   let risk = null; try{risk=JSON.parse(localStorage.getItem('ss_risk'))}catch{}
   let filter='ALL', sector='ALL', DATA=null;
   // months behind the measured up-rate - read from the data, so the label cannot go stale
-  const calMonths=()=>(DATA&&DATA.calibration&&DATA.calibration.months)||'?';
   const tr=()=>T[lang];
 
   function applyTheme(){ document.documentElement.setAttribute('data-theme',theme); $('#themeBtn').textContent=theme==='light'?'🌙':'☀️'; }
@@ -254,8 +256,8 @@
   const PMAP={cons:'conservative',bal:'balanced',agg:'aggressive'};
   const activeList=()=> (risk && DATA && DATA.profiles && DATA.profiles[PMAP[risk.key]]) ? DATA.profiles[PMAP[risk.key]] : (DATA?DATA.stocks:[]);
   // "How we score" reads the ACTIVE profile's weights from today.json (single source of truth)
-  const FLABEL={th:{quality:"คุณภาพ",value:"ราคาเทียบค่าเฉลี่ย",momentum:"โมเมนตัม",health:"สุขภาพ",growth:"เติบโต"},
-               en:{quality:"Quality",value:"Price-vs-avg",momentum:"Momentum",health:"Health",growth:"Growth"}};
+  const FLABEL={th:{quality:"คุณภาพ",momentum:"โมเมนตัม",health:"สุขภาพ",roe:"ROE"},
+               en:{quality:"Quality",momentum:"Momentum",health:"Health",roe:"ROE"}};
   const profName=()=> risk?tr().prof[risk.key]:tr().prof.bal;
   function weightsStr(){
     const w=DATA&&DATA.profile_weights&&DATA.profile_weights[risk?PMAP[risk.key]:'balanced'];
@@ -271,15 +273,21 @@
   }
   function render(){
     if(!DATA)return;
-    let list=activeList().filter(s=>(filter==='ALL'||s.verdict===filter)&&(sector==='ALL'||s.sector===sector)).sort((a,b)=>b.score-a.score);
+    // Rank is a position among ALL scored stocks, never among the ones currently
+    // on screen. Filtering to Banking used to renumber its top name to #1, which
+    // read as "best of 95" when it might be 63rd.
+    const full=activeList().slice().sort((a,b)=>b.score-a.score);
+    const rankOf={}; full.forEach((s,i)=>{rankOf[s.ticker]=i+1;});
+    const UNIV=full.length;
+    let list=full.filter(s=>(filter==='ALL'||s.verdict===filter)&&(sector==='ALL'||s.sector===sector));
     // personalization banner
     const pb=$('#pbanner');
     if(risk){ pb.classList.add('on'); pb.innerHTML=`<span>${tr().banner(tr().prof[risk.key])}</span><span><a id="redoQ">${tr().redo}</a><a id="clrQ">${tr().clear}</a></span>`;
       $('#redoQ').onclick=openQuiz; $('#clrQ').onclick=()=>{risk=null;localStorage.removeItem('ss_risk');render();}; }
     else pb.classList.remove('on');
     if(!list.length){ $('#grid').innerHTML=`<div class="empty">${tr().empty}</div>`; return; }
-    $('#grid').innerHTML=list.map((s,i)=>{const c=vcls[s.verdict],up=s.chg_pct>=0;
-      return `<div class="card" data-t="${s.ticker}"><div class="c-top"><div><span class="rank">#${i+1}</span> <span class="tkr">${s.ticker.replace('.BK','')}</span></div>
+    $('#grid').innerHTML=list.map(s=>{const c=vcls[s.verdict],up=s.chg_pct>=0;
+      return `<div class="card" data-t="${s.ticker}"><div class="c-top"><div><span class="rank">#${rankOf[s.ticker]}<span class="rof">/${UNIV}</span></span> <span class="tkr">${s.ticker.replace('.BK','')}</span></div>
         <span class="badge ${c}">${vemo[s.verdict]} ${tr().v[s.verdict]}</span></div>
         <div class="nm">${s.name_th} <span class="nm-en">· ${s.sector}</span></div>
         <div class="bar"><i style="width:${Math.round(s.score*100)}%;background:${col[c]}"></i></div>
@@ -294,9 +302,8 @@
       <div class="m-badge" style="color:${col[c]};background:${bgc[c]}">${vemo[s.verdict]} ${tr().v[s.verdict]}</div>
       <div class="block"><div class="k">${tr().dRisk}</div><div class="v">${tr().riskS(Math.abs(s.risk_month_pct),pweight(s))}</div>${risk?`<div class="foryou">${tr().forYou(tr().prof[risk.key],pweight(s))}</div>`:''}</div>
       <div class="block"><div class="k">${tr().dWhy}</div><div class="v">${becauseS(s)}</div></div>
-      <div class="block"><div class="k">${tr().dTrust}</div><div class="v">${tr().trust(s.p_win==null?null:Math.round(s.p_win*100))}</div></div>
-      <div class="stats"><div class="stat"><div class="sv">#${activeList().findIndex(x=>x.ticker===s.ticker)+1}</div><div class="sk">${tr().sScore}</div></div>
-        <div class="stat"><div class="sv">${s.p_win==null?"—":Math.round(s.p_win*100)+"%"}</div><div class="sk">${tr().sWin}</div></div>
+      <div class="stats"><div class="stat"><div class="sv">#${activeList().slice().sort((a,b)=>b.score-a.score).findIndex(x=>x.ticker===s.ticker)+1}<span class="rof">/${activeList().length}</span></div><div class="sk">${tr().sScore}</div></div>
+        <div class="stat"><div class="sv">${s.roe_pct==null?"—":s.roe_pct+"%"}</div><div class="sk">${tr().sRoe}</div></div>
         <div class="stat"><div class="sv">฿${s.last.toLocaleString()}</div><div class="sk">${tr().sLast}</div></div></div>
       <div class="m-disc">${DATA.disclaimer}<br>${tr().disc}</div>`;
     $('#ov').classList.add('on');document.body.style.overflow='hidden';$('#xb').onclick=close;

@@ -2,18 +2,22 @@
 
     python research/ahp_analyze.py                  # uses ahp_responses.csv
     python research/ahp_analyze.py --demo           # synthetic data, to test the pipeline
-    python research/ahp_analyze.py --apply          # write the weights into run_today.py
+
+It writes reports/ahp_weights.json and never edits the engine: a person reviews
+the weights and copies them into PROFILES in engine/factors.py.
 
 WHAT THIS DOES
 --------------
-1. Builds each respondent's 4x4 pairwise comparison matrix.
+1. Builds each respondent's pairwise comparison matrix, one row and column per
+   factor in engine/factors.py (4x4 today).
 2. Derives their priority vector by the ROW GEOMETRIC MEAN method. (The principal
    eigenvector gives near-identical answers and is harder to defend in a viva.)
 3. Computes the Consistency Ratio and DROPS anyone above 0.10. Reports how many.
 4. Aggregates survivors by geometric mean of their JUDGEMENTS (AIJ), the standard
    for a consensus panel, then derives group priorities from that.
 5. Reports the SPREAD across respondents - the disagreement is a finding, not noise.
-6. Bootstraps respondents 1000x to give a per-stock top-10 stability figure.
+6. Bootstraps respondents 1000x to give a per-stock top-10 stability figure,
+   re-ranking today's stocks on the factor_z values engine/run_today.py publishes.
 
 WHY THE BOOTSTRAP MATTERS
 -------------------------
@@ -29,12 +33,13 @@ the p_win figure the app used to invent.
 
 INPUT FORMAT  (research/ahp_responses.csv)
     respondent,profile,left,right,winner,strength
-    E01,conservative,momentum,growth,growth,3
+    E01,conservative,momentum,roe,roe,3
     ...
     winner must be one of left / right / "equal"; strength 1-9 (1 when equal)
 """
 import csv
 import itertools
+import json
 import os
 import sys
 
@@ -45,6 +50,9 @@ from factors import FACTORS                     # single source of truth (engine
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RESEARCH = os.path.join(HERE, "research")
 REPORTS = os.path.join(HERE, "reports")
+TODAY = os.path.join(HERE, "engine", "today.json")
+DRAWS = 1000                                   # bootstrap resamples of the panel
+TOP = 10
 N = len(FACTORS)
 RI = {3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32}   # Saaty random index
 CR_LIMIT = 0.10
@@ -53,7 +61,7 @@ PROFILES = ["conservative", "balanced", "aggressive"]
 
 # ---------------------------------------------------------------- core AHP
 def matrix_from(rows):
-    """rows: list of (left, right, winner, strength) -> 5x5 comparison matrix."""
+    """rows: list of (left, right, winner, strength) -> N x N comparison matrix."""
     A = np.ones((N, N))
     for left, right, winner, strength in rows:
         i, j = FACTORS.index(left), FACTORS.index(right)
@@ -102,9 +110,9 @@ def synthetic(n=8, seed=11):
     """Plausible fake panel, so the pipeline can be tested before real data lands."""
     rng = np.random.default_rng(seed)
     truth = {
-        "conservative": {"quality": 5, "health": 4, "value": 3, "momentum": 1, "growth": 1},
-        "balanced":     {"quality": 3, "value": 3, "momentum": 2, "health": 2, "growth": 2},
-        "aggressive":   {"momentum": 5, "growth": 4, "value": 2, "quality": 1, "health": 1},
+        "conservative": {"quality": 5, "health": 4, "momentum": 1, "roe": 1},
+        "balanced":     {"quality": 3, "momentum": 2, "health": 2, "roe": 2},
+        "aggressive":   {"momentum": 5, "roe": 4, "quality": 1, "health": 1},
     }
     out = {p: {} for p in PROFILES}
     for p in PROFILES:
@@ -131,7 +139,7 @@ def analyse(data):
         kept, dropped, crs = {}, [], []
         for rid, rows in data[p].items():
             if len(rows) < N * (N - 1) // 2:
-                dropped.append((rid, f"incomplete ({len(rows)}/10 pairs)"))
+                dropped.append((rid, f"incomplete ({len(rows)}/{N * (N - 1) // 2} pairs)"))
                 continue
             A = matrix_from(rows)
             w = priorities(A)
@@ -150,6 +158,28 @@ def group_weights(kept):
     """AIJ: geometric mean of the judgement matrices, then derive priorities."""
     mats = np.array([A for A, _, _ in kept.values()])
     return priorities(np.exp(np.mean(np.log(mats), axis=0)))
+
+
+def bootstrap(kept, factor_z, draws=DRAWS, top=TOP, seed=11):
+    """How often each stock makes the top `top` when the panel is resampled.
+
+    Each draw picks len(kept) respondents with replacement, aggregates them the
+    same way as the headline weights (AIJ), scores today's stocks with those
+    weights and records the top `top`. The spread therefore comes from the
+    experts' real disagreement, not from an arbitrary +/-10%.
+    Returns {ticker: share of draws}, most stable first.
+    """
+    rng = np.random.default_rng(seed)
+    mats = np.array([A for A, _, _ in kept.values()])
+    tickers = list(factor_z)
+    Z = np.array([[factor_z[t][f] for f in FACTORS] for t in tickers])
+    counts = np.zeros(len(tickers))
+    for _ in range(draws):
+        pick = rng.integers(0, len(mats), size=len(mats))
+        w = priorities(np.exp(np.mean(np.log(mats[pick]), axis=0)))
+        counts[np.argsort(-(Z @ w), kind="stable")[:top]] += 1
+    order = np.argsort(-counts, kind="stable")
+    return {tickers[i]: float(counts[i] / draws) for i in order if counts[i] > 0}
 
 
 def main():
@@ -200,19 +230,35 @@ def main():
             f"{f[:4]} {W[:, i].min() * 100:.0f}-{W[:, i].max() * 100:.0f}%"
             for i, f in enumerate(FACTORS)))
 
+    stability = {}
+    factor_z = json.load(open(TODAY, encoding="utf-8")).get("factor_z") if os.path.exists(TODAY) else None
+    if not factor_z:
+        print("\n(no factor_z in engine/today.json - run engine/run_today.py first; bootstrap skipped)")
+    else:
+        print(f"\nTOP-{TOP} STABILITY - {DRAWS} resamples of the panel, on today's factor values")
+        print(f"share of resamples in which each stock stays in the top {TOP}")
+        for p in PROFILES:
+            kept, _ = results[p]
+            if len(kept) < 2:
+                continue
+            freq = bootstrap(kept, factor_z)
+            stability[p] = {t: round(v, 3) for t, v in freq.items()}
+            shown = ", ".join(f"{t.replace('.BK', '')} {v:.0%}" for t, v in list(freq.items())[:12])
+            print(f"  {p:<14}{shown}")
+
     if final:
         os.makedirs(REPORTS, exist_ok=True)
         out = os.path.join(REPORTS, "ahp_weights.json")
-        import json
-        json.dump({"weights": final, "demo": demo,
+        json.dump({"weights": final, "demo": demo, "top10_stability": stability,
+                   "stability_draws": DRAWS,
                    "kept": {p: len(results[p][0]) for p in PROFILES},
                    "dropped": {p: len(dropped[p]) for p in PROFILES}},
                   open(out, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
         print(f"\n-> wrote reports/ahp_weights.json")
         if demo:
-            print("   (demo data - do NOT paste these into run_today.py)")
+            print("   (demo data - do NOT paste these into engine/factors.py)")
         else:
-            print("   Review, then copy into PROFILES in run_today.py.")
+            print("   Review, then copy into PROFILES in engine/factors.py.")
     return 0
 
 
