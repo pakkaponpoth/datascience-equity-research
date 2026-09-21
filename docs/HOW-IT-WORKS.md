@@ -145,8 +145,10 @@ These are the tools that separate real signal from luck — and they're what mak
 ## 7. What's real vs. still to build
 
 **✅ Real now:** the scores, the verdicts, the risk numbers (VaR), the prices, the 3 engines, the backtests
-(luck bar, calibration, hold-returns, costs), and **ROE read from 1,591 annual filings** in SEC Thailand's
-archive (2001–2026, 94 of 95 stocks). <!-- facts-lint: ignore - ROE coverage, not the universe -->
+(luck bar, calibration, hold-returns, costs), and **ROE for all 95 stocks** — 1,583 stock-years read from
+annual filings in SEC Thailand's archive (2001–2026), three more from SET's own statements, and a quality
+gate that withholds 16 values the data itself contradicts. Checked against SET's figures for the same
+fiscal years: median gap 0.002 points over 282 stock-years.
 
 **🔨 Still to build:**
 - **AHP survey** → real factor weights (replaces the placeholders). *Primary data — start early, it has lead time.*

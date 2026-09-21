@@ -4,6 +4,74 @@
 
 ---
 
+## 2026-09-21 — ROE audited, repaired, 95 of 95
+
+**สรุปสั้น ๆ** ตรวจข้อมูล ROE ทุกแถวด้วยห้าวิธีที่ผิดได้อย่างอิสระต่อกัน ได้ ROE ครบทั้ง 95 บริษัท (BANPU ไม่ได้อ่านไม่ออก แต่ไม่มีเอกสารในคลังของ ก.ล.ต. เลย จึงดึงจากงบของ SET โดยตรง) แก้กฎวันที่ข้อมูลใช้ได้สำหรับบริษัทที่ปิดงบไม่ใช่เดือนธันวาคม และเพิ่มด่านตรวจที่กันค่าที่ขัดแย้งกับข้อมูลของบริษัทเองไว้ 16 ค่า เทียบกับตัวเลขของ SET ปีเดียวกัน ห่างกันแค่ค่ามัธยฐาน 0.002 จุด
+
+### Before and after
+
+| | before | after |
+|---|---|---|
+| Companies with ROE | 94 of 95 | **all 95** |
+| Cards showing a value | 94 | **95 — no dashes** |
+| Rows published | 1,591, none independently checked | **1,570 of 1,586**, 16 withheld |
+| Agreement with SET, same fiscal year | never measured | **median gap 0.002 pts** over 282 stock-years |
+| Values on the site within 2 pts of Yahoo | 88 of 94 | **92 of 95** |
+| Disagreements over 5 pts | BTS, DOHOME | **GULF** — a merger year where Yahoo's own two figures differ by 4.5 pts |
+
+### What changed, and which approach found it
+
+| Change | Found by |
+|---|---|
+| **Availability follows each company's real fiscal year end.** Four close outside December — AEONTS (Feb), BTS and VGI (Mar), AOT (Sep). BTS showed **+4.0%** against a latest filed **−2.0%**; VGI **+1.7%** against **−3.0%**. The date is now computed in `roe_data.py`, and the `usable_from` column was deleted from the CSV so a stale copy cannot contradict the rule. | cross-checking the displayed values against Yahoo, then reading year ends off 95 balance sheets' period dates |
+| **BANPU filled from SET's own statements**, with GULF and TIDLOR's fiscal 2025. BANPU's annual filings are **not indexed in SEC's archive**: every query returns one 2026 Q2 document, and one year at a time returns none, where PTT returns 208 across 26 years. `settfex` also refused BANPU outright over a single null `downloadUrl`. Checked first: PTT's fiscal 2025 is **7.92% from both** sources. | probing the search six ways, then reading SET's API directly |
+| **Full 95-stock re-parse with the current parser.** DOHOME fixed — eight sign flips, its 2025 now +4.58% against Yahoo's +4.6%, and nine pre-2018 years removed that predate its 2019 listing. **It also broke three**: KBANK 2024, TTB 2023 and AEONTS 2002 were each overwritten with the following year's value. Restored from the pre-re-parse data and tagged `sec-prior`. | diffing every value before shipping, rather than trusting the re-run |
+| **A quality gate** withholds a value that is near zero *and* 50x off its neighbours, or that repeats the previous year to six decimals. 16 withheld. Some are probably real pandemic years (CRC 2020–21, PTTGC 2020) — a cost accepted knowingly. | nine internal consistency checks that need no outside source |
+| **Five values repaired, only where provable.** The parser divided net profit by up to a million whenever a ratio exceeded 1.0; AOT 2005 became 0.0001%. It now stores the prior-year profit the filing states beside the current one, so year Y can be checked against year Y+1's statement of it. AOT 2005 **12.05%**, KTB 2008 **12.32%**, MEGA 2018 **10.67%** and 2019 **19.14%** from the next filing's comparative; SCB 2012 **26.06%** once an equity of 154 trillion baht is read in thousands. KKP 2014 and M 2012 also rescaled into a plausible range and were **rejected anyway** — the corrected equity contradicted each company's own balance sheets. | a magnitude bound, the next year's comparative, and a check against the company's own equity trajectory |
+| **`tools/roe_selftest.py`, run on every PR.** Breaks 200 rows the gate accepts with the four faults found in the real data. | fault injection — ground truth we manufactured ourselves |
+
+### How the checks were themselves tested
+
+```
+TEST A  ours vs SET, same fiscal year, 282 stock-years
+        within 0.5 pts 80.9%  ·  within 2 pts 96.1%  ·  within 5 pts 98.9%
+        median gap 0.002  ·  mean SIGNED gap +0.187   <- no systematic drift
+        7 of the 11 gaps over 2 pts are the test's own artifact: SET held only
+        one year of equity there, so it compared year-end against our average
+
+TEST B  detection   equity x1000 99.5%  ·  profit x1e-6 99.5%
+                    repeated year 100%  ·  driven to zero 100%
+                    false positives on 1,570 untouched rows: 0
+
+TEST C  recovery    169 of 199 restored exactly (84.9%)
+                    30 declined and left withheld (15.1%)
+                    0 restored to a wrong value
+```
+
+**What this does not prove.** Tests B and C inject the faults we already know
+about; they cannot rule out a fifth kind. The equity-chain check is blind to an
+error made *consistently* in two consecutive filings — SCB's 154 trillion passed
+it, and only an absolute magnitude bound caught it.
+
+**A lesson about the lint.** `docs/REPORT.md` and `docs/HOW-IT-WORKS.md` carried
+"94 of 95" behind a `facts-lint: ignore` marker, correctly, because it described
+ROE coverage rather than the universe. When coverage reached 95 the line became
+false, and the marker kept the lint from ever saying so. Both markers are gone.
+An ignore marker silences a line permanently, including after its fact changes.
+
+### How to check it
+
+```bash
+python tools/roe_selftest.py          # PASS: detection, false positives, wrong repairs
+python tools/facts_lint.py --selftest && python tools/facts_lint.py
+cd engine && python run_today.py      # "ROE: 95/95 tickers have a filed ROE usable today"
+python verify_today.py
+python -c "import roe_data as r; print(r.usable_from('BTS', 2026), len(r.flagged()))"
+# -> 2026-07-01 16
+```
+
+---
+
 ## 2026-09-18 — The rank is a rank of 95, not a rank of whatever is on screen
 
 **สรุปสั้น ๆ** เปลี่ยนการ์ดจากเลข 0–1 มาแสดงอันดับ "#7 / 95" และแก้บั๊กที่การกรองตามหมวดทำให้อันดับเริ่มนับใหม่จาก 1 พร้อมวัด information coefficient ของอันดับ ได้ +0.0055 (t = 0.28) แปลว่าอันดับไม่ได้ทำนายผลตอบแทน — ผลเดียวกับอัตราขึ้นที่แบน แต่มองจากอีกด้าน

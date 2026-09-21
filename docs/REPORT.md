@@ -210,10 +210,13 @@ to about 2000.
 | | |
 |---|---|
 | Annual filings examined | 1,741 |
-| Stock-years successfully read | **1,591 (91%)** |
-| Companies covered | 94 of 95 <!-- facts-lint: ignore - ROE coverage, not the universe --> |
+| Stock-years read from SEC filings | **1,583 (91%)** |
+| Stock-years filled from SET's own statements | 3 (BANPU, GULF and TIDLOR, fiscal 2025) |
+| Companies covered | **all 95** |
 | Period | 2001–2026; 54 companies with 15 years or more |
-| Agreement with Yahoo, where both exist | **93% within 2 points**, median gap 0.01 |
+| Published after the quality gate | **1,570 of 1,586** — 16 withheld as extraction failures |
+| Agreement with SET's own figures, same fiscal year | **median gap 0.002 points** over 282 stock-years; 96.1% within 2 points |
+| Agreement with Yahoo on the values the site shows | 92 of 95 within 2 points |
 
 The 150 unread filings split into 91 whose row labels the parser did not
 recognise and **58 that exist only as Word or PDF documents**, which is why 100%
@@ -231,8 +234,16 @@ number. An investor standing in 2023 could only have seen the original.
 
 **Point-in-time availability.** Thai listed companies must file audited annual
 statements within three months of their year end, so a fiscal year's ROE is
-treated as unavailable until **1 April of the following year**. A backtest
-standing in February 2013 therefore scores on 2011's ROE, not 2012's.
+treated as unavailable until **three months after that year ends**. For the 91
+companies that close in December this is 1 April of the following year, so a
+backtest standing in February 2013 scores on 2011's ROE, not 2012's.
+
+Until 21 September 2026 that December date was hard-coded for everyone. Four
+companies close in another month — AEONTS in February, BTS and VGI in March, AOT
+in September — and for them the rule withheld a figure we already held for up to
+a year. BTS was showing **+4.0%** when its latest filed year read **−2.0%**, and
+VGI **+1.7%** against **−3.0%**. The year ends were read off the period-end dates of
+published balance sheets for all 95 companies rather than typed from memory.
 
 **The tests, pre-registered before they ran.**
 
@@ -271,13 +282,51 @@ it costs nothing measurable and buys two things: the four factors become four
 different questions rather than three, and one of them finally comes from the
 company's accounts instead of its price chart.
 
-**Missing values.** A stock with no filed ROE is scored at the universe median
+**Missing values.** A stock with no usable ROE is scored at the universe median
 on that factor rather than dropped — a deliberate "no opinion" that neither
 rewards nor punishes it, and that keeps the live list and the backtests doing
-the same thing. On 16 September 2026 that affects one stock of 95 (BANPU, whose
-filings are not reachable through the SEC search); `today.json` publishes the
-coverage count, and the card shows a dash rather than a number the company never
-reported.
+the same thing. The card shows a dash rather than a number the company never
+reported. Since 21 September no card needs one: all 95 carry a filed figure.
+
+#### 3.5.1 How the ROE data was checked
+
+The trials above were run on the data as first extracted. An audit on 20–21
+September then checked the data itself, by five approaches that could each fail
+independently. About 1% of rows changed; none of the pre-registered verdicts
+depends on them.
+
+**BANPU was an indexing gap, not a parse failure.** A search for its filings
+returns one 2026 Q2 document whatever is asked, and one year at a time returns
+none at all, where PTT returns 208 documents across 26 years. The figures come
+instead from SET's own factsheet, which publishes "Shareholders' Equity" and
+"Net Profit : Owners Of The Parent" as structured lines. The two sources were
+compared before one was trusted to fill the other: PTT's fiscal 2025 is **7.92%**
+from both.
+
+**A quality gate withholds what the data itself contradicts.** A value is
+withheld when it is near zero *and* fifty times smaller than the same company's
+neighbouring years, or when it repeats the previous year to six decimal places.
+Either test alone would suppress real break-even years, so both are conjunctions.
+Sixteen values are withheld. Some are probably real — CRC 2020–21 and PTTGC 2020
+fell close to zero in the pandemic — and suppressing them is a known cost of a
+rule that cannot tell a catastrophic year from a parse error.
+
+**Five values were repaired, only where the repair could be proven.** The parser
+had been dividing net profit by up to a million whenever a ratio exceeded 1.0,
+which is how AOT's 2005 became 0.0001%. Each filing states last year's profit
+beside this year's; that comparative now anchors the repair. AOT 2005 is
+**12.05%** from its 2006 filing's statement of it, SCB 2012 **26.06%** once an
+equity of 154 trillion baht — eight times Thailand's GDP — is read in thousands.
+Two further repairs landed in a plausible range and were rejected anyway, because
+the corrected equity contradicted the company's own balance sheets in adjacent
+years.
+
+**The checks were themselves tested.** `tools/roe_selftest.py` breaks 200 rows
+the gate accepts with the four faults found in the real data, then measures what
+happens. It catches **99.5–100%** of each, wrongly flags **0 of 1,570** untouched
+rows, restores **84.9%** of caught rows to their exact original value, declines
+the remaining 15.1%, and repairs **none** to a wrong value. It runs on every pull
+request.
 
 ---
 
