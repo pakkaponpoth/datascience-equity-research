@@ -170,7 +170,7 @@
   const PROFILES = { cons:{riskAv:0.6,sizeMult:0.6}, bal:{riskAv:0.3,sizeMult:1.0}, agg:{riskAv:0.1,sizeMult:1.35} };
   const T = {
    th:{ lang:"EN", title:"หุ้นไทยที่น่าศึกษาต่อ วันนี้",
-     sub:'ระบบช่วย<b>ค้นหา</b>หุ้นที่ควรไปศึกษาต่อ พร้อมบอก<b>ความเสี่ยง</b>อย่างตรงไปตรงมา',
+     sub:'ระบบช่วย<b>ค้นหา</b>หุ้นที่ควรไปศึกษาต่อ พร้อมบอก<b>ความเสี่ยง</b>อย่างตรงไปตรงมา · ออกแบบสำหรับการถือ <b>6–12 เดือน</b> ไม่ใช่ซื้อขายตามการเปลี่ยนแปลงรายวัน',
      pill:"เพื่อการศึกษา · ไม่ใช่คำแนะนำการลงทุน",
      meta:(d,u,n)=>`ข้อมูลวันที่ ${d} · จาก ${u} · ${n} หุ้น`,
      f:{ALL:"ทั้งหมด",BUY:"✅ น่าสนใจ",WAIT:"🟡 รอก่อน",AVOID:"🔴 ยังไม่ใช่"}, allSectors:"ทุกกลุ่ม",
@@ -192,7 +192,7 @@
        wLabel:"การถ่วงน้ำหนัก",weights:"คุณภาพ 37% · โมเมนตัม 26% · สุขภาพ 21% · ROE 16%",wNote:"น้ำหนักเปลี่ยนตามโปรไฟล์ความเสี่ยงของคุณ (ทำแบบทดสอบเพื่อเปลี่ยน)",
        vLabel:"ตัดสินอย่างไร",verdict:"อันดับ 20% แรกของตลาด → น่าสนใจ ✅ · อันดับ 45–80% → รอก่อน 🟡 · ต่ำกว่า 45% → ยังไม่ใช่ 🔴",
        rLabel:"ความเสี่ยง",risk:"คำนวณจาก VaR รายเดือน (โอกาสขาดทุนในเดือนแย่ ๆ) แล้วแปลงเป็นขนาดลงทุนสูงสุดที่แนะนำ",
-       cLabel:"⚠️ หมายเหตุซื่อสัตย์",caveats:["น้ำหนักยังเป็นค่าตั้งต้น — รอผลสำรวจผู้เชี่ยวชาญ (AHP)","ยังไม่ผ่านการทดสอบย้อนหลัง (backtest)","ปัจจัยเป็น proxy จากราคา — v2 จะเพิ่มปัจจัยพื้นฐาน (P/E, ROE)","เพื่อการศึกษา ไม่ใช่คำแนะนำการลงทุน"]},
+       cLabel:"⚠️ หมายเหตุซื่อสัตย์",caveats:["น้ำหนักยังเป็นค่าตั้งต้น — รอผลสำรวจผู้เชี่ยวชาญ (AHP)","ทดสอบย้อนหลังกับราคาตั้งแต่ปี 1999 แล้ว: หุ้นที่เลือกไม่ชนะการซื้อทั้งตลาด และอันดับไม่ได้ทำนายเดือนถัดไป","สามในสี่ปัจจัยคำนวณจากราคา มีเพียง ROE ที่อ่านจากงบการเงินของบริษัท","ทุกการทดสอบสมมติว่าถือ 6–12 เดือน การซื้อขายตามการเปลี่ยนแปลงทุกเดือนให้ผลแย่ที่สุดใน 5 ความถี่ที่ทดสอบ","เพื่อการศึกษา ไม่ใช่คำแนะนำการลงทุน"]},
      quiz:[
       ["ถ้าหุ้นที่ถือลง 20% ใน 1 เดือน คุณจะ:",[["ซื้อเพิ่ม",2],["ถือไว้",1],["ขายบางส่วน",0],["ขายทั้งหมด",-1]]],
       ["เงินก้อนนี้ต้องใช้เมื่อไร:",[["ภายใน 1 ปี",-1],["1–5 ปี",1],["5 ปีขึ้นไป",2]]],
@@ -201,7 +201,7 @@
       ["ลงหุ้นได้กี่ % ของเงินออม:",[["ไม่เกิน 10%",-1],["10–30%",1],["เกิน 30%",2]]],
      ] },
    en:{ lang:"ไทย", title:"Thai stocks worth a look, today",
-     sub:'Finds Thai stocks worth <b>researching</b> — and tells you the <b>risk</b>, honestly.',
+     sub:'Finds Thai stocks worth <b>researching</b> — and tells you the <b>risk</b>, honestly. Built for holding <b>6–12 months</b>, not for trading the daily changes.',
      pill:"Educational · not investment advice",
      meta:(d,u,n)=>`Data ${d} · from ${u} · ${n} stocks`,
      f:{ALL:"All",BUY:"✅ Worth a look",WAIT:"🟡 Wait",AVOID:"🔴 Not now"}, allSectors:"All sectors",
@@ -223,7 +223,7 @@
        wLabel:"Weighting",weights:"Quality 37% · Momentum 26% · Health 21% · ROE 16%",wNote:"Weights change with your risk profile — take the quiz to switch.",
        vLabel:"How the verdict is decided",verdict:"Top 20% of the market → Worth a look ✅ · 45–80th percentile → Wait 🟡 · below 45th → Not now 🔴",
        rLabel:"Risk",risk:"From monthly VaR (how bad a bad month could be), converted to the max position size we suggest",
-       cLabel:"⚠️ Honest notes",caveats:["Weights are preliminary — pending the AHP expert survey","Not yet backtested","Factors are price proxies — v2 adds fundamentals (P/E, ROE)","Educational, not investment advice"]},
+       cLabel:"⚠️ Honest notes",caveats:["Weights are preliminary — pending the AHP expert survey","Backtested on prices back to 1999: the picks do not beat buying the whole market, and the rank does not predict next month","Three of the four factors come from price; ROE is the one read from company accounts","Every test assumed holding 6–12 months. Trading monthly on the changes was the worst of the five frequencies we tested","Educational, not investment advice"]},
      quiz:[
       ["A stock you own drops 20% in a month, you:",[["Buy more",2],["Hold",1],["Sell some",0],["Sell all",-1]]],
       ["When do you need this money:",[["Within 1 yr",-1],["1–5 yrs",1],["5+ yrs",2]]],

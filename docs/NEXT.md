@@ -31,10 +31,8 @@ Five findings, all measured, all reproducible:
 
 ## ▶️ Do FIRST
 
-1. **Send the AHP survey.** The only task needing other people's time — it sets the real deadline, not the presentation date.
-2. **Build the bootstrap** in `ahp_analyze.py`. Its own docstring promises it and calls it the intended replacement for the invented `p_win`. The code does not exist.
-3. **Say the holding period on the site.** Every backtest assumes 6–12 months; the page refreshes daily and shows a *monthly* risk number. That quietly invites monthly trading — the worst of the five frequencies we tested.
-4. **Ask the repo owner to fix the branch rule** — `main` still requires the website-build checks, which never run on a pull request, instead of `checks`. Until that changes a green PR cannot merge.
+1. **Send the AHP survey.** The only task needing other people's time — it sets the real deadline, not the presentation date. It is ready as of 21 Sep: until then it still asked experts to weigh Growth, five days after the engine dropped it, and its answer template would have crashed the analysis. The facts lint now fails if the survey and `FACTORS` disagree.
+2. **Ask the repo owner to fix the branch rule** — `main` still requires the website-build checks, which never run on a pull request, instead of `checks`. Until that changes a green PR cannot merge.
 
 ## ⚠️ Do NOT
 

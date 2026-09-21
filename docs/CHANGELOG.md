@@ -4,6 +4,30 @@
 
 ---
 
+## 2026-09-21 — the survey catches up with the engine, and the site says how long to hold
+
+**สรุปสั้น ๆ** แบบสอบถามผู้เชี่ยวชาญ (AHP) ที่ยังไม่ได้ส่ง ยังให้เปรียบเทียบปัจจัย Growth ซึ่งถูกถอดออกจาก engine ไปแล้วตั้งแต่ 16 ก.ย. — แก้เป็น ROE ครบทุกแถว และเพิ่มกฎใน facts lint ให้ fail ทันทีถ้าแบบสอบถามไม่ตรงกับ `FACTORS` เว็บบอกแล้วว่าออกแบบสำหรับถือ 6–12 เดือน และลบหมายเหตุสองข้อที่ไม่จริงแล้ว ("ยังไม่ผ่านการทดสอบย้อนหลัง", "v2 จะเพิ่ม ROE") สุดท้าย bootstrap ใน `ahp_analyze.py` ที่ docstring สัญญาไว้แต่ไม่เคยเขียน ตอนนี้มีแล้ว
+
+| Change | Why |
+|---|---|
+| **`research/expert-ahp.md` and `ahp_responses_template.csv`: Growth → ROE** in the definitions, all three comparison blocks, and the matrix note (4×4, RI = 0.90 for n = 4). | The survey had not been sent, and it still asked experts to weigh a factor the engine dropped five days earlier. The template would have crashed the analysis (`FACTORS.index("growth")`). Instance #7 of the same failure mode. |
+| **`ahp_analyze.py`**: `--demo` runs again (its fake panel still had growth and value), the usage line no longer offers an `--apply` flag that never existed, and the matrix and pair counts follow `FACTORS`. | Found by the lint's new docstring scan and by running the demo. |
+| **The bootstrap exists.** 1,000 resamples of the panel, re-aggregated the same way (AIJ), re-ranking today's stocks; it reports how often each stays in the top 10 and writes it to `reports/ahp_weights.json`. | The docstring promised it since 1 Sep and called it the honest replacement for `p_win`. |
+| **`today.json` publishes `factor_z`**, each stock's four sector-adjusted z-scores. | The bootstrap needs them. Checked: re-scoring from `factor_z` and the weights reproduces all three published lists exactly. |
+| **The site states the holding period**: *built for holding 6–12 months, not for trading the daily changes*, under the title in both languages. The "Honest notes" drop *not yet backtested* and *v2 adds fundamentals (P/E, ROE)*, both false now. | Every backtest assumed 6–12 months, and monthly trading was the worst of the five frequencies tested, while the page refreshed daily and showed a monthly risk figure. |
+| **The facts lint learnt three rules and a new place to look.** `survey-factor` (a comparison row or template row naming anything but `FACTORS`), `matrix-size` ("5×5 matrix", "RI … for n = 5"), two new stale claims, and it now reads **docstrings** in `engine/`, `tools/` and `research/`. "92 of 95 stocks" no longer counts as a universe size. 46 self-tests. | Run against the old files, the new rules catch all 30 problems above. Run against today's files, it passes. |
+
+### Verify
+
+```
+python tools/facts_lint.py --selftest     # 46/46
+python tools/facts_lint.py                # docs and pages agree with the code
+python research/ahp_analyze.py --demo     # runs; prints TOP-10 STABILITY (demo data)
+cd engine && python run_today.py && python verify_today.py
+```
+
+---
+
 ## 2026-09-21 — ROE audited, repaired, 95 of 95
 
 **สรุปสั้น ๆ** ตรวจข้อมูล ROE ทุกแถวด้วยห้าวิธีที่ผิดได้อย่างอิสระต่อกัน ได้ ROE ครบทั้ง 95 บริษัท (BANPU ไม่ได้อ่านไม่ออก แต่ไม่มีเอกสารในคลังของ ก.ล.ต. เลย จึงดึงจากงบของ SET โดยตรง) แก้กฎวันที่ข้อมูลใช้ได้สำหรับบริษัทที่ปิดงบไม่ใช่เดือนธันวาคม และเพิ่มด่านตรวจที่กันค่าที่ขัดแย้งกับข้อมูลของบริษัทเองไว้ 16 ค่า เทียบกับตัวเลขของ SET ปีเดียวกัน ห่างกันแค่ค่ามัธยฐาน 0.002 จุด

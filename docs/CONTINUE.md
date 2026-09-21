@@ -82,7 +82,7 @@ Five instances of the same thing — a value or intention recorded in one place 
 wired to the place that uses it:
 
 1. **`calibration.json`** — measured, documented, never read by the engine *(fixed 31 Aug; the file was then retired entirely on 16 Sep, because the honest presentation of a flat up-rate is no figure at all — `backtest.py` still prints the table as a finding)*
-2. **`ahp_analyze.py`'s bootstrap** — a whole docstring section explains why it matters. **The code was never written.** *(still missing)*
+2. **`ahp_analyze.py`'s bootstrap** — a whole docstring section explained why it matters, and the code was never written *(built 21 Sep: 1,000 resamples of the panel, re-ranked on the `factor_z` values `run_today.py` now publishes)*
 3. **The factor definition** — copy-pasted into ten files, several labelled `# FROZEN - identical to run_today.py` while being nothing of the kind *(fixed: `research/factors.py`)*
 4. **`gen_today.js`** — a fourth copy of the engine in JavaScript, with stale weights and known-bad tickers *(deleted 9 Sep)*
 5. **`HOW-IT-WORKS.md`** — kept telling readers `p_win` was "a placeholder formula" and listed wiring it under **Still to build**, two weeks after it was wired *(fixed 13 Sep)*
@@ -118,11 +118,9 @@ declared the Action dead from a local clone that was 22 commits behind.
 
 ## ▶️ What's next
 
-1. **Send the AHP survey.** It is the only task that needs other people's calendar time, so it sets the real deadline. Four factors → 6 comparisons per profile, 18 per expert (was 45).
-2. **Build the bootstrap** in `ahp_analyze.py` — resample experts 1000× for *"PTT appears in the top 10 under 87% of expert weightings."* Named in its own docstring as the intended replacement for the invented `p_win`, and still not written.
-3. **Add a holding-period statement to the site.** Every backtest assumes 6–12 months, but the page refreshes daily and shows a *monthly* risk figure — which quietly invites the behaviour our own data says is worst (monthly rebalancing was the worst of five).
-4. **Merge PRs #1 and #2** on the team repo. #2 is stacked on #1.
-5. **Finish `REPORT.md`** — needs team review and real names/IDs.
+1. **Send the AHP survey.** It is the only task that needs other people's calendar time, so it sets the real deadline. Four factors → 6 comparisons per profile, 18 per expert (was 45). Ready as of 21 Sep, when it was brought up to date with ROE.
+2. **Merge PRs #1 and #2** on the team repo. #2 is stacked on #1.
+3. **Finish `REPORT.md`** — needs team review and real names/IDs.
 
 ## ⚠️ Do NOT
 
