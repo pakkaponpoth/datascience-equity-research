@@ -143,7 +143,11 @@ def main():
                                     "universe median on that factor, not dropped."},
            "stocks": profiles["balanced"],   # backward-compatible default
            "profiles": profiles,
-           "profile_weights": PROFILES}       # single source of truth for "How we score"
+           "profile_weights": PROFILES,       # single source of truth for "How we score"
+           # each stock's four sector-adjusted z-scores, the inputs every profile weights;
+           # research/ahp_analyze.py re-ranks with these to say how stable a top 10 is
+           "factor_z": {t: {f: round(float(df.loc[t, f + "_adj"]), 4) for f in FACTORS}
+                        for t in df.index}}
     json.dump(out, open(FILE, "w", encoding="utf-8"), ensure_ascii=False)
 
     dropped = [t for t in tickers if t not in df.index]

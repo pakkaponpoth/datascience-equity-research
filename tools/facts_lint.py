@@ -19,7 +19,10 @@ The truth comes from the code, never from this file:
     factor names      FACTORS                      engine/factors.py
     stock count       len(stocks)                  engine/universe.json
 
-Then every current-tense doc and page is scanned for statements that disagree.
+Then every current-tense doc and page is scanned for statements that disagree,
+and so are the docstrings of the Python in engine/, tools/ and research/ - a
+docstring is documentation too, and research/ahp_analyze.py's still promised a
+5x5 matrix and an --apply flag that no longer existed.
 
 RULES
 -----
@@ -31,6 +34,11 @@ RULES
   pairwise-count "N pairwise" comparisons where N != F x (F-1) / 2 - the AHP survey
                  size follows the factor count (its first real catch: REPORT 9 still
                  said "ten", the five-factor number)
+  survey-factor  an AHP comparison row ("| 1.1 | Momentum <-> Growth |") or a row of
+                 research/ahp_responses_template.csv naming anything but FACTORS.
+                 Added 21 Sep 2026, when the unsent survey was found still asking
+                 experts to weigh Growth, five days after the engine dropped it
+  matrix-size    "N x N matrix" or "RI = ... for n = N" where N != F
   stale-claim    phrases that were true once and are known false now
 
 HISTORY IS ALLOWED
@@ -45,7 +53,9 @@ NOT SCANNED
 -----------
 docs/CHANGELOG.md (history by design), docs/HANDOFF.md (the original design
 brief - its own banner says it is superseded), reports/ (dated evidence - never
-edit), proposals/ (the original plan, kept as written).
+edit), proposals/ (the original plan, kept as written), and this file's own
+docstring, which quotes the mistakes it looks for. Python comments are not read,
+only docstrings.
 
 Standard library only, so CI needs no installs.
 """
@@ -59,7 +69,9 @@ ENGINE = ROOT / "engine"
 
 SCAN = ["README.md", "START-HERE.md", "docs/*.md", "app/*.html",
         "0-if-you-have-no-idea/*.md", "research/*.md"]
-SKIP = {"docs/CHANGELOG.md", "docs/HANDOFF.md"}
+SCAN_PY = ["engine/*.py", "tools/*.py", "research/*.py"]      # docstrings only
+SKIP = {"docs/CHANGELOG.md", "docs/HANDOFF.md", "tools/facts_lint.py"}
+TEMPLATE = "research/ahp_responses_template.csv"
 
 WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
          "seven": 7, "eight": 8, "nine": 9, "ten": 10}
@@ -83,6 +95,10 @@ RETIRED_RE = re.compile(
 PAIR_RE = re.compile(
     r"\b(one|two|three|four|five|six|seven|eight|nine|ten|\d+)\b"
     r"\s+(?:[A-Za-z-]+\s+){0,1}?pairwise\b", re.I)
+RETIRED_ROW = re.compile(r"^\s*\|\s*\*\*(growth|value)\*\*", re.I)     # a factor-table row
+SURVEY_ROW = re.compile(r"^\s*\|[^|]*\|\s*([A-Za-z]+)\s*(?:↔|<->)\s*([A-Za-z]+)\s*\|")
+MATRIX_RE = re.compile(r"\b(\d+)\s*[x×]\s*(\d+)\b(?=[^.]{0,30}\bmatri)"
+                       r"|\bRI\s*=\s*[\d.]+\s+for\s+n\s*=\s*(\d+)", re.I)
 
 STALE = [
     (re.compile(r"placeholder formula", re.I),
@@ -100,6 +116,10 @@ STALE = [
      "balanced is no longer a copy of conservative (REPORT 7)"),
     (re.compile(r"genuinely in the middle", re.I),
      "balanced still leans cautious - do not overclaim"),
+    (re.compile(r"not yet backtested|ยังไม่ผ่านการทดสอบย้อนหลัง", re.I),
+     "backtested on prices back to 1999 - REPORT 5 and the blind test"),
+    (re.compile(r"factors are price proxies|v2 (?:adds|จะเพิ่ม)|ปัจจัยเป็น proxy จากราคา", re.I),
+     "ROE has been a factor read from company accounts since 2026-09-16"),
 ]
 
 
@@ -146,11 +166,35 @@ def check_line(line, truth, is_page):
     for m in STOCK_RE.finditer(line):
         raw = next(g for g in m.groups() if g)
         n = int(raw)
+        part = re.match(r"~?\d{2,3}\s+of\s+(\d{2,3})\b", m.group(0).strip())
+        if part and int(part.group(1)) == truth["stocks"]:
+            continue    # "92 of 95 stocks" counts part of the universe, not its size
         if 50 <= n <= 250 and n != truth["stocks"] and not history:
             found.append(("stock-count",
                           f'"{m.group(0).strip()}" but universe.json has {truth["stocks"]}'))
 
+    for m in MATRIX_RE.finditer(line):
+        a, b, n = m.group(1), m.group(2), m.group(3)
+        size = int(n) if n else (int(a) if a == b else None)
+        if size is not None and size != truth["factors"] and not history:
+            found.append(("matrix-size",
+                          f'"{m.group(0).strip()}" but {truth["factors"]} factors make a '
+                          f'{truth["factors"]}x{truth["factors"]} matrix'))
+
+    m = SURVEY_ROW.search(line)
+    if m and not history:
+        for name in (m.group(1), m.group(2)):
+            if name.lower() not in truth["names"]:
+                found.append(("survey-factor",
+                              f'survey row compares "{name}", but factors.py has '
+                              f'{", ".join(truth["names"])}'))
+
     if not history:
+        m = RETIRED_ROW.search(line)
+        if m and m.group(1).lower() not in truth["names"]:
+            name = m.group(1).lower()
+            found.append(("retired-factor",
+                          f'a factor table lists "{name}", retired {RETIRED[name]}'))
         for m in RETIRED_RE.finditer(line):
             name = (m.group(1) or m.group(2)).lower()
             if name in truth["names"]:
@@ -167,18 +211,55 @@ def check_line(line, truth, is_page):
     return found
 
 
+def docstring_lines(source):
+    """(line number, text) for every line of every docstring in a Python source."""
+    import ast
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return []
+    out = []
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            body = node.body
+            if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant) \
+                    and isinstance(body[0].value.value, str):
+                d = body[0].value
+                src = source.splitlines()[d.lineno - 1:d.end_lineno]
+                out += [(d.lineno + k, text) for k, text in enumerate(src)]
+    return out
+
+
+def template_findings(rows, truth):
+    """Rows of the AHP answer template must only name live factors."""
+    found = []
+    for i, r in enumerate(rows, 2):
+        for col in ("left", "right", "winner"):
+            v = (r.get(col) or "").strip().lower()
+            if v and v != "equal" and v not in truth["names"]:
+                found.append((i, "survey-factor", f'{col} "{v}" is not one of {", ".join(truth["names"])}'))
+    return found
+
+
 def scan(truth):
     findings = []
-    for pattern in SCAN:
+    for pattern in SCAN + SCAN_PY:
         for path in sorted(ROOT.glob(pattern)):
             rel = path.relative_to(ROOT).as_posix()
             if rel in SKIP:
                 continue
             is_page = rel.startswith("app/")
             text = path.read_text(encoding="utf-8", errors="replace")
-            for i, line in enumerate(text.splitlines(), 1):
+            lines = docstring_lines(text) if rel.endswith(".py") else enumerate(text.splitlines(), 1)
+            for i, line in lines:
                 for rule, msg in check_line(line, truth, is_page):
                     findings.append((rel, i, rule, msg))
+    template = ROOT / TEMPLATE
+    if template.exists():
+        import csv
+        with template.open(encoding="utf-8-sig", newline="") as f:
+            for i, rule, msg in template_findings(list(csv.DictReader(f)), truth):
+                findings.append((TEMPLATE, i, rule, msg))
     return findings
 
 
@@ -198,6 +279,8 @@ def selftest():
         ('pipeline diagram said "~92 SET"', False, None),
         ("pipeline diagram shows ~92 SET", False, "stock-count"),
         ("only 4 of 95 tickers had data in 1999", False, None),
+        ("(66-92 of 95 stocks have history, versus 37-62 pre-2015)", False, None),
+        ("92 of 94 stocks are covered", False, "stock-count"),
         ("hold for 6 to 12 months", True, None),
         ("168 start-points across 14 years, 96 months apart", False, None),
         ("The four factors are momentum, growth, quality and health.", False, "retired-factor"),
@@ -216,6 +299,18 @@ def selftest():
         ("AHP expert survey. Ten pairwise factor comparisons on the Saaty scale", False, "pairwise-count"),
         ("AHP expert survey. Six pairwise factor comparisons on the Saaty scale", False, None),
         ("experts did 15 pairwise comparisons in the old draft", False, None),
+        ("| 1.1 | Momentum ↔ Growth | M / G | ____ |", False, "survey-factor"),
+        ("| 1.1 | Momentum ↔ ROE | M / R | ____ |", False, None),
+        ("| **Growth** การเติบโต | Is it trending up over a longer span? |", False, "retired-factor"),
+        ("| **ROE** | Does the business earn well on its owners' money? |", False, None),
+        ("It builds each 5×5 matrix, derives priorities", False, "matrix-size"),
+        ("It builds each 4×4 matrix, derives priorities", False, None),
+        ("computes CR against RI = 1.12 for n = 5", False, "matrix-size"),
+        ("computes CR against RI = 0.90 for n = 4", False, None),
+        ("a 10x10 grid of charts", False, None),
+        ("Not yet backtested", True, "stale-claim"),
+        ("Factors are price proxies — v2 adds fundamentals (P/E, ROE)", True, "stale-claim"),
+        ("it said Not yet backtested before August", True, None),
     ]
     failed = 0
     for text, is_page, expected in cases:
@@ -223,7 +318,21 @@ def selftest():
         ok = (expected in rules) if expected else (not rules)
         failed += not ok
         print(f"  {'PASS' if ok else 'FAIL'}  expect {expected or 'nothing':<13} got {rules or 'nothing'}  | {text}")
-    print(f"\nselftest: {len(cases) - failed}/{len(cases)} passed")
+    # docstrings are read; code and comments are not
+    src = 'def f():\n    """Scores on five factors."""\n    x = "five factors"  # five factors\n'
+    got = [i for i, text in docstring_lines(src) for _ in check_line(text, t, False)]
+    ok = got == [2]
+    failed += not ok
+    print(f"  {'PASS' if ok else 'FAIL'}  docstring line 2 flagged, code and comment ignored  (got lines {got})")
+    # the answer template must name live factors only
+    rows = [{"left": "momentum", "right": "growth", "winner": "growth"},
+            {"left": "momentum", "right": "roe", "winner": "equal"}]
+    got = [(i, r) for i, r, _ in template_findings(rows, t)]
+    ok = got == [(2, "survey-factor"), (2, "survey-factor")]
+    failed += not ok
+    print(f"  {'PASS' if ok else 'FAIL'}  template row naming growth flagged twice, clean row passes  (got {got})")
+    total = len(cases) + 2
+    print(f"\nselftest: {total - failed}/{total} passed")
     return 1 if failed else 0
 
 
