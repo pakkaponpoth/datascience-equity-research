@@ -56,10 +56,14 @@ defined in the right-hand column**.
 | **Quality** คุณภาพ | Is it calm rather than wild? | **Annualised volatility**, lower is better — ***not** margin or debt (ROE is its own factor)* | `-(stdev(daily returns, 252d) x sqrt(252))` |
 | **Health** สุขภาพ | Did it survive bad stretches? | **Worst drawdown** over 1 year — ***not** D/E or liquidity* | `min(P / running_max(P) - 1)` |
 
-**Before weighting, each factor is z-scored** (clipped at ±3 so one extreme
-stock cannot dominate) **and then sector-neutralised** — a bank is compared with
-other banks, not with an airport. So you are ranking *within sector*, not across
-the whole market.
+**Before weighting, each factor is z-scored across all 95 stocks** (clipped at
+±3 so one extreme stock cannot dominate) — a bank is compared with every other
+stock, airports included. So the ranking is *across the whole market*, which
+means the calmest sector, banks, scores highest on the safety factors.
+
+*(The copy sent on 21 Sep also said scores were sector-neutralised; the team
+dropped that step the same day. It does not change what you are asked to
+compare: how much each factor should matter for each kind of investor.)*
 
 > **A fifth factor, "Value", was removed on 2026-09-09.** It was defined as price
 > versus its own 200-day average. Measured across our 95 stocks that correlates

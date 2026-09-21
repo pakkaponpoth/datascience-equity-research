@@ -4,6 +4,32 @@
 
 ---
 
+## 2026-09-21 — the sector adjustment is dropped, and banks fill the safer lists
+
+**สรุปสั้น ๆ** ทีมตัดสินใจเลิกปรับคะแนนตามกลุ่มอุตสาหกรรม (sector neutralisation) เพราะเว็บจัดอันดับ "#k จาก 95" เทียบทั้งตลาด ตอนนี้คะแนนทุกปัจจัยเป็น z-score เทียบหุ้นทั้ง 95 ตัว วัดผลก่อนเปลี่ยนด้วยราคาชุดเดียวกัน: หุ้นธนาคารทั้ง 7 ตัวเข้ารายการ BUY ของสายปลอดภัยและสายสมดุล และอยู่ใน 10 อันดับแรก 6–7 ตัว (เดิมไม่มีเลย) ทีมยอมรับผลนี้และเขียนไว้ในรายงาน ส่วน backtest ที่รันใหม่ดูดีขึ้นเล็กน้อย แต่ไม่ใช่หลักฐานว่าการเปลี่ยนนี้ช่วย ข้อสรุปเดิมไม่เปลี่ยน
+
+| Change | Why |
+|---|---|
+| **The sector step is gone from the live engine and every descriptive backtest.** Each factor is z-scored across all 95 stocks and clipped to ±3; nothing is subtracted per sector. | Team decision (trial 82 in the lab, recorded before anything was measured): the site ranks every stock "#k of 95" across the whole universe, and scores built sector by sector do not compare a stock with all 95. |
+| **One normalisation, `factors.zscore`, replaces nine copies** in `run_today.py`, `backtest.py`, `backtest_hold.py`, `backtest_costs.py`, `backtest_long.py`, `backtest_profiles.py`, `explore.py`, `profiles_demo.py` and `rederive_section34.py`. It needs no pandas import, so the facts lint still loads `factors.py` without it. | The same five lines had been pasted into every script; changing the model meant nine edits and a chance to miss one. `blind_test.py` and `backtest_sizing.py` keep their own copy of the old step on purpose - they are sealed. |
+| **Measured on identical closing prices before shipping:** BUY lists keep 8, 11 and 15 of 20 names (conservative / balanced / aggressive); all 7 banks enter the conservative and balanced BUY lists; banks in the top 10 go 0 → 6, 0 → 7 and 0 → 1. Balanced now shares 18 of its top 20 with conservative (15 with the step). | This is the concentration the step was added in July to prevent. It is accepted, stated in REPORT 3.2, HOW-IT-WORKS and the onboarding page, not hidden. |
+| **Backtests re-run** (`backtest`, `backtest_hold`, `backtest_profiles`, `backtest_costs`, `backtest_long`, `explore --years`, `rederive_section34`) and REPORT 3.4, 5.1, 5.1.1, 5.2 and 8 updated. Up-rate still flat (p 0.28), IC +0.0050 (t 0.20), top 20% still trails buy-and-hold with a 1–2% luck bar. The numbers are a little better than before. | Kept consistent with the shipped model. REPORT 5.2 states plainly that the improvement is not evidence the change helped: same survivorship-biased window, after a model change. The sealed one-shots were not re-run. |
+| **REPORT 3.3's weight table said "Growth"** where the column is ROE. | Missed on 16 Sep; the lint checks table rows for retired factors, not header rows. |
+| **Facts lint: a `sector` stale-claim rule** (sector-neutral / sector-adjusted / "its own sector peers" / "within sector"), waived only for the two sealed scripts. 50 self-tests. | So the old description cannot quietly return in a doc or on a page. |
+| **The survey text** (`research/expert-ahp.md`) says scores are ranked across the whole market, with a note that the copy sent on 21 Sep still said sector-neutralised. | It does not change what experts are asked to compare. |
+
+### Verify
+
+```
+python tools/facts_lint.py --selftest     # 50/50
+python tools/facts_lint.py                # docs and pages agree with the code
+grep -ln 'groupby("sector")' engine/*.py  # only blind_test.py and backtest_sizing.py
+cd engine && python run_today.py && python verify_today.py
+python rederive_section34.py              # PTT #4 / #6 / #43, GUNKUL #53 / #14 / #2
+```
+
+---
+
 ## 2026-09-21 — the report says what the backtests actually measured
 
 **สรุปสั้น ๆ** แก้รายงานให้ตรงกับโค้ดก่อนนำเสนอ ไม่มีการแก้ engine: (1) บอกชัดว่า backtest ทุกตัวคำนวณปัจจัยจากราคาปลายเดือน ส่วนเว็บใช้ราคารายวัน และวัดแล้วว่าอันดับตรงกันราว 0.91 (2) เขียนกฎ quality gate ของ ROE ให้ตรงโค้ดครบ 3 ข้อ (3) บอกว่าสูตร position cap `0.42 × (1 − risk/32)` เป็น heuristic ที่ยังไม่มีการทดสอบรองรับ และเพิ่มงานหลังนำเสนอสองข้อใน NEXT.md

@@ -20,7 +20,7 @@ The answer is no, and establishing that carefully is the contribution.
 Across 83 months of point-in-time backtesting, a stock's score has **no
 relationship to whether it rises**: the measured up-rate is flat at roughly
 47% across all ten score deciles. Buying the top 20% and holding trails simply
-buying everything, and beats **0%** of randomly-selected portfolios. When one
+buying everything, and beats at most **2%** of randomly-selected portfolios. When one
 weighting appeared to beat the market after roughly fifteen exploratory tests,
 we pre-registered a single blind test on a period we had never examined; it
 failed the pass mark we had written down in advance. Investigating the
@@ -123,23 +123,37 @@ frequency, so the backtests describe the live product closely but not exactly.
 ### 3.2 Normalisation
 
 Raw factors are incomparable — a 6-month return and a volatility figure are
-different units. Two steps fix this:
+different units. One step fixes this: a **winsorised z-score**. Each factor is
+centred on the mean of all 95 stocks and scaled by their standard deviation,
+then clipped to ±3 so one extreme stock cannot dominate.
 
-1. **Winsorised z-score.** Each factor is centred and scaled by its standard
-   deviation, then clipped to ±3 so one extreme stock cannot dominate.
-2. **Sector neutralisation.** The sector mean is subtracted, for sectors with at
-   least three members. A bank is judged against banks.
+**A second step, sector neutralisation, was removed on 21 September 2026.** From
+July, each z-score also had its sector's mean subtracted (for sectors with at
+least three members), so a bank was judged against banks. It had been added
+after an early version returned a top 10 made almost entirely of banks. The team
+removed it because the product ranks every stock "#k of 95" across the whole
+universe, and a score built sector by sector does not compare a stock with all 95.
 
-Step 2 was added after an early version returned a top-10 consisting almost
-entirely of banks — low-volatility stocks were sweeping the quality factor
-market-wide.
+We measured the consequence on identical prices before it shipped (trial 82).
+The early problem returns, and it is accepted rather than hidden:
+
+| Profile | BUY names kept (of 20) | Largest sector in the BUY list | Banks in the top 10 |
+|---|---|---|---|
+| Conservative | 8 | Commerce 4 → **Banking 7** | 0 → **6** |
+| Balanced | 11 | Commerce 4 → **Banking 7** | 0 → **7** |
+| Aggressive | 15 | Utilities 4 → Banking 4 | 0 → 1 |
+
+All seven banks in the universe now enter the conservative and balanced BUY
+lists. Banks have the calmest prices, and those two profiles weight calm prices
+most. A bank-heavy conservative list therefore reflects one sector's low
+volatility, not a diversified selection, and a reader should treat it that way.
 
 ### 3.3 Three risk profiles
 
 The same four factors are combined with three weight sets. A five-question quiz
 maps the user to one.
 
-| Profile | Momentum | Growth | Quality | Health |
+| Profile | Momentum | ROE | Quality | Health |
 |---|---|---|---|---|
 | Conservative | 6% | 6% | **50%** | **38%** |
 | Balanced | 26% | 16% | 37% | 21% |
@@ -156,23 +170,25 @@ outstanding work (Section 9).
 
 ### 3.4 What re-weighting actually does
 
-Taking PTT on 1 September 2026, sector-adjusted:
+Taking PTT on 1 September 2026, z-scored across all 95 stocks:
 
 ```
-momentum −0.67   roe +0.13   quality +1.69   health +1.25
+momentum −0.23   roe −0.25   quality +1.40   health +1.62
 ```
 
 | Profile | Weighted total | Rank of 95 |
 |---|---|---|
-| Conservative | +1.29 | **#2** |
-| Balanced | +0.74 | #3 |
-| Aggressive | +0.01 | #47 |
+| Conservative | +1.28 | **#4** |
+| Balanced | +0.76 | #6 |
+| Aggressive | +0.07 | #43 |
 
-> **Re-derived 2026-09-16, on the engine with ROE in place of growth.** Produced by `engine/rederive_section34.py`, which reproduces
-> `run_today.py`'s pipeline exactly (126/252-day windows, ≥130 days of history, winsorised
-> z-scores, sector-neutralised where a sector has ≥3 names) on prices truncated at
-> 1 Sep 2026 — 95 of 95 stocks scored. The weighted totals also follow arithmetically from
-> the z-scores and weights on this page, so they are checkable by hand. Under the
+> **Re-derived 2026-09-21, after the sector step was removed (Section 3.2).** Produced by
+> `engine/rederive_section34.py`, which reproduces `run_today.py`'s pipeline exactly
+> (126/252-day windows, ≥130 days of history, winsorised z-scores across all 95) on prices
+> truncated at 1 Sep 2026 — 95 of 95 stocks scored. The weighted totals follow from the
+> z-scores and weights on this page to within 0.01 of rounding, so they are checkable by
+> hand. With the sector step, PTT was compared with the other energy stocks and ranked
+> #2, #3 and #47. Under the
 > **old model, before `value` was removed on 9 Sep,** these ranks were #1, #1 and #71: balanced agreed with conservative,
 > which is exactly what the value/momentum cancellation produced. With four price factors they were
 > #1, #5 and #77. Replacing growth with ROE moves PTT up under the aggressive weights (#77 → #47),
@@ -180,9 +196,9 @@ momentum −0.67   roe +0.13   quality +1.69   health +1.25
 > a concrete example of the two factors asking different questions. The z-scores differ in the second
 > decimal from earlier write-ups because prices are dividend-adjusted and shift slightly on re-download.
 
-The same stock, the same day, ranks **2nd or 47th** depending only on the weights.
-GUNKUL — strong momentum (+2.24) and a good ROE (+0.83) but volatile — runs the other way:
-**#40 under conservative, #5 under balanced, #1 under aggressive.**
+The same stock, the same day, ranks **4th or 43rd** depending only on the weights.
+GUNKUL — strong momentum (+2.49) but volatile — runs the other way:
+**#53 under conservative, #14 under balanced, #2 under aggressive.**
 
 This makes the system's nature explicit: **it holds no view on which stocks will
 rise.** It has one opinion, about which *kind* of stock suits a given investor,
@@ -392,15 +408,20 @@ Scores here use the **balanced** weights, which `backtest.py` hard-codes.
 
 | Score decile | 0–10 | 10–20 | 20–30 | 30–40 | 40–50 | 50–60 | 60–70 | 70–80 | 80–90 | **90–100** |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Up-rate | 46.1% | 48.9% | 48.6% | 48.1% | 48.3% | 46.9% | 47.2% | 45.7% | 49.6% | **44.1%** |
+| Up-rate | 47.7% | 50.0% | 49.2% | 48.1% | 47.4% | **43.1%** | 45.0% | 48.5% | 46.0% | 48.5% |
 
-**Flat.** Every decile sits between 44.1% and 49.6% around a base rate of 47.4%.
+**Flat.** Every decile sits between 43.1% and 50.0% around a base rate of 47.4%.
 A Cochran–Armitage test for a trend from low to high scores finds none
-(z = −1.04, p = 0.30). As a group the deciles are not distinguishable either
-(χ² = 7.7, df = 9, below the 16.92 critical value), and the ordering is
-meaningless — the highest decile, 90–100, has the *lowest* up-rate of the ten.
+(z = −1.09, p = 0.28). As a group the deciles are not distinguishable either
+(χ² = 11.7, df = 9, below the 16.92 critical value), and the ordering is
+meaningless — the lowest up-rate is in the middle (50–60), and the top decile
+ties the 70–80 one.
 Both statistics are computed inside `backtest.py` rather than typed here, so
 they cannot drift the next time the engine changes.
+
+> **Re-measured 21 Sep 2026**, after sector neutralisation was removed (Section 3.2). The
+> engine before that gave the same base rate, 47.4%, with z = −1.04, p = 0.30 and
+> χ² = 7.7 — the same verdict.
 
 > **Re-measured 16 Sep 2026** on the engine with ROE in place of growth. The
 > four-factor price-only engine gave a base rate of 47.3% with z = −0.62,
@@ -436,14 +457,15 @@ return, computed per month and averaged.
 | | |
 |---|---|
 | Months measured | 83 |
-| Mean information coefficient | **+0.0055** |
-| t-statistic | **+0.28** |
-| Months with a positive IC | 43 of 83 (52%) |
-| Month-to-month standard deviation | 0.180 |
+| Mean information coefficient | **+0.0050** |
+| t-statistic | **+0.20** |
+| Months with a positive IC | 41 of 83 (49%) |
+| Month-to-month standard deviation | 0.233 |
 
 A useful equity signal runs an IC of roughly **0.03 to 0.05**. Ours is an order
-of magnitude below that, indistinguishable from zero, and positive in barely
-half of months — the same result a coin flip would give. `backtest.py` computes
+of magnitude below that, indistinguishable from zero, and positive in fewer
+than half of months — the same result a coin flip would give. (Before the sector
+step was removed on 21 Sep: +0.0055, t = +0.28, 43 of 83 months — no different.) `backtest.py` computes
 this, so the figure cannot drift out of step with the engine.
 
 **Why this matters for the product.** The site displays a stock's rank among the
@@ -458,15 +480,23 @@ churning monthly.
 
 | Horizon | Picks | Buy & hold | Luck bar |
 |---|---|---|---|
-| 6 months | +0.8% | +3.9% | **0%** |
-| 12 months | +2.8% | +8.7% | **0%** |
+| 6 months | +2.4% | +3.9% | **1%** |
+| 12 months | +5.9% | +8.8% | **2%** |
 
-The picks trail, and beat **zero** of 300 random portfolios. Monthly rotation
-(`backtest.py`) performs similarly: +14.4% against +46.8% for buy-and-hold, an
-8% luck bar. *(Figures re-measured 16 Sep 2026 on the engine with ROE; the
-price-only engine gave +1.5% / +8.2% at 12 months and +13.1% vs +44.0% monthly —
-the same verdict, and this is one of the two windows where the ROE version is
-slightly the weaker of the two. See 3.5: no performance claim is made for it.)*
+The picks trail, and beat at most **2%** of 300 random portfolios. Monthly
+rotation (`backtest.py`) performs similarly: +24.7% against +46.8% for
+buy-and-hold, a 17% luck bar.
+
+> **Re-measured 21 Sep 2026, after the sector step was removed (Section 3.2).**
+> The picks now trail by less: the engine before gave +0.8% and +2.8%, luck bars
+> of 0%, and +14.4% monthly with an 8% luck bar. **This is not evidence that
+> removing the step helped.** It was removed for a design reason, and this is a
+> re-run on the same survivorship-biased window after a model change — the
+> situation the deflated Sharpe bar (Section 3.5) and the blind test (Section 6)
+> exist to guard against. The verdict is
+> unchanged: the picks still trail buy-and-hold and still sit inside luck. The
+> 16 Sep figures (ROE engine) and the price-only engine's (+1.5% / +8.2% at 12
+> months, +13.1% vs +44.0% monthly) gave the same verdict.
 
 ### 5.3 Does the risk-based sizing help? — `backtest_sizing.py`
 
@@ -686,7 +716,10 @@ the worst of it. Measured on the four-factor engine at 1 Sep 2026, balanced shar
 with aggressive; conservative and aggressive share none of their top 10. Balanced
 now has its own top five (3 of 5 shared), but it sits nearer the cautious end
 because quality carries its largest weight (.37). Whether that is the right middle
-is exactly what the AHP survey should decide.
+is exactly what the AHP survey should decide. Removing the sector step on 21 Sep
+pulled them closer again: on today's prices balanced shares 9 of its top 10 and
+**18 of its top 20** with conservative (15 of 20 with the step), because both now
+draw on the same banks.
 
 **Survivorship bias is unfixable with our data**, as quantified above.
 
@@ -696,7 +729,7 @@ nominal count.
 
 **Only the balanced profile was calibrated.** `backtest.py` and
 `backtest_hold.py` hard-code the balanced weights, so the flat ~47% up-rate and
-the 0% luck bars are measured for *balanced* specifically. The three-profile
+the 1–2% luck bars are measured for *balanced* specifically. The three-profile
 comparisons (`backtest_profiles.py`, `backtest_costs.py`, `backtest_long.py`,
 `blind_test.py`) do cover all three. We expect the calibration result to hold
 across profiles — they share identical factors and the same percentile

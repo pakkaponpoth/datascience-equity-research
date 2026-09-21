@@ -120,7 +120,15 @@ STALE = [
      "backtested on prices back to 1999 - REPORT 5 and the blind test"),
     (re.compile(r"factors are price proxies|v2 (?:adds|จะเพิ่ม)|ปัจจัยเป็น proxy จากราคา", re.I),
      "ROE has been a factor read from company accounts since 2026-09-16"),
+    (re.compile(r"sector[- ]?neutrali[sz]|sector[- ]adjusted|(?:its own|their own) sector peers|"
+                r"judged against (?:its own )?sector|within sector|เทียบกับหุ้นในกลุ่มเดียวกัน", re.I),
+     "sector neutralisation was dropped on 2026-09-21 (trial 82) - scores are z-scored across all 95"),
 ]
+
+# The two sealed one-shots keep testing the model they were registered against,
+# which still sector-neutralised. Their docstrings say so correctly, so the
+# sector rule alone is waived for them - every other rule still applies.
+SEALED_OLD_MODEL = {"engine/blind_test.py", "engine/backtest_sizing.py"}
 
 
 def load_truth():
@@ -253,6 +261,8 @@ def scan(truth):
             lines = docstring_lines(text) if rel.endswith(".py") else enumerate(text.splitlines(), 1)
             for i, line in lines:
                 for rule, msg in check_line(line, truth, is_page):
+                    if rel in SEALED_OLD_MODEL and rule == "stale-claim" and "sector" in msg:
+                        continue
                     findings.append((rel, i, rule, msg))
     template = ROOT / TEMPLATE
     if template.exists():
@@ -311,6 +321,10 @@ def selftest():
         ("Not yet backtested", True, "stale-claim"),
         ("Factors are price proxies — v2 adds fundamentals (P/E, ROE)", True, "stale-claim"),
         ("it said Not yet backtested before August", True, None),
+        ("Each factor is z-scored and sector-neutralised", False, "stale-claim"),
+        ("a stock is judged against its own sector peers", True, "stale-claim"),
+        ("Taking PTT on 1 September 2026, sector-adjusted:", False, "stale-claim"),
+        ("Until 21 Sep the scores were also sector-neutralised", False, None),
     ]
     failed = 0
     for text, is_page, expected in cases:

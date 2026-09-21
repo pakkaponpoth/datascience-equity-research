@@ -66,6 +66,36 @@ PROFILES = {
     "aggressive":   {"momentum": .47, "roe": .35, "quality": .12, "health": .06},
 }
 
+# ------------------------------------------------------ normalisation
+# Every factor is put on one scale before weighting: centred on the universe
+# mean, divided by the universe standard deviation, and clipped to +/-3 so one
+# extreme stock cannot dominate.
+#
+# SECTOR NEUTRALISATION WAS REMOVED ON 2026-09-21 (trial 82, a team decision).
+# Until then each z-score also had its sector's mean subtracted, for sectors
+# with 3+ stocks, so a bank was judged against banks. It was added in July,
+# after an early top 10 came back almost entirely banks. It was dropped because
+# the product ranks every stock "#k of 95" across the whole universe, and a rank
+# that claims to compare a stock with all 95 should not be built from scores
+# that only compare it with its own sector. What that costs, measured before it
+# shipped, is in docs/REPORT.md section 3.2.
+#
+# Everything that scores stocks imports zscore() from here. The two sealed
+# one-shots (blind_test.py, backtest_sizing.py) keep their own copy of the old
+# sector step on purpose: they must keep testing the model they were registered
+# against.
+
+def zscore(c):
+    """Winsorised z-score across the whole universe: (x - mean) / sd, clipped to +/-3.
+
+    Takes a pandas Series. Deliberately needs no pandas import here, so tools
+    that only read FACTORS and PROFILES (the facts lint) run without pandas.
+    """
+    c = c.astype(float)
+    sd = c.std(ddof=0)
+    return ((c - c.mean()) / (sd if sd > 0 else 1.0)).clip(-3, 3)
+
+
 # ------------------------------------------------------------- frozen
 FROZEN = {
     "2026-08-31": {

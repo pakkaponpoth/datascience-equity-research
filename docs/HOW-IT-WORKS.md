@@ -58,13 +58,16 @@ Each is computed from **price history** (v1 uses price-based proxies; real funda
 | 🛡️ **Quality** | Is it calm, not wild? | low volatility |
 | ❤️ **Health** | Does it survive bad markets? | small max-drawdown |
 
-**Two important fairness steps:**
-- **z-score** — each factor is put on a common scale centred at 0 (so "momentum" and "volatility", which have
-  different units, can be added together fairly).
-- **sector-neutralize** — a stock is scored against **its own sector peers**, not the whole market. Without this,
-  one naturally-calm sector (banks) would sweep the top just for being calm. This fixed a real bias.
+**One fairness step:**
+- **z-score** — each factor is put on a common scale centred at 0, across **all 95 stocks** (so "momentum" and
+  "volatility", which have different units, can be added together fairly).
 
-The **final score** = a weighted sum of the sector-adjusted factors, turned into a 0–100 percentile.
+Until 21 Sep 2026 there was a second step, **sector neutralisation**: each stock was scored against its own sector.
+The team dropped it because the site ranks every stock against all 95, and a score built sector by sector doesn't do
+that. The measured cost: the calmest sector, **banks**, now takes 7 of 20 BUY slots on the conservative and balanced
+lists, including 6–7 of the top 10 (it had none before). That is accepted, and stated wherever the lists are.
+
+The **final score** = a weighted sum of the z-scored factors, turned into a 0–100 percentile.
 On the site this is shown as a plain **rank out of the universe** — "#7 / 95" — because a position on a
 list needs no explanation, while "0.93" invites one. The rank is always computed against **every** scored
 stock; filtering to one sector does not renumber the survivors.
@@ -178,7 +181,6 @@ to **explain every line you commit** — Q&A day is merciless.
 |---|---|
 | **Factor** | one input signal (momentum, quality, …) |
 | **z-score** | rescale so different factors can be compared/added fairly |
-| **Sector-neutral** | judge a stock vs its own sector, not the whole market |
 | **VaR** | "a normal-bad month could lose about X%" |
 | **Buy-and-hold** | just buying and doing nothing — the bar to beat |
 | **Momentum premium** | the documented tendency of recent winners to keep winning (for a while) |

@@ -28,9 +28,9 @@ while looking like a per-stock forecast. It is not emitted at all rather than
 emitted and explained away. backtest.py still measures it - as a finding about
 the engine, in reports/, which is where a null result belongs.
 
-Scoring (less biased): each factor is winsorized + z-scored, then
-SECTOR-NEUTRALIZED — a stock is judged against its SECTOR PEERS, not the whole
-market — so one low-vol sector (e.g. banks) can no longer dominate the top.
+Scoring: each factor is winsorised + z-scored across the whole universe, so a
+stock is judged against all 95, the same population its "#k of 95" rank names.
+(Until 2026-09-21 the z-scores were also sector-neutralised; see factors.zscore.)
 Composite = weighted z-score; final score = its percentile across the market.
 
 PERSONALIZATION: the same factors are combined with THREE weight sets, one per
@@ -40,7 +40,7 @@ Factor WEIGHTS are placeholders until the AHP expert survey sets them.
 """
 import json, os, sys
 import numpy as np, pandas as pd, yfinance as yf
-from factors import FACTORS, PROFILES   # single source of truth - do not copy
+from factors import FACTORS, PROFILES, zscore   # single source of truth - do not copy
 from roe_data import roe_asof, coverage, neutral_fill  # point-in-time ROE - do not read the CSV directly
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -99,28 +99,21 @@ def main():
     no_roe = df["roe"].isna()
     df["roe"] = neutral_fill(list(df["roe"]))
 
-    # winsorized z-score, then sector-neutralize (judge vs sector peers)
-    def z(c):
-        c = c.astype(float); sd = c.std(ddof=0)
-        return ((c - c.mean()) / (sd if sd > 0 else 1.0)).clip(-3, 3)
+    # winsorised z-score across the whole universe (no sector step since
+    # 2026-09-21 - see factors.zscore for why)
     for f in FACTORS:
-        df[f + "_z"] = z(df[f])
-    big = set(df["sector"].value_counts().loc[lambda c: c >= 3].index)
-    in_big = df["sector"].isin(big)
-    for f in FACTORS:
-        smean = df.groupby("sector")[f + "_z"].transform("mean")
-        df[f + "_adj"] = df[f + "_z"] - smean.where(in_big, 0.0)
+        df[f + "_z"] = zscore(df[f])
 
     def build_list(W):
-        score01 = sum(W[f] * df[f + "_adj"] for f in FACTORS).rank(pct=True)
+        score01 = sum(W[f] * df[f + "_z"] for f in FACTORS).rank(pct=True)
         out = []
         for t in df.index:
             r = df.loc[t]; s01 = float(score01[t])
             verdict = "BUY" if s01 >= 0.80 else "WAIT" if s01 >= 0.45 else "AVOID"
             risk = -int(round(min(max(1.645 * r["dvol"] * np.sqrt(21) * 100, 6), 35)))
             mw = round(float(min(0.40, max(0.08, 0.42 * (1 - abs(risk) / 32)))), 2)
-            adjv = {f: r[f + "_adj"] for f in FACTORS}
-            keys = sorted(adjv, key=lambda k: adjv[k], reverse=True)
+            zv = {f: r[f + "_z"] for f in FACTORS}
+            keys = sorted(zv, key=lambda k: zv[k], reverse=True)
             because = [keys[0] + ":pos", keys[1] + ":pos"] if verdict == "BUY" \
                 else [keys[0] + ":pos", keys[-1] + ":neg"]
             m = meta[t]
@@ -144,9 +137,9 @@ def main():
            "stocks": profiles["balanced"],   # backward-compatible default
            "profiles": profiles,
            "profile_weights": PROFILES,       # single source of truth for "How we score"
-           # each stock's four sector-adjusted z-scores, the inputs every profile weights;
+           # each stock's four z-scores, the inputs every profile weights;
            # research/ahp_analyze.py re-ranks with these to say how stable a top 10 is
-           "factor_z": {t: {f: round(float(df.loc[t, f + "_adj"]), 4) for f in FACTORS}
+           "factor_z": {t: {f: round(float(df.loc[t, f + "_z"]), 4) for f in FACTORS}
                         for t in df.index}}
     json.dump(out, open(FILE, "w", encoding="utf-8"), ensure_ascii=False)
 

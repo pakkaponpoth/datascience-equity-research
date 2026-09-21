@@ -1,6 +1,6 @@
 # Profile comparison - do the 3 risk profiles actually differ?
 
-*Run 2026-09-16 14:55 &middot; took 23s &middot; reproduce with `python backtest_profiles.py`*
+*Run 2026-09-21 22:26 &middot; took 23s &middot; reproduce with `python backtest_profiles.py`*
 
 ## Parameters
 
@@ -17,9 +17,9 @@ fair test: BUY the top picks, HOLD 12 months  (73 start-points)
 buy & hold (whole universe): +7.5% avg
 
 profile        avg 12mo ret avg risk(vol) ret/risk   vs B&H  luck bar
-conservative           1.9%         14.9%     0.13    -5.6       0%
-balanced               3.2%         15.8%     0.20    -4.3       0%
-aggressive             8.4%         17.2%     0.48    +0.9      82%
+conservative           5.2%         13.7%     0.38    -2.3       0%
+balanced               5.8%         14.5%     0.40    -1.8       4%
+aggressive            10.1%         17.1%     0.59    +2.5     100%
 
 read: higher risk(vol) = bumpier ride · ret/risk = return per unit of risk
 ```

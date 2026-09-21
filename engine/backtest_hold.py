@@ -11,7 +11,7 @@ same way). Runs H = 6 and 12 months. No look-ahead.
 import json, os
 import numpy as np, pandas as pd, yfinance as yf
 from reportlib import capture, load_universe
-from factors import FACTORS as FACT, PROFILES   # single source of truth
+from factors import FACTORS as FACT, PROFILES, zscore   # single source of truth
 from roe_data import roe_asof, neutral_fill              # point-in-time ROE, see roe_data.py
 W = PROFILES["balanced"]
 
@@ -50,12 +50,7 @@ def score_month(i):
     df = pd.DataFrame(rows).T
     df["roe"] = neutral_fill(list(df["roe"]))   # see roe_data.py
     for f in FACT:
-        c = df[f].astype(float); sd = c.std(ddof=0)
-        df[f] = ((c - c.mean()) / (sd if sd > 0 else 1.0)).clip(-3, 3)
-    big = set(df["sector"].value_counts().loc[lambda c: c >= 3].index)
-    inb = df["sector"].isin(big)
-    for f in FACT:
-        df[f] = df[f] - df.groupby("sector")[f].transform("mean").where(inb, 0.0)
+        df[f] = zscore(df[f])   # universe-wide; no sector step since 2026-09-21
     return (sum(W[f] * df[f] for f in FACT)).rank(pct=True)
 
 
