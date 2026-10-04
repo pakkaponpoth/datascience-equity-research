@@ -164,7 +164,7 @@ fiscal years: median gap 0.002 points over 282 stock-years.
 ## 8. How to run it (any PC with Python)
 
 ```bash
-pip install pandas numpy yfinance      # one-time setup
+pip install -r requirements.txt        # one-time setup (pinned versions)
 
 cd engine                # all the Python + data lives here
 python run_today.py      # refresh picks → writes today.json (all 3 engines)

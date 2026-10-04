@@ -4,7 +4,7 @@
 >
 > 👋 **New here?** Read **[START-HERE.md](START-HERE.md)** first (5-min overview), then
 > **[docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md)** for the full, plain-language walk-through.
-> Run it: `pip install pandas numpy yfinance` → `cd engine && python run_today.py`.
+> Run it: `pip install -r requirements.txt` → `cd engine && python run_today.py`.
 > Structure: **`app/`** (website) · **`engine/`** (Python + data) · **`docs/`** (explanations).
 
 Manual + AI-powered stock **discovery** system for the Thai stock market (SET100).

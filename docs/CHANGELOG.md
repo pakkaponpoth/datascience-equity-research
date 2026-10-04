@@ -4,6 +4,32 @@
 
 ---
 
+## 2026-10-03 — the live site is two weeks behind the code, and now something checks
+
+**สรุปสั้น ๆ** เว็บจริง (setscout-th.web.app) ยังใช้เอนจินเวอร์ชัน 14 ก.ย. อยู่ ข้อมูลอัปเดตทุกวันแต่คำนวณด้วยปัจจัยชุดเก่าและยังแสดง `p_win` เพราะ PR #9 ยังไม่ถูก merge จึงเพิ่มเครื่องมือตรวจว่าเว็บจริงตรงกับโค้ดหรือไม่ และเตรียมขั้นตอน AHP ให้พร้อมก่อนคำตอบที่เหลือจะมา
+
+| Change | Why |
+|---|---|
+| **`tools/live_check.py`**: fetches the public `today.json` and compares it with `engine/factors.py` (factor set, weights, retired fields, `factor_z`, stocks scored, age). | On 3 Oct the live file was dated 2 Oct, so the freshness monitor was green, yet it was scored with the 14 Sep factors and still carried `p_win` on all 95 stocks. PR #9 has been open since 21 Sep behind the branch rule. Nothing compared what the live engine computes with what the code says. It needs the network, so it is not part of the pull-request checks. |
+| **`ahp_analyze.py --demo` writes `reports/ahp_weights.demo.json`**, and the stale `reports/ahp_weights.json` is deleted. | The tracked file was demo output from before 16 Sep: synthetic weights for the retired 12-month-return factor, in the file the real analysis writes. |
+| **The small-panel rule: `MIN_KEPT = 3`.** A profile with fewer than three respondents under the consistency cut-off keeps the placeholder weights; its panel result is printed as "too few" and left out of the file. The output also records `factors`, `min_kept` and `too_few`. | Five experts were asked and one has answered. Fixing the minimum before any answer is analysed means it cannot be chosen after seeing who passes. |
+| **`requirements.txt`** pins pandas 3.0.6, numpy 2.4.6 and yfinance 1.5.2; the four install lines in the docs point to it. | A change in Yahoo's data has already blanked a column in `explore.py`. The pins are the versions the reports were last run on. |
+| **NEXT.md**: getting PR #9 live is now the first item; the ROE row count is corrected to 1,586 stock-years; the demo-overwrite item is closed; the `^SET.BK` item names `TDEX.BK` as a possible stand-in. | It said 1,591, the count before the audit. |
+| **`proposals/04-engine-layout.md`** | Whether to split `engine/` by job. Recommends leaving the files in place until after submission. |
+
+Not done on purpose: the momentum window (125 steps in code, 126 in the docs) is unchanged. Correcting it shifts published ranks and REPORT 3.4, so it needs its own change.
+
+### Verify
+
+```
+python tools/live_check.py                    # FAILS today: 5 differences, until PR #9 is live
+python tools/live_check.py engine/today.json  # only the age line fails (snapshot of 21 Sep)
+python research/ahp_analyze.py --demo         # writes reports/ahp_weights.demo.json
+python tools/facts_lint.py                    # docs and pages agree with the code
+```
+
+---
+
 ## 2026-09-21 — the sector adjustment is dropped, and banks fill the safer lists
 
 **สรุปสั้น ๆ** ทีมตัดสินใจเลิกปรับคะแนนตามกลุ่มอุตสาหกรรม (sector neutralisation) เพราะเว็บจัดอันดับ "#k จาก 95" เทียบทั้งตลาด ตอนนี้คะแนนทุกปัจจัยเป็น z-score เทียบหุ้นทั้ง 95 ตัว วัดผลก่อนเปลี่ยนด้วยราคาชุดเดียวกัน: หุ้นธนาคารทั้ง 7 ตัวเข้ารายการ BUY ของสายปลอดภัยและสายสมดุล และอยู่ใน 10 อันดับแรก 6–7 ตัว (เดิมไม่มีเลย) ทีมยอมรับผลนี้และเขียนไว้ในรายงาน ส่วน backtest ที่รันใหม่ดูดีขึ้นเล็กน้อย แต่ไม่ใช่หลักฐานว่าการเปลี่ยนนี้ช่วย ข้อสรุปเดิมไม่เปลี่ยน

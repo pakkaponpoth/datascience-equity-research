@@ -106,7 +106,7 @@ from it. Don't copy those numbers anywhere — that's mistake #4 above.
   → [`../START-HERE.md`](../START-HERE.md) (5 min) → [`../docs/HOW-IT-WORKS.md`](../docs/HOW-IT-WORKS.md)
 
 - 💻 **RUN it yourself** · อยากลองรันเอง
-  → `pip install pandas numpy yfinance` → `cd engine` → `python run_today.py`
+  → `pip install -r requirements.txt` → `cd engine` → `python run_today.py`
 
 ---
 

@@ -4,7 +4,19 @@
     python research/ahp_analyze.py --demo           # synthetic data, to test the pipeline
 
 It writes reports/ahp_weights.json and never edits the engine: a person reviews
-the weights and copies them into PROFILES in engine/factors.py.
+the weights and copies them into PROFILES in engine/factors.py. A --demo run
+writes reports/ahp_weights.demo.json instead, so synthetic weights can never sit
+in the file the real analysis writes.
+
+THE SMALL-PANEL RULE (written on 3 Oct 2026, with 1 of 5 answers in)
+--------------------------------------------------------------------
+A profile needs at least MIN_KEPT = 3 respondents who pass the consistency check
+before its group weights are used. With fewer, the profile keeps the placeholder
+weights in engine/factors.py, its panel result is printed as "too few" and is
+left out of the weights this script writes. Three is the smallest panel in which
+one expert cannot set the answer alone and a resample can still differ from the
+panel. The rule was fixed before the answers were analysed, so the bar cannot be
+moved after seeing which experts pass.
 
 WHAT THIS DOES
 --------------
@@ -56,6 +68,7 @@ TOP = 10
 N = len(FACTORS)
 RI = {3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32}   # Saaty random index
 CR_LIMIT = 0.10
+MIN_KEPT = 3                                   # the small-panel rule: see the docstring
 PROFILES = ["conservative", "balanced", "aggressive"]
 
 
@@ -209,15 +222,20 @@ def main():
     print(f"\n{'=' * 74}\nGROUP WEIGHTS (geometric mean of judgements, inconsistent responses removed)")
     print(f"{'=' * 74}")
     print(f"{'profile':<14}" + "".join(f"{f:>11}" for f in FACTORS))
-    final = {}
+    final, too_few = {}, {}
     for p in PROFILES:
         kept, _ = results[p]
         if not kept:
             print(f"{p:<14}  no usable responses")
             continue
         w = group_weights(kept)
+        line = f"{p:<14}" + "".join(f"{x * 100:>10.1f}%" for x in w)
+        if len(kept) < MIN_KEPT:
+            too_few[p] = len(kept)
+            print(line + f"   too few ({len(kept)} of {MIN_KEPT} needed): placeholders stay")
+            continue
         final[p] = {f: round(float(x), 3) for f, x in zip(FACTORS, w)}
-        print(f"{p:<14}" + "".join(f"{x * 100:>10.1f}%" for x in w))
+        print(line)
 
     print(f"\nSPREAD ACROSS RESPONDENTS (min-max) - this disagreement IS the")
     print(f"perturbation range for sensitivity, instead of an arbitrary +/-10%")
@@ -239,24 +257,29 @@ def main():
         print(f"share of resamples in which each stock stays in the top {TOP}")
         for p in PROFILES:
             kept, _ = results[p]
-            if len(kept) < 2:
+            if len(kept) < MIN_KEPT:
                 continue
             freq = bootstrap(kept, factor_z)
             stability[p] = {t: round(v, 3) for t, v in freq.items()}
             shown = ", ".join(f"{t.replace('.BK', '')} {v:.0%}" for t, v in list(freq.items())[:12])
             print(f"  {p:<14}{shown}")
 
-    if final:
+    if final or too_few:
         os.makedirs(REPORTS, exist_ok=True)
-        out = os.path.join(REPORTS, "ahp_weights.json")
-        json.dump({"weights": final, "demo": demo, "top10_stability": stability,
-                   "stability_draws": DRAWS,
+        name = "ahp_weights.demo.json" if demo else "ahp_weights.json"
+        json.dump({"weights": final, "demo": demo, "factors": FACTORS,
+                   "min_kept": MIN_KEPT, "too_few": too_few,
+                   "top10_stability": stability, "stability_draws": DRAWS,
                    "kept": {p: len(results[p][0]) for p in PROFILES},
                    "dropped": {p: len(dropped[p]) for p in PROFILES}},
-                  open(out, "w", encoding="utf-8"), indent=1, ensure_ascii=False)
-        print(f"\n-> wrote reports/ahp_weights.json")
+                  open(os.path.join(REPORTS, name), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
+        print(f"\n-> wrote reports/{name}")
         if demo:
             print("   (demo data - do NOT paste these into engine/factors.py)")
+        elif too_few:
+            print(f"   {len(too_few)} profile(s) have too few consistent answers and keep their placeholders.")
+            if final:
+                print("   Review the others, then copy them into PROFILES in engine/factors.py.")
         else:
             print("   Review, then copy into PROFILES in engine/factors.py.")
     return 0

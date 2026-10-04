@@ -47,7 +47,7 @@ It's a **Data Science class project → educational, NOT investment advice.**
 ## Run it yourself (2 commands)
 
 ```bash
-pip install pandas numpy yfinance      # one time
+pip install -r requirements.txt        # one time (pinned versions)
 cd engine
 python run_today.py                    # refresh the picks (writes today.json)
 python backtest.py                     # the honesty check (luck bar + calibration)
