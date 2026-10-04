@@ -4,6 +4,30 @@
 
 ---
 
+## 2026-10-04 — momentum looks back 126 trading days, as documented
+
+**สรุปสั้น ๆ** โค้ดคำนวณโมเมนตัมย้อนหลัง 125 วันทำการ แต่เอกสารและแบบสอบถามเขียนว่า 126 วัน จึงแก้โค้ดให้ตรงกับนิยาม อันดับเปลี่ยนเล็กน้อย และตัวเลขใน REPORT 3.4 ถูกคำนวณใหม่
+
+| Change | Why |
+|---|---|
+| **`s.iloc[-126]` → `s.iloc[-127]`** in `run_today.py`, `profiles_demo.py` and `rederive_section34.py`. | `iloc[-1] / iloc[-126]` spans 125 steps. REPORT 3.1 and the expert survey both define momentum as the price 126 days ago. This is a correction to match the stated definition, not a new model search. |
+| **REPORT 3.4 re-derived** on the same 1 Sep 2026 prices. PTT: #4 / #6 / #43 → **#4 / #7 / #40**. GUNKUL: #53 / #14 / #2 → **#53 / #13 / #2**. | The ranks depend on all 95 stocks, so they need a run. The example's point is unchanged: one stock, one day, 4th or 40th by weights alone. |
+| **`engine/today.json`** regenerated with the corrected window. | So the snapshot in the repo matches the code. |
+| **`explore.py` no longer caches an empty index.** If Yahoo returns fewer than 120 months for `^SET.BK` it prints a warning and saves nothing. | It had cached a one-row answer on 21 Sep and then printed `nan` on every later run without saying why. The source itself is still missing (NEXT.md). |
+
+Untouched: the monthly backtests (they use six monthly steps, which was already right), `blind_test.py` and `backtest_sizing.py` (sealed, not edited, not run). The 3 Oct entry below says this was left undone on purpose; it is now done as its own change.
+
+### Verify
+
+```
+grep -n "iloc\[-127\]" engine/*.py              # three files, none of them sealed
+cd engine && python rederive_section34.py       # PTT #4 / #7 / #40, GUNKUL #53 / #13 / #2
+python run_today.py && python verify_today.py   # 95 of 95
+python ../tools/facts_lint.py
+```
+
+---
+
 ## 2026-10-03 — the live site is two weeks behind the code, and now something checks
 
 **สรุปสั้น ๆ** เว็บจริง (setscout-th.web.app) ยังใช้เอนจินเวอร์ชัน 14 ก.ย. อยู่ ข้อมูลอัปเดตทุกวันแต่คำนวณด้วยปัจจัยชุดเก่าและยังแสดง `p_win` เพราะ PR #9 ยังไม่ถูก merge จึงเพิ่มเครื่องมือตรวจว่าเว็บจริงตรงกับโค้ดหรือไม่ และเตรียมขั้นตอน AHP ให้พร้อมก่อนคำตอบที่เหลือจะมา

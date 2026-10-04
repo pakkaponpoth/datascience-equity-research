@@ -38,6 +38,7 @@ from roe_data import roe_asof, neutral_fill              # point-in-time ROE, se
 from paths import DATA as HERE   # data folder - see paths.py
 CACHE = os.path.join(HERE, ".price_cache.csv")
 IDX_CACHE = os.path.join(HERE, ".index_cache.csv")
+MIN_INDEX_MONTHS = 120                      # a real index history; Yahoo began returning 1 row in Sep 2026
 H = 12
 
 
@@ -57,14 +58,19 @@ def load():
         mpx.to_csv(CACHE)
         print(f"cached to {os.path.basename(CACHE)}")
 
+    idx = pd.Series(dtype=float)
     if os.path.exists(IDX_CACHE):
         idx = pd.read_csv(IDX_CACHE, index_col=0, parse_dates=True).iloc[:, 0]
-    else:
+    if len(idx) < MIN_INDEX_MONTHS:
         print("downloading the real SET index...")
         raw = yf.Ticker("^SET.BK").history(period="max", auto_adjust=False)["Close"]
         idx = raw.resample("ME").last().dropna()
         idx.index = idx.index.tz_localize(None)
-        idx.to_frame("SET").to_csv(IDX_CACHE)
+        if len(idx) >= MIN_INDEX_MONTHS:             # never cache an empty answer
+            idx.to_frame("SET").to_csv(IDX_CACHE)
+        else:
+            print(f"WARNING: Yahoo returned {len(idx)} month(s) for ^SET.BK. The REALindex and gap")
+            print("         columns will be empty; the other columns are unaffected. See docs/NEXT.md.")
     return mpx, meta, idx
 
 

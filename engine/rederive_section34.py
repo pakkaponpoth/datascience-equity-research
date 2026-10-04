@@ -48,7 +48,7 @@ def main():
         s = px[t].dropna() if t in px.columns else pd.Series(dtype=float)
         if len(s) < 130:
             continue
-        rows[t] = dict(momentum=s.iloc[-1] / s.iloc[-126] - 1,
+        rows[t] = dict(momentum=s.iloc[-1] / s.iloc[-127] - 1,
                        roe=roe_asof(t, s.index[-1]),
                        quality=-s.pct_change().tail(252).std() * np.sqrt(252),
                        health=(s.tail(252) / s.tail(252).cummax() - 1).min())

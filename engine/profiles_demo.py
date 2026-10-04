@@ -28,7 +28,7 @@ for t in tickers:
         continue
     dvol = s.pct_change().tail(252).std()
     eq = s.tail(252)
-    rows[t] = dict(momentum=s.iloc[-1] / s.iloc[-126] - 1,
+    rows[t] = dict(momentum=s.iloc[-1] / s.iloc[-127] - 1,
                    roe=roe_asof(t, s.index[-1]),
                    quality=-dvol*np.sqrt(252),
                    health=(eq/eq.cummax()-1).min(), sector=meta[t]["sector"],

@@ -19,6 +19,7 @@ Five findings, all measured, all reproducible:
 
 ## ✅ Done recently
 
+- **Momentum now looks back a true 126 trading days** (4 Oct). `run_today.py`, `profiles_demo.py` and `rederive_section34.py` read `s.iloc[-126]`, which is 125 steps; they now read `s.iloc[-127]`. REPORT 3.4 was re-derived on the same 1 Sep prices: PTT moves from #4 / #6 / #43 to #4 / #7 / #40, GUNKUL from #53 / #14 / #2 to #53 / #13 / #2. The monthly backtests already used six monthly steps and are untouched, as are the two sealed one-shots.
 - **A live check exists** (3 Oct): `python tools/live_check.py` compares the public `today.json` with `engine/factors.py`. It was written because the freshness monitor was green while the live engine was two weeks old (see *Do FIRST*).
 - **AHP: demo output can no longer overwrite the real file, and the small-panel rule is written down** (3 Oct). `--demo` writes `reports/ahp_weights.demo.json`. A profile needs **3** consistent respondents before its weights are used; with fewer it keeps the placeholders. The rule was fixed with 1 of 5 answers in, before any were analysed.
 - **Dependencies are pinned** (3 Oct) in `requirements.txt`: the versions every report was last run on.
@@ -42,9 +43,8 @@ Five findings, all measured, all reproducible:
 
 ## 🗓️ After the presentation (22 Sep)
 
-1. **Momentum looks back 125 trading days; the docs say 126.** `run_today.py` computes `s.iloc[-1] / s.iloc[-126] - 1`, which is 125 steps. Measured: rank correlation with a true 126-day window **0.992**, and the BUY lists change by 0, 0 and 1 stock. Make the code match the documented definition, then `run_today.py` + `verify_today.py`. This is a correction, not a new model search, and it touches no pre-registered one-shot.
-2. **The position cap has no recorded rationale.** `cap = 0.42 × (1 − risk/32)`, clamped to 8–40%, was carried over from the mock generator `gen_today.js` (31 Jul, since deleted); no test chose 0.42 or 32. The site then scales it by 0.6 / 1.0 / 1.35 per profile, clamped to 5–60%. The report now calls it an unvalidated heuristic (§4). Replacing it is a **new pre-registered trial**: write it into `TRIALS.md` before running anything, and **never re-run `backtest_sizing.py`**.
-3. **`explore.py --years` gets no data for the real SET index any more** (the `REALindex` and `gap` columns print `nan` as of 21 Sep), so REPORT 7.1's bias table cannot be reproduced right now. The buy-and-hold column still matches the report. Find a working source for `^SET.BK` before anyone re-runs it. (Checked 3 Oct: Yahoo returns a single row for `^SET.BK` and `^SET50.BK`. `TDEX.BK`, the SET50 ETF, has daily history from 2008 and could stand in for the index, stated as such.)
+1. **The position cap has no recorded rationale.** `cap = 0.42 × (1 − risk/32)`, clamped to 8–40%, was carried over from the mock generator `gen_today.js` (31 Jul, since deleted); no test chose 0.42 or 32. The site then scales it by 0.6 / 1.0 / 1.35 per profile, clamped to 5–60%. The report now calls it an unvalidated heuristic (§4). Replacing it is a **new pre-registered trial**: write it into `TRIALS.md` before running anything, and **never re-run `backtest_sizing.py`**.
+2. **`explore.py --years` gets no data for the real SET index any more** (the `REALindex` and `gap` columns print `nan` as of 21 Sep), so REPORT 7.1's bias table cannot be reproduced right now. The buy-and-hold column still matches the report. Find a working source for `^SET.BK` before anyone re-runs it. (Checked 3 Oct: Yahoo returns a single row for `^SET.BK` and `^SET50.BK`. `TDEX.BK`, the SET50 ETF, has daily history from 2008 and could stand in for the index, stated as such.)
 
 ## ⚠️ Do NOT
 

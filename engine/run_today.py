@@ -80,7 +80,7 @@ def main():
         if len(s) < 130:
             continue
         rows[t] = dict(
-            momentum=s.iloc[-1] / s.iloc[-126] - 1,
+            momentum=s.iloc[-1] / s.iloc[-127] - 1,
             roe=roe_asof(t, today),
             quality=-s.pct_change().tail(252).std() * np.sqrt(252),
             health=(s.tail(252) / s.tail(252).cummax() - 1).min(),

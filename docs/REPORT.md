@@ -173,16 +173,18 @@ outstanding work (Section 9).
 Taking PTT on 1 September 2026, z-scored across all 95 stocks:
 
 ```
-momentum −0.23   roe −0.25   quality +1.40   health +1.62
+momentum −0.19   roe −0.25   quality +1.40   health +1.62
 ```
 
 | Profile | Weighted total | Rank of 95 |
 |---|---|---|
-| Conservative | +1.28 | **#4** |
-| Balanced | +0.76 | #6 |
-| Aggressive | +0.07 | #43 |
+| Conservative | +1.29 | **#4** |
+| Balanced | +0.77 | #7 |
+| Aggressive | +0.09 | #40 |
 
-> **Re-derived 2026-09-21, after the sector step was removed (Section 3.2).** Produced by
+> **Re-derived 2026-10-04, after the momentum window was corrected to a true 126 trading days**
+> (the code had looked back 125; with the old window the ranks were #4, #6 and #43, and GUNKUL's
+> were #53, #14 and #2). The sector step was removed on 21 Sep (Section 3.2). Produced by
 > `engine/rederive_section34.py`, which reproduces `run_today.py`'s pipeline exactly
 > (126/252-day windows, ≥130 days of history, winsorised z-scores across all 95) on prices
 > truncated at 1 Sep 2026 — 95 of 95 stocks scored. The weighted totals follow from the
@@ -196,9 +198,9 @@ momentum −0.23   roe −0.25   quality +1.40   health +1.62
 > a concrete example of the two factors asking different questions. The z-scores differ in the second
 > decimal from earlier write-ups because prices are dividend-adjusted and shift slightly on re-download.
 
-The same stock, the same day, ranks **4th or 43rd** depending only on the weights.
-GUNKUL — strong momentum (+2.49) but volatile — runs the other way:
-**#53 under conservative, #14 under balanced, #2 under aggressive.**
+The same stock, the same day, ranks **4th or 40th** depending only on the weights.
+GUNKUL — strong momentum (+2.85) but volatile — runs the other way:
+**#53 under conservative, #13 under balanced, #2 under aggressive.**
 
 This makes the system's nature explicit: **it holds no view on which stocks will
 rise.** It has one opinion, about which *kind* of stock suits a given investor,
