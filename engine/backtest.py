@@ -8,18 +8,22 @@ top 20%, hold one month, repeat. Then we answer three honest questions:
   1) Does it beat buy-and-hold (equal-weight the universe)?
   2) The LUCK BAR — is it better than picking the same number of stocks at random?
   3) Calibrate p_win — historically, how often did each score-bucket actually go up?
-Writes calibration.json (score -> real hit-rate) so run_today.py can stop faking p_win.
+The up-rate in (3) is a FINDING, not a feature: it came out flat at ~47% across
+every score band (p = 0.53), so the app publishes no per-stock hit rate at all.
+The table below is the evidence, and it lands in reports/. Nothing reads it at
+runtime, so nothing can quietly go stale.
 """
-import json, os
+import json, math, os
 import numpy as np, pandas as pd, yfinance as yf
 from reportlib import capture, load_universe
-from factors import FACTORS as FACT, PROFILES   # single source of truth
+from factors import FACTORS as FACT, PROFILES, zscore   # single source of truth
+from roe_data import roe_asof, neutral_fill              # point-in-time ROE, see roe_data.py
 W = PROFILES["balanced"]
 
 capture("backtest", "Monthly rotation backtest - the honesty check",
-        {"rebalance": "monthly, buy top 20%", "history": "~8y monthly", "luck bar": "300 random portfolios", "outputs": "calibration.json (score decile -> real up-rate)"})
+        {"rebalance": "monthly, buy top 20%", "history": "~8y monthly", "luck bar": "300 random portfolios", "outputs": "the up-rate table below - a finding, not a runtime input"})
 
-# universe.json / calibration.json folder - see paths.py
+# universe.json / price-cache folder - see paths.py
 from paths import DATA
 meta, _uni_src = load_universe()
 tickers = list(meta)
@@ -31,8 +35,8 @@ print(f"{len(tickers)} tickers - fetching ~8y monthly prices...")
 px = yf.download(tickers, period="8y", auto_adjust=True, progress=False)["Close"].dropna(how="all")
 mpx = px.resample("ME").last()
 # A month that has not ended is not a month. Without this, running on the 13th
-# scores August against a 13-day "September" return, so calibration.json and
-# every figure below would depend on the day of the month the script was run.
+# scores August against a 13-day "September" return, so every figure below
+# would depend on the day of the month the script happened to be run.
 if mpx.index[-1] > pd.Timestamp.today().normalize():
     mpx = mpx.iloc[:-1]
 rets = mpx.pct_change(fill_method=None)
@@ -50,23 +54,21 @@ def score_month(i):
         if len(r12) < 12:
             continue
         eq = s.iloc[-12:]
-        rows[t] = dict(momentum=s.iloc[-1] / s.iloc[-7] - 1, growth=s.iloc[-1] / s.iloc[-13] - 1,
+        rows[t] = dict(momentum=s.iloc[-1] / s.iloc[-7] - 1,
+                       roe=roe_asof(t, hp.index[-1]),
                        quality=-r12.std() * np.sqrt(12),
                        health=(eq / eq.cummax() - 1).min(), sector=meta[t])
     if len(rows) < 10:
         return None
     df = pd.DataFrame(rows).T
+    df["roe"] = neutral_fill(list(df["roe"]))   # see roe_data.py
     for f in FACT:
-        c = df[f].astype(float); sd = c.std(ddof=0)
-        df[f] = ((c - c.mean()) / (sd if sd > 0 else 1.0)).clip(-3, 3)
-    big = set(df["sector"].value_counts().loc[lambda c: c >= 3].index)
-    inb = df["sector"].isin(big)
-    for f in FACT:
-        df[f] = df[f] - df.groupby("sector")[f].transform("mean").where(inb, 0.0)
+        df[f] = zscore(df[f])   # universe-wide; no sector step since 2026-09-21
     return (sum(W[f] * df[f] for f in FACT)).rank(pct=True)
 
 
 strat, bench, rand, calib = [], [], [[] for _ in range(K)], []
+ics = []                     # one rank-correlation per month - see the IC block below
 months = mpx.index
 for i in range(12, len(months) - 1):
     sc = score_month(i)
@@ -84,6 +86,16 @@ for i in range(12, len(months) - 1):
         rp = np.random.choice(pool, min(n, len(pool)), replace=False)
         rr = fwd[rp].dropna()
         rand[k].append(rr.mean() if len(rr) else 0.0)
+    # The up-rate below asks about DIRECTION - did it go up. This asks about
+    # ORDERING - did the better-ranked stocks earn more than the worse-ranked
+    # ones. Both need answering, because a score can order stocks correctly
+    # while getting the sign wrong, or the reverse. This is the information
+    # coefficient, and it is the number a quant would ask for first.
+    # Spearman = Pearson on the ranks of both sides, so no scipy is needed.
+    common = sc.index.intersection(fwd.dropna().index)
+    if len(common) >= 30:
+        ics.append(float(sc[common].rank().corr(fwd[common].rank())))
+
     for t in sc.index:
         f = fwd.get(t)
         if pd.notna(f):
@@ -109,14 +121,49 @@ print(f"LUCK BAR: beat {luck_pct:.0f}% of {K} random portfolios "
       f"(random median {np.median(rand_tot)*100:+.1f}%)  -> "
       f"{'edge looks real' if luck_pct>=90 else 'within luck - not proven' if luck_pct<75 else 'borderline'}")
 
-# ---- calibrate p_win by score decile ----
+# ---- does a higher score mean a higher chance of rising? ----
 cal = pd.DataFrame(calib, columns=["score", "win"])
 cal["bucket"] = (cal["score"] * 10).clip(0, 9).astype(int)
 tbl = cal.groupby("bucket")["win"].agg(["mean", "count"])
-print("\n=== p_win calibration (score decile -> actual up-rate) ===")
+print("\n=== up-rate by score band (a finding - nothing reads this at runtime) ===")
 for b, row in tbl.iterrows():
-    print(f"  score {b*10:>2}-{b*10+10:<3}: won {row['mean']*100:4.0f}%   (n={int(row['count'])})")
-mapping = {int(b): round(float(r["mean"]), 3) for b, r in tbl.iterrows()}
-json.dump({"by_decile": mapping, "months": n_mo, "generated": str(pd.Timestamp.today().date())},
-          open(os.path.join(DATA, "calibration.json"), "w"), indent=1)
-print("\nwrote calibration.json  (run_today.py can read this for a REAL p_win)")
+    print(f"  score {b*10:>2}-{b*10+10:<3}: won {row['mean']*100:4.1f}%   (n={int(row['count'])})")
+rates = [float(r['mean']) for _, r in tbl.iterrows()]
+print(f"\n  flat at {sum(rates)/len(rates)*100:.1f}% across {len(rates)} bands, "
+      f"spread {(max(rates)-min(rates))*100:.1f}pp over {n_mo} months, "
+      f"n = {int(tbl['count'].sum())} stock-months")
+
+# Ten noisy percentages cannot be judged by eye, and REPORT 5.1 quotes these two
+# statistics, so they are computed here. A statistic typed into a document by
+# hand is a statistic that drifts the next time the engine changes.
+#   Cochran-Armitage - is there a TREND from the low deciles to the high ones?
+#   chi-square       - are the ten different at all, in any order?
+n_i = tbl["count"].to_numpy(dtype=float)
+p_i = tbl["mean"].to_numpy(dtype=float)
+x_i = np.arange(10.0)                        # decile index, equally spaced
+N = float(n_i.sum())
+p_bar = float(cal["win"].mean())
+x_bar = float((n_i * x_i).sum() / N)
+den = math.sqrt(p_bar * (1 - p_bar) * float((n_i * (x_i - x_bar) ** 2).sum()))
+z = float((n_i * (x_i - x_bar) * (p_i - p_bar)).sum()) / den if den else float("nan")
+p_two = math.erfc(abs(z) / math.sqrt(2))     # two-sided normal p-value, exact
+chi2 = float((n_i * (p_i - p_bar) ** 2 / (p_bar * (1 - p_bar))).sum())
+CRIT_95_DF9 = 16.919                         # chi-square 5% critical value, df = 9
+print(f"  trend from low scores to high (Cochran-Armitage): z = {z:+.2f}, p = {p_two:.2f}"
+      f"  -> {'a trend' if p_two < 0.05 else 'NO trend'}")
+print(f"  any difference at all (chi-square): {chi2:.1f} on df 9, "
+      f"{'above' if chi2 > CRIT_95_DF9 else 'below'} the 5% critical value {CRIT_95_DF9}")
+print("  -> the score does not predict direction. No p_win is published.")
+
+# ---- and does it get the ORDER right? (the information coefficient) ----
+ica = np.array(ics, dtype=float)
+ica = ica[~np.isnan(ica)]
+mean_ic = ica.mean()
+ic_t = mean_ic / (ica.std(ddof=1) / math.sqrt(len(ica)))
+print(f"\n=== information coefficient ({len(ica)} months) ===")
+print(f"  mean rank correlation, score vs next-month return: {mean_ic:+.4f}")
+print(f"  t = {ic_t:+.2f}   ·   positive in {int((ica > 0).sum())}/{len(ica)} months "
+      f"({(ica > 0).mean()*100:.0f}%)   ·   month-to-month sd {ica.std(ddof=1):.3f}")
+print("  a useful equity signal runs 0.03-0.05. Ours is an order of magnitude")
+print("  below that and statistically indistinguishable from zero, which is the")
+print("  same finding as the flat up-rate, reached from the ordering side.")

@@ -29,7 +29,7 @@ deliberate and auditable rather than an accident of copy-paste.
 """
 
 # ---------------------------------------------------------------- live
-FACTORS = ["momentum", "growth", "quality", "health"]
+FACTORS = ["momentum", "roe", "quality", "health"]
 
 # "value" was removed 2026-09-09. Computed as price vs its own 200-day average,
 # it correlated -0.93 with momentum across the universe (86% shared variance,
@@ -40,11 +40,61 @@ FACTORS = ["momentum", "growth", "quality", "health"]
 #
 # It was also misnamed: this measured mean reversion. Real value needs an
 # external anchor (earnings, book value) that a price-only engine does not have.
+#
+# "growth" was replaced by "roe" on 2026-09-16. growth was the 12-month return;
+# momentum is the 6-month return, and the two correlated +0.66 across 62
+# periods - under the 0.80 duplicate line, but overlapping enough that the
+# engine was spending two of its four slots on the same idea.
+#
+# Which of the two should keep the slot was settled by data, not taste
+# (trials 80 and 81 in the sandbox, 62 non-overlapping 3-month periods):
+#   ROE in place of growth (12m)    +0.0%/yr, t =  0.01   no effect either way
+#   ROE in place of momentum (6m)   -1.7%/yr, t = -1.14   clearly worse
+# So the 6-month return earns its place and the 12-month one does not.
+#
+# BE HONEST ABOUT WHY THIS CHANGE WAS MADE: ROE did not improve returns. It was
+# adopted because it costs nothing measurable and it makes the four factors four
+# different questions - how fast, how profitable, how calm, how deep the falls -
+# with one of them finally coming from the company's accounts rather than its
+# price chart. Any claim that swapping it in raised returns is unsupported.
+#
+# ROE correlates -0.04 with momentum, +0.11 with quality and +0.04 with health,
+# so it passed the independence screen (trial 79) that "value" failed.
 PROFILES = {
-    "conservative": {"quality": .50, "health": .38, "momentum": .06, "growth": .06},
-    "balanced":     {"quality": .37, "momentum": .26, "health": .21, "growth": .16},
-    "aggressive":   {"momentum": .47, "growth": .35, "quality": .12, "health": .06},
+    "conservative": {"quality": .50, "health": .38, "momentum": .06, "roe": .06},
+    "balanced":     {"quality": .37, "momentum": .26, "health": .21, "roe": .16},
+    "aggressive":   {"momentum": .47, "roe": .35, "quality": .12, "health": .06},
 }
+
+# ------------------------------------------------------ normalisation
+# Every factor is put on one scale before weighting: centred on the universe
+# mean, divided by the universe standard deviation, and clipped to +/-3 so one
+# extreme stock cannot dominate.
+#
+# SECTOR NEUTRALISATION WAS REMOVED ON 2026-09-21 (trial 82, a team decision).
+# Until then each z-score also had its sector's mean subtracted, for sectors
+# with 3+ stocks, so a bank was judged against banks. It was added in July,
+# after an early top 10 came back almost entirely banks. It was dropped because
+# the product ranks every stock "#k of 95" across the whole universe, and a rank
+# that claims to compare a stock with all 95 should not be built from scores
+# that only compare it with its own sector. What that costs, measured before it
+# shipped, is in docs/REPORT.md section 3.2.
+#
+# Everything that scores stocks imports zscore() from here. The two sealed
+# one-shots (blind_test.py, backtest_sizing.py) keep their own copy of the old
+# sector step on purpose: they must keep testing the model they were registered
+# against.
+
+def zscore(c):
+    """Winsorised z-score across the whole universe: (x - mean) / sd, clipped to +/-3.
+
+    Takes a pandas Series. Deliberately needs no pandas import here, so tools
+    that only read FACTORS and PROFILES (the facts lint) run without pandas.
+    """
+    c = c.astype(float)
+    sd = c.std(ddof=0)
+    return ((c - c.mean()) / (sd if sd > 0 else 1.0)).clip(-3, 3)
+
 
 # ------------------------------------------------------------- frozen
 FROZEN = {

@@ -1,0 +1,7 @@
+# The versions the engine and every backtest in reports/ were last run on (Python 3.11-3.12).
+# Pinned on 2026-10-03. Yahoo's data shape changes between yfinance releases, and one change
+# has already blanked the real-index column in explore.py, so upgrade these on purpose:
+# bump a pin, re-run engine/run_today.py and engine/verify_today.py, then commit both.
+pandas==3.0.6
+numpy==2.4.6
+yfinance==1.5.2

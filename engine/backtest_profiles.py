@@ -1,6 +1,6 @@
 """Backtest all 3 risk profiles side by side (1-year hold, point-in-time).
 
-Same sector-neutral factors (computed once per month), then each profile's
+Same universe-wide factor z-scores (computed once per month), then each profile's
 weights pick its own top-20%. We hold 12 months and measure BOTH return and
 the volatility you'd have lived through. Answers: do the profiles actually
 differ on return + risk, and does either beat buy-and-hold?
@@ -8,7 +8,8 @@ differ on return + risk, and does either beat buy-and-hold?
 import json, os
 import numpy as np, pandas as pd, yfinance as yf
 from reportlib import capture, load_universe
-from factors import FACTORS as FACT, PROFILES   # single source of truth
+from factors import FACTORS as FACT, PROFILES, zscore   # single source of truth
+from roe_data import roe_asof, neutral_fill              # point-in-time ROE, see roe_data.py
 
 capture("backtest_profiles", "Profile comparison - do the 3 risk profiles actually differ?",
         {"rebalance": "12-month hold, point-in-time", "measures": "return AND realized volatility"})
@@ -38,19 +39,16 @@ def adj_month(i):
         if len(r12) < 12:
             continue
         eq = s.iloc[-12:]
-        rows[t] = dict(momentum=s.iloc[-1] / s.iloc[-7] - 1, growth=s.iloc[-1] / s.iloc[-13] - 1,
+        rows[t] = dict(momentum=s.iloc[-1] / s.iloc[-7] - 1,
+                       roe=roe_asof(t, hp.index[-1]),
                        quality=-r12.std() * np.sqrt(12),
                        health=(eq / eq.cummax() - 1).min(), sector=meta[t])
     if len(rows) < 10:
         return None
     df = pd.DataFrame(rows).T
+    df["roe"] = neutral_fill(list(df["roe"]))   # see roe_data.py
     for f in FACT:
-        c = df[f].astype(float); sd = c.std(ddof=0)
-        df[f] = ((c - c.mean()) / (sd if sd > 0 else 1)).clip(-3, 3)
-    big = set(df["sector"].value_counts().loc[lambda c: c >= 3].index)
-    inb = df["sector"].isin(big)
-    for f in FACT:
-        df[f] = df[f] - df.groupby("sector")[f].transform("mean").where(inb, 0.0)
+        df[f] = zscore(df[f])   # universe-wide; no sector step since 2026-09-21
     return df
 
 

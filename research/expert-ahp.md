@@ -44,21 +44,26 @@ is as much a finding as the mean.
 Your job is to say how important each factor is for deciding a stock is
 **worth investigating** — *not* "will go up".
 
-**All four are computed from price data only.** No revenue, earnings or debt.
-Our names are shorthand and may not mean what you would normally assume, so
-please judge them **as defined in the right-hand column**.
+**Three are computed from price data only; ROE is the one read from company
+accounts.** Nothing else uses revenue, earnings or debt. Our names are shorthand
+and may not mean what you would normally assume, so please judge them **as
+defined in the right-hand column**.
 
 | Factor | Plain meaning | What we compute | The exact formula |
 |---|---|---|---|
 | **Momentum** โมเมนตัม | Is the market already favouring it? | Return over the past **6 months** | `P_today / P_126d_ago - 1` |
-| **Growth** การเติบโต | Is it trending up over a longer span? | Return over the past **12 months** — *price growth, **not** revenue or EPS* | `P_today / P_252d_ago - 1` |
-| **Quality** คุณภาพ | Is it calm rather than wild? | **Annualised volatility**, lower is better — ***not** ROE, margin or debt* | `-(stdev(daily returns, 252d) x sqrt(252))` |
+| **ROE** ผลตอบแทนต่อส่วนของผู้ถือหุ้น | Does the business earn well on its owners' money? | **Return on equity** from the latest annual statement, used only from 3 months after the fiscal year ends | `net profit to owners / average shareholders' equity` |
+| **Quality** คุณภาพ | Is it calm rather than wild? | **Annualised volatility**, lower is better — ***not** margin or debt (ROE is its own factor)* | `-(stdev(daily returns, 252d) x sqrt(252))` |
 | **Health** สุขภาพ | Did it survive bad stretches? | **Worst drawdown** over 1 year — ***not** D/E or liquidity* | `min(P / running_max(P) - 1)` |
 
-**Before weighting, each factor is z-scored** (clipped at ±3 so one extreme
-stock cannot dominate) **and then sector-neutralised** — a bank is compared with
-other banks, not with an airport. So you are ranking *within sector*, not across
-the whole market.
+**Before weighting, each factor is z-scored across all 95 stocks** (clipped at
+±3 so one extreme stock cannot dominate) — a bank is compared with every other
+stock, airports included. So the ranking is *across the whole market*, which
+means the calmest sector, banks, scores highest on the safety factors.
+
+*(The copy sent on 21 Sep also said scores were sector-neutralised; the team
+dropped that step the same day. It does not change what you are asked to
+compare: how much each factor should matter for each kind of investor.)*
 
 > **A fifth factor, "Value", was removed on 2026-09-09.** It was defined as price
 > versus its own 200-day average. Measured across our 95 stocks that correlates
@@ -66,6 +71,12 @@ the whole market.
 > flipped, not an independent dimension, and weighting both meant they cancelled.
 > We are telling you this because an earlier draft of this questionnaire asked you
 > to weight it.
+>
+> **"Growth" (the 12-month price return) was replaced by ROE on 2026-09-16.** The
+> 12-month and 6-month returns correlate +0.66, so two of four factors were asking
+> one question. ROE is the first factor that looks at the business rather than the
+> price. An earlier draft of this survey asked about Growth; if you answered that
+> one, please answer the ROE rows again.
 
 *If you think a factor is missing or redundant, say so at the end — that is data too.*
 
@@ -99,11 +110,11 @@ the intensity.
 
 | # | Pair | More important? | Intensity 1–9 |
 |---|---|---|---|
-| 1.1 | Momentum ↔ Growth | M / G | ____ |
+| 1.1 | Momentum ↔ ROE | M / R | ____ |
 | 1.2 | Momentum ↔ Quality | M / Q | ____ |
 | 1.3 | Momentum ↔ Health | M / H | ____ |
-| 1.4 | Growth ↔ Quality | G / Q | ____ |
-| 1.5 | Growth ↔ Health | G / H | ____ |
+| 1.4 | ROE ↔ Quality | R / Q | ____ |
+| 1.5 | ROE ↔ Health | R / H | ____ |
 | 1.6 | Quality ↔ Health | Q / H | ____ |
 
 ---
@@ -119,11 +130,11 @@ to mean "same as Block 1".
 
 | # | Pair | More important? | Intensity 1–9 |
 |---|---|---|---|
-| 2.1 | Momentum ↔ Growth | M / G | ____ |
+| 2.1 | Momentum ↔ ROE | M / R | ____ |
 | 2.2 | Momentum ↔ Quality | M / Q | ____ |
 | 2.3 | Momentum ↔ Health | M / H | ____ |
-| 2.4 | Growth ↔ Quality | G / Q | ____ |
-| 2.5 | Growth ↔ Health | G / H | ____ |
+| 2.4 | ROE ↔ Quality | R / Q | ____ |
+| 2.5 | ROE ↔ Health | R / H | ____ |
 | 2.6 | Quality ↔ Health | Q / H | ____ |
 
 ---
@@ -137,11 +148,11 @@ Same shortcut: change only what differs from Block 1.
 
 | # | Pair | More important? | Intensity 1–9 |
 |---|---|---|---|
-| 3.1 | Momentum ↔ Growth | M / G | ____ |
+| 3.1 | Momentum ↔ ROE | M / R | ____ |
 | 3.2 | Momentum ↔ Quality | M / Q | ____ |
 | 3.3 | Momentum ↔ Health | M / H | ____ |
-| 3.4 | Growth ↔ Quality | G / Q | ____ |
-| 3.5 | Growth ↔ Health | G / H | ____ |
+| 3.4 | ROE ↔ Quality | R / Q | ____ |
+| 3.5 | ROE ↔ Health | R / H | ____ |
 | 3.6 | Quality ↔ Health | Q / H | ____ |
 
 ---
@@ -161,9 +172,9 @@ the app shows users.*
    of score?
 5. Is there anything about the Thai market specifically that makes a factor
    behave differently than it would in the US?
-6. Our factors are all price-based, so "quality" is really low volatility and
-   "health" is really shallow drawdown. **How much does that limitation worry
-   you**, and which fundamental would you add first?
+6. Three of our four factors are price-based, so "quality" is really low
+   volatility and "health" is really shallow drawdown. **How much does that
+   limitation worry you**, and which fundamental would you add after ROE?
 
 ---
 
@@ -184,8 +195,8 @@ partial responses.
    `respondent,profile,left,right,winner,strength`
    (template with a worked example: `ahp_responses_template.csv`)
 2. Run `python research/ahp_analyze.py`
-3. It builds each 5×5 matrix, derives priorities by **row geometric mean**,
-   computes CR against **RI = 1.12 for n = 5**, drops CR ≥ 0.10 and says who and
+3. It builds each 4×4 matrix, derives priorities by **row geometric mean**,
+   computes CR against **RI = 0.90 for n = 4**, drops CR ≥ 0.10 and says who and
    why, then aggregates survivors by **geometric mean of judgements (AIJ)**.
 4. It also prints the **min–max spread across respondents**. That spread becomes
    the perturbation range for sensitivity analysis — so we never have to answer
@@ -205,9 +216,12 @@ Test the whole pipeline before any real response arrives:
   engine on 9 Sep because it was momentum negated, so the survey now covers four.
   The earlier version also asked about *Sentiment*, which the
   engine does not compute, and defined Value as P/E, Quality as ROE and Health as
-  D/E — none of which the engine computes either. Weights collected for P/E and
-  ROE cannot be applied to volatility and drawdown. Question 3 above now asks
+  D/E — none of which the engine computed at the time. Weights collected for P/E
+  and ROE could not be applied to volatility and drawdown. (ROE has since become a
+  factor of its own, measured directly rather than standing in for Quality.) Question 3 above now asks
   whether Sentiment should be added, so the idea is not lost.
+- **Growth → ROE** (21 Sep). The engine replaced the 12-month price return with
+  return on equity on 16 Sep, so every Growth row became an ROE row.
 - **One block → three**, because SETScout serves three risk profiles and needs
   three weight sets. Blocks 2 and 3 use a copy-and-adjust shortcut to keep the
   survey near its original length.
