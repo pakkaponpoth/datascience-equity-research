@@ -86,7 +86,7 @@
   <div class="tag">⚡ The 60-second version</div>
   <div class="lead">
     <b>SETScout finds Thai stocks worth <u>researching</u> — and tells you the risk, honestly.</b>
-    It does <b>not</b> predict prices or tell you to buy. Every day it scores 95 SET100 stocks on 5 simple
+    It does <b>not</b> predict prices or tell you to buy. Every day it scores 95 SET100 stocks on 4 simple
     factors, sorts them into <b>Worth a look 🟢 / Wait 🟡 / Not now 🔴</b>, and explains each in plain
     sentences with the risk in baht. It even admits when it can't beat the market — that honesty <i>is</i> the point.
   </div>
@@ -94,7 +94,7 @@
   <div class="pipe">
     <div class="stage"><div class="n">1 · DATA</div><h3>📥 Collect</h3><p>Daily prices for 95 SET100 stocks (Yahoo Finance).</p></div>
     <div class="arrow">→</div>
-    <div class="stage"><div class="n">2 · FILTER</div><h3>⚙️ Score</h3><p>4 factors per stock, compared fairly within each sector.</p></div>
+    <div class="stage"><div class="n">2 · FILTER</div><h3>⚙️ Score</h3><p>4 factors per stock, compared across all 95.</p></div>
     <div class="arrow">→</div>
     <div class="stage"><div class="n">3 · ENGINES</div><h3>🎚️ 3 profiles</h3><p>Same factors, 3 weightings: safe / balanced / bold.</p></div>
     <div class="arrow">→</div>
@@ -115,22 +115,23 @@
   <div class="tag" style="margin-top:26px">The 4 sentences a user sees</div>
   <div class="grid four">
     <div class="card"><h3>Verdict</h3><p>Worth a look / Wait / Not now.</p><div class="ex">🟢 Worth a look</div></div>
-    <div class="card v"><h3>Risk in baht</h3><p>A normal-bad month, in real money.</p><div class="ex">bad month ≈ −16% → max ฿23/100</div></div>
-    <div class="card b"><h3>Because</h3><p>The top reasons, in plain words.</p><div class="ex">above its long average, not spiked</div></div>
-    <div class="card t"><h3>Risk, in baht</h3><p>How far it could fall in a bad month.</p><div class="ex">not a profit promise, tells risk</div></div>
+    <div class="card v"><h3>Risk in baht</h3><p>A normal-bad month, plus a rule-of-thumb size limit.</p><div class="ex">bad month ≈ −16% → at most ฿21/100</div></div>
+    <div class="card b"><h3>Because</h3><p>The two factors that moved its score most.</p><div class="ex">up over 6 months, high return on equity</div></div>
+    <div class="card t"><h3>Rank</h3><p>Its place among all 95 today, not a forecast.</p><div class="ex">#7 / 95</div></div>
   </div>
 
   <div class="tag" style="margin-top:26px">The 4 factors (the “score”)</div>
   <div class="grid">
     <div class="card"><h3><span class="e">📈</span> Momentum</h3><p>6-month return — is it going well?</p></div>
-    <div class="card"><h3><span class="e">🌱</span> Growth</h3><p>12-month return — the longer trend.</p></div>
+    <div class="card"><h3><span class="e">🏭</span> ROE</h3><p>Return on equity — from the company's filed annual accounts.</p></div>
     <div class="card"><h3><span class="e">🛡️</span> Quality</h3><p>Low volatility — calm, not wild.</p></div>
     <div class="card"><h3><span class="e">❤️</span> Health</h3><p>Small max-drawdown — survives bad markets.</p></div>
   </div>
   <div class="note">There used to be a fifth, <b>Value</b> (price vs its own 200-day average). We removed it
     on 9 Sep 2026 after measuring that it correlated <b>&minus;0.93</b> with Momentum — it was that factor
-    with the sign flipped, not a separate one.
-    <span class="th">· เคยมีปัจจัยที่ 5 ชื่อ Value แต่ตัดออกแล้ว เพราะซ้ำกับโมเมนตัม</span></div>
+    with the sign flipped, not a separate one. <b>Growth</b> (the 12-month return) was replaced by ROE on
+    16 Sep 2026: it overlapped Momentum (r = +0.66), and ROE is the first factor read from company accounts.
+    <span class="th">· เคยมีปัจจัยที่ 5 ชื่อ Value แต่ตัดออกแล้ว เพราะซ้ำกับโมเมนตัม · ปัจจัย Growth ถูกแทนด้วย ROE</span></div>
   <div class="note">Each factor is <b>z-scored</b> (put on a fair 0-centred scale) across <b>all 95 stocks</b> —
     the same group the rank "#7 / 95" compares against. Until 21 Sep 2026 scores were also adjusted within each
     sector; that step was dropped, so the calmest sector, <b>banks</b>, now fills much of the safer lists.
@@ -145,26 +146,29 @@
     <div class="card c2"><h3>⚖️ Balanced</h3><div class="w">quality 37 · mom 26 · health 21 · ROE 16</div>
       <div class="res">The middle default. Also defensive-leaning.</div></div>
     <div class="card c3"><h3>🚀 Aggressive</h3><div class="w">mom 47 · ROE 35 · quality 12 · health 6</div>
-      <div class="res">Higher raw return than the others, but <span class="bad">still no edge over buy-and-hold</span> once risk is accounted for.</div></div>
+      <div class="res">Higher raw return than the others, but the apparent edge <span class="bad">failed the sealed test</span> (below).</div></div>
   </div>
 
   <div class="tag" style="margin-top:26px">The honest findings (from real backtests)</div>
   <table>
     <tr><th>Engine (buy picks, hold 12mo)</th><th class="n">return</th><th class="n">vs buy&hold</th><th class="n">beats random</th></tr>
-    <tr><td>🛡️ Conservative</td><td class="n">+1.9%</td><td class="n bad">−5.6</td><td class="n">0%</td></tr>
-    <tr><td>⚖️ Balanced</td><td class="n">+3.2%</td><td class="n bad">−4.3</td><td class="n">0%</td></tr>
-    <tr><td>🚀 Aggressive</td><td class="n">+8.4%</td><td class="n">+0.9</td><td class="n">82%</td></tr>
+    <tr><td>🛡️ Conservative</td><td class="n">+5.2%</td><td class="n bad">−2.3</td><td class="n">0%</td></tr>
+    <tr><td>⚖️ Balanced</td><td class="n">+5.8%</td><td class="n bad">−1.8</td><td class="n">4%</td></tr>
+    <tr><td>🚀 Aggressive</td><td class="n">+10.1%</td><td class="n">+2.5</td><td class="n">100%</td></tr>
   </table>
+  <p style="font-size:13px;color:var(--muted)">Measured 21 Sep 2026 by <code>backtest_profiles.py</code> on the current engine,
+    73 start-points; buy-and-hold here is an equal-weight basket of all 95, +7.5% a year.</p>
   <p><b>Read it honestly:</b> the defensive engines <b>don't beat the market</b> — that's expected (efficient
-  markets) and it's <b>the thesis, not a bug</b>. The aggressive engine edges it by 0.9 points and beats 82% of
-  random portfolios — <b>under the 90% bar we set in advance</b>, and on a period we had already examined many
-  times. Taken to a sealed period it reached 81% and won only 2 of 5 blocks, so we <b>do not call it an edge</b>.
+  markets) and it's <b>the thesis, not a bug</b>. On this window the aggressive engine beats buy-and-hold by
+  2.5 points and 100% of random portfolios — but this is the decade we had already examined about fifteen times,
+  re-run after the model changed. The test we fixed in advance, on sealed 1999–2014 prices, reached only 81%
+  (pass mark 90%) and won 2 of 5 blocks, so we <b>do not call it an edge</b>.
   Caveats we keep out loud: survivorship bias in old data, momentum can crash, one market/period.</p>
 
   <div class="tag" style="margin-top:26px">The honesty rails (why judges trust it)</div>
   <div class="rails">
     <div class="rail"><b>Luck bar</b> — we compare against hundreds of random portfolios. Real skill beats most of them; luck doesn't.</div>
-    <div class="rail"><b>Calibration</b> — we checked if a high score predicts an up-move. It <b>doesn't</b> (flat ~47%, p = 0.53). So the app shows <b>no hit rate at all</b> — a figure that says the same thing about every stock is not information. We rank research-worthiness, not direction.</div>
+    <div class="rail"><b>Calibration</b> — we checked if a high score predicts an up-move. It <b>doesn't</b> (flat ~47%, p = 0.28). So the app shows <b>no hit rate at all</b> — a figure that says the same thing about every stock is not information. We rank research-worthiness, not direction.</div>
     <div class="rail"><b>No look-ahead</b> — every backtest scores using only past data, then measures the future.</div>
     <div class="rail"><b>Educational, not advice</b> — soft wording, disclaimers everywhere, non-commercial.</div>
   </div>
@@ -176,8 +180,8 @@
     <span class="p2 p-real">✓ real: backtests + costs</span>
     <span class="p2 p-real">✓ real: 3 engines</span>
     <span class="p2 p-real">✓ real: ROE from the filed accounts</span>
-    <span class="p2 p-todo">◷ factor weights → AHP survey</span>
-    <span class="p2 p-todo">◷ v2 fundamentals (P/E, ROE)</span>
+    <span class="p2 p-real">✓ real: pilot AHP survey (1 consistent expert)</span>
+    <span class="p2 p-todo">◷ more fundamentals (P/E, debt)</span>
     <span class="p2 p-todo">◷ investor survey (primary data)</span>
   </div>
 
@@ -196,7 +200,7 @@
 
   <div class="links">
     <a class="lk" href="index.html">🌐 The live app</a>
-    <a class="lk" href="../library/setscout-map.html">🗺️ System map</a>
+    <a class="lk" href="https://oksoimcodingnow.github.io/atlas/library/setscout-map.html">🗺️ System map</a>
   </div>
 
   </main>

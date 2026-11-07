@@ -2,7 +2,7 @@
 
 **Course:** Data Science (01526125) — Term Project
 **Team (8):** Paphangkorn Onrueang · Pakkapon [—] · [6 more members & IDs — roles in `docs/Team-Map.md`]
-**Draft:** v1, 1 September 2026
+**Draft:** v2, 7 November 2026 (v1: 1 September 2026)
 **Live system:** https://oksoimcodingnow.github.io/atlas/setscout/
 **Code:** `atlas/setscout/` — every number below regenerates from the scripts named beside it.
 
@@ -11,7 +11,7 @@
 ## Abstract
 
 We built SETScout, a web tool that ranks 95 Thai large-cap stocks on four
-price-based factors, adapts the ranking to a user's risk profile, and explains
+factors (three from price, one from company filings), adapts the ranking to a user's risk profile, and explains
 each recommendation in four plain sentences. We then asked the question most
 student projects skip: **does it actually work?**
 
@@ -29,8 +29,10 @@ and a flawed averaging method — an error in our own earlier analysis, which we
 quantify and correct here.
 
 The system's value is therefore not prediction but **honest discovery**: a
-shortlist with transparent scoring, quantified risk, and a confidence figure
-that reports what was measured rather than what we hoped.
+shortlist with transparent scoring, quantified risk, and a plain account of
+what was measured rather than what we hoped. A pilot expert survey (AHP)
+agreed with the team's weights on direction and left the shortlist largely
+unchanged (Section 9).
 
 ---
 
@@ -163,10 +165,11 @@ The composite is converted to a **percentile rank**, so a displayed score of 80
 means "top 20% of this list," not an absolute grade. Verdicts threshold that
 rank: top 20% → *Worth a look*, 45th–80th → *Wait*, below 45th → *Not now*.
 
-**These weights are the one part of the system with no evidence behind them.**
-Nobody has measured that quality should be 40% rather than 35% for a cautious
-investor. Replacing them with values elicited from experts via AHP is the main
-outstanding work (Section 9).
+**These weights were set by the team, not measured.** Nobody has measured that
+quality should be 40% rather than 35% for a cautious investor. A pilot AHP
+survey (Section 9) had one consistent expert, who agreed on direction and
+kept 8 of each profile's top 10; with fewer than three consistent experts the
+team weights stay in the engine.
 
 ### 3.4 What re-weighting actually does
 
@@ -374,6 +377,16 @@ delivered as a small fixed set of sentences:
 | **Risk, in baht** | "A normal-bad month could drop ~9%, so put at most ฿30 of every 100" |
 | **Because** | "Up over the last 6 months and high return on equity" |
 | **Latest ROE** | "18.0%" — the figure from the company's own accounts, or a dash where no filing could be read |
+
+The two reasons are the factors that moved the stock's score most under the
+active profile (weight × z-score), and a factor is called a strength only if
+the stock is above the universe average on it. Until 7 November 2026 the chips
+were simply the highest and lowest raw z-scores, ignoring sign and weight: on
+the 6 November file 13–19 of 190 reasons per profile were the wrong way round
+(SINGER, an aggressive pick, read "high return on equity" beside an ROE of
+1.4%). Scores, ranks and verdicts were never affected. The page header shows
+the date of the closing prices used, which can be one trading day behind the
+run date (`prices_asof` in `today.json`).
 
 Risk uses a monthly Value-at-Risk, `1.645 × σ_daily × √21`, clamped to 6–35%,
 converted into a suggested maximum position size by `0.42 × (1 − risk/32)`,
@@ -689,6 +702,13 @@ When only ~40% of the list existed, gaps run +53 to +77 points. When ~92%
 exists, +3 to +6. The bias is not an assumption but a measurement that decays
 exactly as coverage improves. Reproduce with `python explore.py --years`.
 
+> **Reproducibility note (7 Nov 2026).** Since 21 September Yahoo returns a
+> single row for `^SET.BK`, so the *Real SET index* column can no longer be
+> downloaded and `explore.py --years` prints `nan` there. The table stands as
+> measured on 31 August–1 September 2026; the buy-and-hold column still
+> reproduces. `TDEX.BK` (the SET50 ETF) has daily history only from 2008, so it
+> cannot stand in for 2001–2006.
+
 **Consequence:** absolute return levels from before ~2015 are unusable. Internal
 comparisons remain valid, because picks, benchmark and random portfolios all
 face the identical distortion. Throughout this report we compare rows and never
@@ -718,7 +738,8 @@ the worst of it. Measured on the four-factor engine at 1 Sep 2026, balanced shar
 with aggressive; conservative and aggressive share none of their top 10. Balanced
 now has its own top five (3 of 5 shared), but it sits nearer the cautious end
 because quality carries its largest weight (.37). Whether that is the right middle
-is exactly what the AHP survey should decide. Removing the sector step on 21 Sep
+is what the AHP survey was meant to decide; its one consistent expert would tilt
+balanced toward health (drawdown) rather than quality (Section 9). Removing the sector step on 21 Sep
 pulled them closer again: on today's prices balanced shares 9 of its top 10 and
 **18 of its top 20** with conservative (15 of 20 with the step), because both now
 draw on the same banks.
@@ -739,11 +760,47 @@ transform — but we have not measured it, and it should not be presented as
 though we had. Extending calibration to all three is straightforward future
 work.
 
-**The weights are unmeasured.** See below.
+**The weights rest on one expert.** See below.
 
 ---
 
-## 9. Outstanding work
+## 9. Expert weights: the AHP pilot, and what remains
+
+### 9.1 Pilot result (survey sent 21 Sep 2026, closed 6 Nov 2026)
+
+Two experts answered the 18 comparisons (six pairs per profile, Saaty 1–9).
+The analysis, the raw judgments and the Excel workbook are in
+`research/ahp-factor-weights/` (PR #10, principal-eigenvector weights):
+
+| Profile | Momentum | ROE | Quality | Health | CR |
+|---|---|---|---|---|---|
+| Conservative | 0.055 | 0.118 | 0.262 | **0.565** | 0.043 |
+| Balanced | 0.096 | 0.208 | 0.208 | **0.487** | 0.057 |
+| Aggressive | **0.560** | 0.249 | 0.095 | 0.095 | 0.016 |
+
+Expert E01 passed the consistency test in all three profiles. Expert E02
+answered 7 ("very strongly more important") on all 18 questions, with the same
+winner in every profile: CR 0.379, so E02 is excluded. `research/ahp_analyze.py`
+(normalised row geometric mean) gives the same weights to within 0.4 points.
+
+That leaves one consistent respondent per profile, below the three the
+small-panel rule requires before elicited weights replace the team's
+(`MIN_KEPT = 3`, fixed on 3 Oct before any answer was analysed). **The engine
+keeps the team weights.**
+
+What the expert would change: the direction matches the team (momentum leads
+for aggressive, the two risk factors for conservative), but E01 puts far more
+weight on health (drawdown) than on quality (volatility), most visibly in
+balanced (0.487 against the team's 0.21). Re-ranking all 95 stocks scored on
+6 November 2026 with E01's weights keeps **8 of each profile's top 10** and 19,
+18 and 17 of the conservative, balanced and aggressive top 20s. The shortlist
+is robust to this expert's view; one respondent is a pilot, not a consensus.
+
+The survey form's answers name the ROE factor "Growth", and PR #10 maps it to ROE. <!-- facts-lint: ignore -->
+The questionnaire in `research/expert-ahp.md` switched that factor from the
+12-month return to ROE on 21 Sep, the day the survey went out.
+
+### 9.2 What a full panel would add
 
 **AHP expert survey.** Six pairwise factor comparisons (four factors: 4 × 3 ÷ 2) on the Saaty 1–9 scale,
 per investor profile, from 6–10 experts. Respondents failing a consistency ratio
