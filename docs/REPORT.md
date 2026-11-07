@@ -146,8 +146,8 @@ The early problem returns, and it is accepted rather than hidden:
 | Balanced | 11 | Commerce 4 → **Banking 7** | 0 → **7** |
 | Aggressive | 15 | Utilities 4 → Banking 4 | 0 → 1 |
 
-All seven banks in the universe now enter the conservative and balanced BUY
-lists. Banks have the calmest prices, and those two profiles weight calm prices
+All seven banks in the universe entered the conservative and balanced BUY
+lists under the team weights; under the AHP weights (7 Nov 2026) six of the seven do. Banks have the calmest prices, and those two profiles weight calm prices
 most. A bank-heavy conservative list therefore reflects one sector's low
 volatility, not a diversified selection, and a reader should treat it that way.
 
