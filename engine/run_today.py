@@ -36,9 +36,9 @@ Composite = weighted z-score; final score = its percentile across the market.
 PERSONALIZATION: the same factors are combined with THREE weight sets, one per
 risk profile, so the website's risk quiz can serve a matching list:
   conservative -> safety factors ·  balanced -> even ·  aggressive -> momentum.
-Factor WEIGHTS were set by the team. The AHP pilot (Sep-Nov 2026, one
-consistent expert) agreed on direction and kept 8 of the top 10 in every
-profile, so the team weights stay (docs/REPORT.md, section 9).
+Factor WEIGHTS come from the AHP expert survey since 2026-11-07: Expert 1's
+eigenvector weights (PR #10), the one consistent respondent. One expert is a
+pilot, not a consensus (docs/REPORT.md, section 9; history in factors.py).
 """
 import json, os, sys
 import numpy as np, pandas as pd, yfinance as yf

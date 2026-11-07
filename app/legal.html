@@ -130,12 +130,13 @@
 
   <div class="box warn">
     <span class="k">ผลการทดสอบย้อนหลัง · What the backtest found</span>
-    <p><strong>คะแนนของเราไม่ได้ทำนายทิศทางราคา</strong> จากการทดสอบย้อนหลังราว 7 ปี หุ้นทุกช่วงคะแนนมีโอกาสราคาขึ้นในเดือนถัดไป
-    ประมาณ <strong>47%</strong> เท่ากันหมด ไม่ว่าจะได้คะแนนสูงหรือต่ำ</p>
+    <p><strong>คะแนนของเราไม่ได้ทำนายผลตอบแทน</strong> จากการทดสอบย้อนหลังราว 7 ปี ความสัมพันธ์ระหว่างคะแนนกับผลตอบแทนเดือนถัดไป
+    แทบเป็นศูนย์ (IC <strong>+0.013</strong>) หุ้นคะแนนสูงไม่ได้ให้ผลตอบแทนดีกว่าหุ้นคะแนนต่ำ</p>
     <p><strong>การซื้อหุ้นอันดับต้น ๆ ไม่ชนะการซื้อทั้งตลาด</strong> และไม่ชนะการสุ่มเลือกหุ้นด้วย</p>
-    <p class="th"><strong>Our score does not predict direction.</strong> Across about seven years of point-in-time testing,
-    stocks at every score level rose the following month about <strong>47%</strong> of the time &mdash; flat, with no gradient.
-    Buying the top-ranked stocks (balanced profile) did not beat buying the whole list, and beat at most 2% of randomly chosen portfolios.</p>
+    <p class="th"><strong>Our score does not predict returns.</strong> Across about seven years of point-in-time testing,
+    the link between a stock's score and its next-month return is close to zero (information coefficient <strong>+0.013</strong>,
+    statistically zero): high-scored stocks did no better than low-scored ones.
+    Buying the top-ranked stocks (balanced profile) did not beat buying the whole list, and beat at most 4% of randomly chosen portfolios.</p>
   </div>
 
   <div class="box">
@@ -144,7 +145,7 @@
       <li>สามในสี่ปัจจัยคำนวณจาก<strong>ราคา</strong> มีเพียง ROE ที่อ่านจากงบการเงินประจำปี ไม่มีปัจจัยใดดูรายได้หรือหนี้สิน &middot; Three of the four factors come from price; ROE is read from annual statements. None looks at revenue or debt</li>
       <li>&ldquo;คุณภาพ&rdquo; = ความผันผวนต่ำ &middot; &ldquo;สุขภาพ&rdquo; = ขาดทุนสูงสุดน้อย &mdash; ไม่ใช่คุณภาพกำไรหรือฐานะการเงินจริง</li>
       <li>รายชื่อหุ้นที่ใช้ทดสอบคือหุ้นที่<strong>ยังอยู่ถึงวันนี้</strong> ทำให้ผลย้อนหลังดูดีเกินจริง (survivorship bias)</li>
-      <li>น้ำหนักของแต่ละปัจจัย<strong>ตั้งโดยทีม</strong> แบบสำรวจผู้เชี่ยวชาญนำร่องมีผู้ตอบที่สอดคล้องเพียง 1 คน &middot; Factor weights were set by the team; the pilot expert survey had one consistent respondent</li>
+      <li>น้ำหนักของแต่ละปัจจัย<strong>มาจากผู้เชี่ยวชาญเพียง 1 คน</strong> (แบบสำรวจ AHP นำร่อง) &middot; Factor weights come from <strong>one expert</strong> (a pilot AHP survey), not a panel</li>
     </ul>
   </div>
 
@@ -177,7 +178,7 @@
     <p>แบบสำรวจผู้เชี่ยวชาญ (AHP) เพื่อกำหนดน้ำหนักปัจจัยส่งถึงผู้เชี่ยวชาญที่ได้รับเชิญเท่านั้น (ก.ย.–พ.ย. 2569)
     คำตอบเผยแพร่ในรูป<strong>รหัส</strong> (Expert 1, Expert 2) เท่านั้น ไม่เผยแพร่ชื่อหรืออีเมลของผู้ตอบ
     ผู้ใช้เว็บนี้ไม่ได้ถูกเก็บข้อมูลใด ๆ จากแบบสำรวจนี้</p>
-    <p class="th">The expert survey (AHP) that informed the factor weights went only to invited experts
+    <p class="th">The expert survey (AHP) that set the factor weights went only to invited experts
     (Sep&ndash;Nov 2026). Answers are published under codes (Expert 1, Expert 2), never with names or email
     addresses. Nothing about visitors to this site was collected by it.</p>
   </div>
