@@ -1,0 +1,37 @@
+expert,profile,pair,first_factor,second_factor,survey_answer,winner,intensity,value_first_over_second
+Expert 1,Conservative,1,Growth,Momentum,Growth is Moderately more important (3),Growth,3,3
+Expert 1,Conservative,2,Quality,Momentum,Quality is Strongly more important (5),Quality,5,5
+Expert 1,Conservative,3,Health,Momentum,Health is Very Strongly more important (7),Health,7,7
+Expert 1,Conservative,4,Growth,Quality,Quality is Moderately more important (3),Quality,3,0.3333333333333333
+Expert 1,Conservative,5,Growth,Health,Health is Strongly more important (5),Health,5,0.2
+Expert 1,Conservative,6,Quality,Health,Health is Moderately more important (3),Health,3,0.3333333333333333
+Expert 1,Balanced,1,Growth,Momentum,Growth is Moderately more important (3),Growth,3,3
+Expert 1,Balanced,2,Quality,Momentum,Quality is Moderately more important (3),Quality,3,3
+Expert 1,Balanced,3,Health,Momentum,Health is Moderately more important (3),Health,3,3
+Expert 1,Balanced,4,Growth,Quality,Of Equal Importance (1),Equal,1,1
+Expert 1,Balanced,5,Growth,Health,Health is Moderately more important (3),Health,3,0.3333333333333333
+Expert 1,Balanced,6,Quality,Health,Health is Moderately more important (3),Health,3,0.3333333333333333
+Expert 1,Aggressive,1,Growth,Momentum,Momentum is Moderately more important (3),Momentum,3,0.3333333333333333
+Expert 1,Aggressive,2,Quality,Momentum,Momentum is Strongly more important (5),Momentum,5,0.2
+Expert 1,Aggressive,3,Health,Momentum,Momentum is Strongly more important (5),Momentum,5,0.2
+Expert 1,Aggressive,4,Growth,Quality,Growth is Moderately more important (3),Growth,3,3
+Expert 1,Aggressive,5,Growth,Health,Growth is Moderately more important (3),Growth,3,3
+Expert 1,Aggressive,6,Quality,Health,Of Equal Importance (1),Equal,1,1
+Expert 2,Conservative,1,Growth,Momentum,Growth is Very Strongly more important (7),Growth,7,7
+Expert 2,Conservative,2,Quality,Momentum,Quality is Very Strongly more important (7),Quality,7,7
+Expert 2,Conservative,3,Health,Momentum,Health is Very Strongly more important (7),Health,7,7
+Expert 2,Conservative,4,Growth,Quality,Growth is Very Strongly more important (7),Growth,7,7
+Expert 2,Conservative,5,Growth,Health,Growth is Very Strongly more important (7),Growth,7,7
+Expert 2,Conservative,6,Quality,Health,Quality is Very Strongly more important (7),Quality,7,7
+Expert 2,Balanced,1,Growth,Momentum,Growth is Very Strongly more important (7),Growth,7,7
+Expert 2,Balanced,2,Quality,Momentum,Quality is Very Strongly more important (7),Quality,7,7
+Expert 2,Balanced,3,Health,Momentum,Health is Very Strongly more important (7),Health,7,7
+Expert 2,Balanced,4,Growth,Quality,Growth is Very Strongly more important (7),Growth,7,7
+Expert 2,Balanced,5,Growth,Health,Growth is Very Strongly more important (7),Growth,7,7
+Expert 2,Balanced,6,Quality,Health,Quality is Very Strongly more important (7),Quality,7,7
+Expert 2,Aggressive,1,Growth,Momentum,Growth is Very Strongly more important (7),Growth,7,7
+Expert 2,Aggressive,2,Quality,Momentum,Quality is Very Strongly more important (7),Quality,7,7
+Expert 2,Aggressive,3,Health,Momentum,Health is Very Strongly more important (7),Health,7,7
+Expert 2,Aggressive,4,Growth,Quality,Growth is Very Strongly more important (7),Growth,7,7
+Expert 2,Aggressive,5,Growth,Health,Growth is Very Strongly more important (7),Growth,7,7
+Expert 2,Aggressive,6,Quality,Health,Quality is Very Strongly more important (7),Quality,7,7
