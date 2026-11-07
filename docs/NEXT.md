@@ -10,7 +10,7 @@ Five findings, all measured, all reproducible:
 1. **`p_win` was invented** — `0.44 + 0.22 × score`, shown as "Hit rate 66%". Measured up-rate is **flat ~47%**, with no trend from low to high scores (p = 0.53). *(first replaced with the measured figure, then removed from the product entirely on 16 Sep — a number identical for every stock does not belong next to one stock's name)*
 2. **`value` was momentum negated** — correlation **−0.93**, beta **−1.00**. "Balanced" was conservative in disguise: 8/10 shared names, 0.07 on a 0→1 scale. Now 6/10 and **0.44**. *(fixed)*
 3. **Nothing beats buy-and-hold** — not raw, not risk-adjusted (`ret/vol` 0.04–0.06 vs B&H 0.06), not at any of five rebalancing frequencies.
-4. **The score doesn't predict direction** — decile up-rates all between 43% and 50% (p = 0.28), 6-month quintiles 50 / 52 / 49 / 48 / 51. Flat. *(re-measured 21 Sep)*
+4. **The score doesn't predict direction** — decile up-rates all between 44.5% and 49.5% (p = 0.66). Flat. *(re-measured 7 Nov with the AHP weights; team weights on the same data: p = 0.29)*
 5. **Conservative won 2 of 11 years**, both falling markets. Best: 2018, **+1.7% while the market fell 13.3%**. Missed the 2020 recovery by 29 points.
 
 *(Findings 3 and 5 were measured before 21 Sep, on the engine with the sector step, and have not been re-run.)*
@@ -45,7 +45,8 @@ Five findings, all measured, all reproducible:
 ### Done since the last update
 
 - **PR #9 is live** — merged 4 Oct, synced to atlas 6 Oct; `tools/live_check.py` prints OK (7 Nov).
-- **AHP closed 6 Nov as a pilot** — 2 answers, 1 consistent; team weights kept (REPORT §9).
+- **AHP weights are live (7 Nov)** — the engine uses Expert 1's eigenvector weights from PR #10 (2 answers, 1 consistent). Every rerunnable backtest re-measured with both weight sets: same verdicts (REPORT §9.1). Balanced now nearly copies conservative (9 of 10 shared). The sealed tests were not re-run.
+- **AHP closed 6 Nov** — 2 answers, 1 consistent (REPORT §9).
 
 ### Earlier notes (kept for the record)
 

@@ -189,10 +189,10 @@
      prof:{cons:"สายระมัดระวัง",bal:"สายสมดุล",agg:"สายบุก"},
      method:{title:"วิธีให้คะแนน",intro:"เราให้คะแนนหุ้นทุกตัวจาก 4 ปัจจัย: โมเมนตัม คุณภาพ และสุขภาพ คำนวณจากราคาย้อนหลังไม่เกิน 1 ปี ส่วน ROE มาจากงบการเงินประจำปีล่าสุด",
        factors:[["📈","โมเมนตัม","ผลตอบแทน 6 เดือน — ราคากำลังไปได้ดีไหม"],["🏭","ROE","กำไรต่อส่วนของผู้ถือหุ้น — จากงบการเงินจริงที่บริษัทยื่น"],["🛡️","คุณภาพ","ความผันผวนต่ำ — ราคานิ่ง ไม่หวือหวา"],["❤️","สุขภาพ","ขาดทุนสูงสุดน้อย — ทนตลาดขาลงได้"]],
-       wLabel:"การถ่วงน้ำหนัก",weights:"คุณภาพ 37% · โมเมนตัม 26% · สุขภาพ 21% · ROE 16%",wNote:"น้ำหนักเปลี่ยนตามโปรไฟล์ความเสี่ยงของคุณ (ทำแบบทดสอบเพื่อเปลี่ยน)",
+       wLabel:"การถ่วงน้ำหนัก",weights:"สุขภาพ 48.7% · คุณภาพ 20.9% · ROE 20.9% · โมเมนตัม 9.6%",wNote:"น้ำหนักเปลี่ยนตามโปรไฟล์ความเสี่ยงของคุณ (ทำแบบทดสอบเพื่อเปลี่ยน)",
        vLabel:"ตัดสินอย่างไร",verdict:"อันดับ 20% แรกของตลาด → น่าสนใจ ✅ · อันดับ 45–80% → รอก่อน 🟡 · ต่ำกว่า 45% → ยังไม่ใช่ 🔴",
        rLabel:"ความเสี่ยง",risk:"คำนวณจาก VaR รายเดือน (เดือนแย่ ๆ ราคาอาจลงได้แค่ไหน) ส่วนเพดานการลงทุนเป็นเพียงหลักคร่าว ๆ: การทดสอบที่เรากำหนดเกณฑ์ไว้ล่วงหน้าพบว่าการจัดสัดส่วนแบบนี้แทบไม่ช่วยลดการขาดทุนสูงสุด",
-       cLabel:"⚠️ หมายเหตุซื่อสัตย์",caveats:["น้ำหนักตั้งโดยทีม · แบบสำรวจผู้เชี่ยวชาญนำร่อง (AHP มีผู้ตอบที่สอดคล้อง 1 คน) เห็นทิศทางตรงกัน และ 8 ใน 10 อันดับแรกยังเหมือนเดิม","ทดสอบย้อนหลังโดยไม่ใช้ข้อมูลอนาคต: หุ้นที่เลือก (สายสมดุล) ไม่ชนะการซื้อทั้งตลาด และอันดับไม่ได้ทำนายเดือนถัดไป · สายบุกที่ดูเหมือนชนะ ไม่ผ่านการทดสอบปิดผนึกช่วงปี 1999–2014","สามในสี่ปัจจัยคำนวณจากราคา มีเพียง ROE ที่อ่านจากงบการเงินของบริษัท","ทุกการทดสอบสมมติว่าถือ 6–12 เดือน การซื้อขายตามการเปลี่ยนแปลงทุกเดือนให้ผลแย่ที่สุดใน 5 ความถี่ที่ทดสอบ","เพื่อการศึกษา ไม่ใช่คำแนะนำการลงทุน"]},
+       cLabel:"⚠️ หมายเหตุซื่อสัตย์",caveats:["น้ำหนักมาจากแบบสำรวจผู้เชี่ยวชาญ (AHP) ซึ่งมีผู้ตอบที่สอดคล้องเพียง 1 คน จึงเป็นผลนำร่อง ไม่ใช่ฉันทามติ","ทดสอบย้อนหลังโดยไม่ใช้ข้อมูลอนาคต: หุ้นที่เลือก (สายสมดุล) ไม่ชนะการซื้อทั้งตลาด และอันดับไม่ได้ทำนายเดือนถัดไป · สายบุกที่ดูเหมือนชนะ ไม่ผ่านการทดสอบปิดผนึกช่วงปี 1999–2014","สามในสี่ปัจจัยคำนวณจากราคา มีเพียง ROE ที่อ่านจากงบการเงินของบริษัท","ทุกการทดสอบสมมติว่าถือ 6–12 เดือน การซื้อขายตามการเปลี่ยนแปลงทุกเดือนให้ผลแย่ที่สุดใน 5 ความถี่ที่ทดสอบ","เพื่อการศึกษา ไม่ใช่คำแนะนำการลงทุน"]},
      quiz:[
       ["ถ้าหุ้นที่ถือลง 20% ใน 1 เดือน คุณจะ:",[["ซื้อเพิ่ม",2],["ถือไว้",1],["ขายบางส่วน",0],["ขายทั้งหมด",-1]]],
       ["เงินก้อนนี้ต้องใช้เมื่อไร:",[["ภายใน 1 ปี",-1],["1–5 ปี",1],["5 ปีขึ้นไป",2]]],
@@ -220,10 +220,10 @@
      prof:{cons:"Conservative",bal:"Balanced",agg:"Aggressive"},
      method:{title:"How we score",intro:"Every stock is scored on 4 factors: three from up to a year of prices, plus ROE from its latest annual statement",
        factors:[["📈","Momentum","6-month return — is the price doing well?"],["🏭","ROE","profit ÷ owners' equity — from the company's filed accounts"],["🛡️","Quality","low volatility — calm, not wild"],["❤️","Health","small max-drawdown — survives bad markets"]],
-       wLabel:"Weighting",weights:"Quality 37% · Momentum 26% · Health 21% · ROE 16%",wNote:"Weights change with your risk profile — take the quiz to switch.",
+       wLabel:"Weighting",weights:"Health 48.7% · Quality 20.9% · ROE 20.9% · Momentum 9.6%",wNote:"Weights change with your risk profile — take the quiz to switch.",
        vLabel:"How the verdict is decided",verdict:"Top 20% of the market → Worth a look ✅ · 45–80th percentile → Wait 🟡 · below 45th → Not now 🔴",
        rLabel:"Risk",risk:"From monthly VaR (how bad a bad month could be). The size limit is only a rule of thumb: in our pre-registered test, sizing this way barely changed the worst drawdown",
-       cLabel:"⚠️ Honest notes",caveats:["Weights were set by the team. A pilot expert survey (AHP, one consistent expert) agreed on direction and kept 8 of our top 10","Backtested point-in-time: the default (balanced) picks trail buying the whole list, and the rank does not predict next month. An apparent edge for aggressive failed a sealed test on 1999–2014 prices","Three of the four factors come from price; ROE is the one read from company accounts","Every test assumed holding 6–12 months. Trading monthly on the changes was the worst of the five frequencies we tested","Educational, not investment advice"]},
+       cLabel:"⚠️ Honest notes",caveats:["Weights come from an expert survey (AHP) with one consistent respondent, so they are a pilot result, not a consensus","Backtested point-in-time: the default (balanced) picks trail buying the whole list, and the rank does not predict next month. An apparent edge for aggressive failed a sealed test on 1999–2014 prices","Three of the four factors come from price; ROE is the one read from company accounts","Every test assumed holding 6–12 months. Trading monthly on the changes was the worst of the five frequencies we tested","Educational, not investment advice"]},
      quiz:[
       ["A stock you own drops 20% in a month, you:",[["Buy more",2],["Hold",1],["Sell some",0],["Sell all",-1]]],
       ["When do you need this money:",[["Within 1 yr",-1],["1–5 yrs",1],["5+ yrs",2]]],
@@ -267,7 +267,7 @@
   function weightsStr(){
     const w=DATA&&DATA.profile_weights&&DATA.profile_weights[risk?PMAP[risk.key]:'balanced'];
     if(!w) return tr().method.weights;
-    return Object.entries(w).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${FLABEL[lang][k]} ${Math.round(v*100)}%`).join(' · ');
+    return Object.entries(w).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${FLABEL[lang][k]} ${(Math.round(v*1000)/10).toFixed(1)}%`).join(' · ');
   }
 
   function populateSectors(){

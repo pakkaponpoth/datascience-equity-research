@@ -2,7 +2,7 @@
 
 **Course:** Data Science (01526125) — Term Project
 **Team (8):** Paphangkorn Onrueang · Pakkapon [—] · [6 more members & IDs — roles in `docs/Team-Map.md`]
-**Draft:** v2, 7 November 2026 (v1: 1 September 2026)
+**Draft:** v3, 7 November 2026 — AHP weights adopted (v2: 7 Nov; v1: 1 Sep 2026)
 **Live system:** https://oksoimcodingnow.github.io/atlas/setscout/
 **Code:** `atlas/setscout/` — every number below regenerates from the scripts named beside it.
 
@@ -20,7 +20,7 @@ The answer is no, and establishing that carefully is the contribution.
 Across 83 months of point-in-time backtesting, a stock's score has **no
 relationship to whether it rises**: the measured up-rate is flat at roughly
 47% across all ten score deciles. Buying the top 20% and holding trails simply
-buying everything, and beats at most **2%** of randomly-selected portfolios. When one
+buying everything, and beats at most **4%** of randomly-selected portfolios. When one
 weighting appeared to beat the market after roughly fifteen exploratory tests,
 we pre-registered a single blind test on a period we had never examined; it
 failed the pass mark we had written down in advance. Investigating the
@@ -30,9 +30,10 @@ quantify and correct here.
 
 The system's value is therefore not prediction but **honest discovery**: a
 shortlist with transparent scoring, quantified risk, and a plain account of
-what was measured rather than what we hoped. A pilot expert survey (AHP)
-agreed with the team's weights on direction and left the shortlist largely
-unchanged (Section 9).
+what was measured rather than what we hoped. The factor weights come from an
+expert survey (AHP); one expert passed the consistency test, so they are a pilot,
+not a consensus, and every result above holds with both them and the earlier
+team-set weights (Section 9).
 
 ---
 
@@ -157,53 +158,56 @@ maps the user to one.
 
 | Profile | Momentum | ROE | Quality | Health |
 |---|---|---|---|---|
-| Conservative | 6% | 6% | **50%** | **38%** |
-| Balanced | 26% | 16% | 37% | 21% |
-| Aggressive | **47%** | **35%** | 12% | 6% |
+| Conservative | 5.5% | 11.8% | 26.2% | **56.5%** |
+| Balanced | 9.6% | 20.9% | 20.9% | **48.7%** |
+| Aggressive | **56.0%** | 24.9% | 9.6% | 9.6% |
 
 The composite is converted to a **percentile rank**, so a displayed score of 80
 means "top 20% of this list," not an absolute grade. Verdicts threshold that
 rank: top 20% → *Worth a look*, 45th–80th → *Wait*, below 45th → *Not now*.
 
-**These weights were set by the team, not measured.** Nobody has measured that
-quality should be 40% rather than 35% for a cautious investor. A pilot AHP
-survey (Section 9) had one consistent expert, who agreed on direction and
-kept 8 of each profile's top 10; with fewer than three consistent experts the
-team weights stay in the engine.
+**These weights come from the AHP expert survey (Section 9).** They are the
+principal-eigenvector weights of Expert E01, the one respondent who passed the
+consistency test, and they replaced the team's own weights on 7 November 2026.
+One expert is a pilot, not a consensus: the weights are elicited rather than
+invented, but they rest on a single person's judgement.
+
+> **Until 7 Nov 2026 the engine used weights the team set:** conservative
+> quality 50% / health 38% / momentum 6% / ROE 6%; balanced quality 37% /
+> momentum 26% / health 21% / ROE 16%; aggressive momentum 47% / ROE 35% /
+> quality 12% / health 6%. Section 9 compares the two sets.
 
 ### 3.4 What re-weighting actually does
 
 Taking PTT on 1 September 2026, z-scored across all 95 stocks:
 
 ```
-momentum −0.19   roe −0.25   quality +1.40   health +1.62
+momentum −0.03   roe −0.25   quality +1.41   health +1.62
 ```
 
 | Profile | Weighted total | Rank of 95 |
 |---|---|---|
-| Conservative | +1.29 | **#4** |
-| Balanced | +0.77 | #7 |
-| Aggressive | +0.09 | #40 |
+| Conservative | +1.25 | **#4** |
+| Balanced | +1.03 | #5 |
+| Aggressive | +0.21 | #26 |
 
-> **Re-derived 2026-10-04, after the momentum window was corrected to a true 126 trading days**
-> (the code had looked back 125; with the old window the ranks were #4, #6 and #43, and GUNKUL's
-> were #53, #14 and #2). The sector step was removed on 21 Sep (Section 3.2). Produced by
-> `engine/rederive_section34.py`, which reproduces `run_today.py`'s pipeline exactly
-> (126/252-day windows, ≥130 days of history, winsorised z-scores across all 95) on prices
-> truncated at 1 Sep 2026 — 95 of 95 stocks scored. The weighted totals follow from the
-> z-scores and weights on this page to within 0.01 of rounding, so they are checkable by
-> hand. With the sector step, PTT was compared with the other energy stocks and ranked
-> #2, #3 and #47. Under the
-> **old model, before `value` was removed on 9 Sep,** these ranks were #1, #1 and #71: balanced agreed with conservative,
-> which is exactly what the value/momentum cancellation produced. With four price factors they were
-> #1, #5 and #77. Replacing growth with ROE moves PTT up under the aggressive weights (#77 → #47),
-> because its 12-month price change was poor while its return on equity is ordinary rather than bad —
-> a concrete example of the two factors asking different questions. The z-scores differ in the second
-> decimal from earlier write-ups because prices are dividend-adjusted and shift slightly on re-download.
+> **Re-derived 2026-11-07 with the AHP weights** by `engine/rederive_section34.py`, which
+> reproduces `run_today.py`'s pipeline exactly (126/252-day windows, ≥130 days of history,
+> winsorised z-scores across all 95) on prices truncated at 1 Sep 2026 — 95 of 95 stocks
+> scored. The weighted totals follow from the z-scores and the weights in Section 3.3 to
+> within 0.01 of rounding, so they are checkable by hand. Yahoo's adjusted prices changed
+> between downloads: PTT's momentum z-score was −0.19 on 4 Oct and is −0.03 now.
+> **History:** with the team weights (4 Oct download) PTT ranked #4, #7 and #40, and GUNKUL
+> #53, #13 and #2. With the sector step (before 21 Sep) PTT ranked #2, #3 and #47. Under the
+> **old model, before `value` was removed on 9 Sep,** these ranks were #1, #1 and #71: balanced
+> agreed with conservative, which is exactly what the value/momentum cancellation produced.
+> With four price factors they were #1, #5 and #77; replacing growth with ROE moved PTT up
+> under the aggressive weights (#77 → #47), because its 12-month price change was poor while
+> its return on equity is ordinary rather than bad.
 
-The same stock, the same day, ranks **4th or 40th** depending only on the weights.
-GUNKUL — strong momentum (+2.85) but volatile — runs the other way:
-**#53 under conservative, #13 under balanced, #2 under aggressive.**
+The same stock, the same day, ranks **4th or 26th** depending only on the weights.
+GUNKUL — strong momentum (+2.71) but volatile — runs the other way:
+**#37 under conservative, #29 under balanced, #2 under aggressive.**
 
 This makes the system's nature explicit: **it holds no view on which stocks will
 rise.** It has one opinion, about which *kind* of stock suits a given investor,
@@ -416,23 +420,29 @@ Any strategy looks good in a rising market; the luck bar asks whether it beat
 
 ### 5.1 Does the score predict direction? — `backtest.py`
 
-For every stock in every month across 83 complete months (Sep 2019 – Aug 2026;
-7,319 stock-months, 696–783 per decile), we recorded its score and whether it rose
+For every stock in every month across 83 complete months (Nov 2019 – Oct 2026;
+7,347 stock-months, 699–786 per decile), we recorded its score and whether it rose
 the following month.
 Scores here use the **balanced** weights, which `backtest.py` hard-codes.
 
 | Score decile | 0–10 | 10–20 | 20–30 | 30–40 | 40–50 | 50–60 | 60–70 | 70–80 | 80–90 | **90–100** |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Up-rate | 47.7% | 50.0% | 49.2% | 48.1% | 47.4% | **43.1%** | 45.0% | 48.5% | 46.0% | 48.5% |
+| Up-rate | 47.1% | 48.3% | 48.1% | **49.5%** | 46.0% | **44.5%** | **44.5%** | 49.0% | 46.0% | 48.5% |
 
-**Flat.** Every decile sits between 43.1% and 50.0% around a base rate of 47.4%.
+**Flat.** Every decile sits between 44.5% and 49.5% around a base rate of 47.2%.
 A Cochran–Armitage test for a trend from low to high scores finds none
-(z = −1.09, p = 0.28). As a group the deciles are not distinguishable either
-(χ² = 11.7, df = 9, below the 16.92 critical value), and the ordering is
-meaningless — the lowest up-rate is in the middle (50–60), and the top decile
-ties the 70–80 one.
+(z = −0.43, p = 0.66). As a group the deciles are not distinguishable either
+(χ² = 8.8, df = 9, below the 16.92 critical value), and the ordering is
+meaningless — the highest up-rate is in the 30–40 decile, the lowest in the
+middle (50–70), and the top decile (48.5%) is barely above the bottom one (47.1%).
 Both statistics are computed inside `backtest.py` rather than typed here, so
 they cannot drift the next time the engine changes.
+
+> **Re-measured 7 Nov 2026 with the AHP weights (Section 9).** The same script
+> with the old team weights, on the same download, gave a base rate of 47.2%,
+> z = −1.05, p = 0.29 and χ² = 13.0 — the same verdict. The window moved forward
+> two months (Sep 2019 – Aug 2026 before), because the script drops the
+> unfinished month and looks back about eight years.
 
 > **Re-measured 21 Sep 2026**, after sector neutralisation was removed (Section 3.2). The
 > engine before that gave the same base rate, 47.4%, with z = −1.04, p = 0.30 and
@@ -472,15 +482,16 @@ return, computed per month and averaged.
 | | |
 |---|---|
 | Months measured | 83 |
-| Mean information coefficient | **+0.0050** |
-| t-statistic | **+0.20** |
-| Months with a positive IC | 41 of 83 (49%) |
-| Month-to-month standard deviation | 0.233 |
+| Mean information coefficient | **+0.0128** |
+| t-statistic | **+0.54** |
+| Months with a positive IC | 49 of 83 (59%) |
+| Month-to-month standard deviation | 0.215 |
 
-A useful equity signal runs an IC of roughly **0.03 to 0.05**. Ours is an order
-of magnitude below that, indistinguishable from zero, and positive in fewer
-than half of months — the same result a coin flip would give. (Before the sector
-step was removed on 21 Sep: +0.0055, t = +0.28, 43 of 83 months — no different.) `backtest.py` computes
+A useful equity signal runs an IC of roughly **0.03 to 0.05**. Ours is less than
+half the bottom of that range and indistinguishable from zero (t = +0.54). (With
+the old team weights on the same data: +0.0080, t = +0.32, 42 of 83 months. Before
+the sector step was removed on 21 Sep: +0.0055, t = +0.28, 43 of 83 months — no
+different.) `backtest.py` computes
 this, so the figure cannot drift out of step with the engine.
 
 **Why this matters for the product.** The site displays a stock's rank among the
@@ -495,12 +506,18 @@ churning monthly.
 
 | Horizon | Picks | Buy & hold | Luck bar |
 |---|---|---|---|
-| 6 months | +2.4% | +3.9% | **1%** |
-| 12 months | +5.9% | +8.8% | **2%** |
+| 6 months | +3.7% | +4.9% | **4%** |
+| 12 months | +7.7% | +9.8% | **3%** |
 
-The picks trail, and beat at most **2%** of 300 random portfolios. Monthly
-rotation (`backtest.py`) performs similarly: +24.7% against +46.8% for
-buy-and-hold, a 17% luck bar.
+The picks trail, and beat at most **4%** of 300 random portfolios. Monthly
+rotation (`backtest.py`) performs similarly: +15.7% against +44.0% for
+buy-and-hold, a 13% luck bar.
+
+> **Re-measured 7 Nov 2026 with the AHP weights.** The old team weights on the
+> same download gave +3.4% and +7.4% (luck bars 1% and 2%), and +22.7% monthly
+> with a 22% luck bar. The two weight sets give the same verdict: the picks trail
+> buy-and-hold and sit inside luck. On 21 Sep (team weights, data to Aug 2026) the
+> figures were +2.4% / +5.9% against +3.9% / +8.8%.
 
 > **Re-measured 21 Sep 2026, after the sector step was removed (Section 3.2).**
 > The picks now trail by less: the engine before gave +0.8% and +2.8%, luck bars
@@ -653,9 +670,16 @@ the blind test was built to catch.
 
 **The bias is not neutral between profiles.** Survivorship selects for companies
 that did not fail — which is exactly what the quality and health factors reward.
-Conservative places 70% of its weight on those two, balanced 44%, aggressive
-15%. A survivors-only sample structurally flatters the profiles that scored
-best. Their apparent success is plausibly an artifact we cannot rule out.
+In the frozen model the test ran on, conservative places 70% of its weight on
+those two, balanced 44%, aggressive 15%. A survivors-only sample structurally
+flatters the profiles that scored best. Their apparent success is plausibly an
+artifact we cannot rule out.
+
+**The live AHP weights have no sealed test.** Both one-shots test the frozen
+31 August model by design and cannot be re-run without becoming the data snooping
+they exist to prevent. The AHP weights tilt further toward the calm-survivor
+factors (83%, 70% and 19% of weight on quality and health), so the bias above
+would flatter them more, not less.
 
 ---
 
@@ -730,27 +754,23 @@ earnings" for a factor that only ever looked at price volatility.
 look back 252 days, so a company that survived every crisis since 2008 but had
 one poor year scores below one that listed in 2024 and had a quiet ride.
 
-**Balanced still leans toward conservative.** Under the original five-factor model
-the two were barely distinguishable — top-10 overlap 8/10, top-20 19/20, an
-identical top five — because value and momentum cancelled. Removing value fixed
-the worst of it. Measured on the four-factor engine at 1 Sep 2026, balanced shares
-7/10 of its top 10 and 13/20 of its top 20 with conservative, against 3/10 and 9/20
-with aggressive; conservative and aggressive share none of their top 10. Balanced
-now has its own top five (3 of 5 shared), but it sits nearer the cautious end
-because quality carries its largest weight (.37). Whether that is the right middle
-is what the AHP survey was meant to decide; its one consistent expert would tilt
-balanced toward health (drawdown) rather than quality (Section 9). Removing the sector step on 21 Sep
-pulled them closer again: on today's prices balanced shares 9 of its top 10 and
-**18 of its top 20** with conservative (15 of 20 with the step), because both now
-draw on the same banks.
+**Balanced now sits almost on top of conservative.** Under the original
+five-factor model the two were barely distinguishable — top-10 overlap 8/10,
+top-20 19/20 — because value and momentum cancelled; removing value fixed the worst
+of it. The AHP weights bring it back: the expert puts health first in both profiles
+(0.565 and 0.487), so on 7 Nov 2026 balanced shares **9 of its top 10 and 18 of its
+top 20** with conservative, against 1 of 10 and 6 of 20 with aggressive. Six of the
+seven banks sit in both top 20s. In practice the product offers two distinct lists,
+cautious and aggressive, plus a balanced list that is a near-copy of the cautious
+one. A larger panel might separate them; with one expert we report it as found.
 
 **Survivorship bias is unfixable with our data**, as quantified above.
 
 **"Buy and hold" means two slightly different things in two scripts.**
 `backtest_hold.py` averages each stock's own 12-month return (a true
-buy-and-hold basket: +8.8% on 21 Sep). `backtest_profiles.py` compounds the
+buy-and-hold basket: +9.8% on 7 Nov). `backtest_profiles.py` compounds the
 average monthly return of all stocks, an equal-weight basket rebalanced every
-month (+7.5%). Each script compares its picks with its own benchmark, so every
+month (+8.6%). Each script compares its picks with its own benchmark, so every
 "vs B&H" column is internally fair, but the two benchmark levels should not be
 quoted side by side.
 
@@ -760,7 +780,7 @@ nominal count.
 
 **Only the balanced profile was calibrated.** `backtest.py` and
 `backtest_hold.py` hard-code the balanced weights, so the flat ~47% up-rate and
-the 1–2% luck bars are measured for *balanced* specifically. The three-profile
+the 3–4% luck bars are measured for *balanced* specifically. The three-profile
 comparisons (`backtest_profiles.py`, `backtest_costs.py`, `backtest_long.py`,
 `blind_test.py`) do cover all three. We expect the calibration result to hold
 across profiles — they share identical factors and the same percentile
@@ -768,13 +788,14 @@ transform — but we have not measured it, and it should not be presented as
 though we had. Extending calibration to all three is straightforward future
 work.
 
-**The weights rest on one expert.** See below.
+**The weights rest on one expert.** The AHP survey had two respondents and one
+passed the consistency test; Section 9 sets out what that does and does not support.
 
 ---
 
-## 9. Expert weights: the AHP pilot, and what remains
+## 9. Expert weights: the AHP survey the engine now uses
 
-### 9.1 Pilot result (survey sent 21 Sep 2026, closed 6 Nov 2026)
+### 9.1 Result (survey sent 21 Sep 2026, closed 6 Nov 2026; adopted 7 Nov 2026)
 
 Two experts answered the 18 comparisons (six pairs per profile, Saaty 1–9).
 The analysis, the raw judgments and the Excel workbook are in
@@ -791,18 +812,47 @@ answered 7 ("very strongly more important") on all 18 questions, with the same
 winner in every profile: CR 0.379, so E02 is excluded. `research/ahp_analyze.py`
 (normalised row geometric mean) gives the same weights to within 0.4 points.
 
-That leaves one consistent respondent per profile, below the three the
-small-panel rule requires before elicited weights replace the team's
-(`MIN_KEPT = 3`, fixed on 3 Oct before any answer was analysed). **The engine
-keeps the team weights.**
+That leaves one consistent respondent per profile, below the three that the
+small-panel rule asked for before elicited weights replace the team's
+(`MIN_KEPT = 3`, fixed on 3 Oct before any answer was analysed). **On 7 November
+2026 the team adopted E01's weights in the engine anyway.** We state the
+trade-off plainly: elicited weights from one consistent expert replace weights
+nobody elicited at all, but one person's judgement is a pilot, not a consensus,
+and the rule we wrote down in advance was set aside to do it.
 
-What the expert would change: the direction matches the team (momentum leads
-for aggressive, the two risk factors for conservative), but E01 puts far more
+What changed: the direction matches the old team weights (momentum leads for
+aggressive, the two risk factors for conservative), but E01 puts far more
 weight on health (drawdown) than on quality (volatility), most visibly in
-balanced (0.487 against the team's 0.21). Re-ranking all 95 stocks scored on
-6 November 2026 with E01's weights keeps **8 of each profile's top 10** and 19,
-18 and 17 of the conservative, balanced and aggressive top 20s. The shortlist
-is robust to this expert's view; one respondent is a pilot, not a consensus.
+balanced (0.487 against the team's 0.21). On the 95 stocks scored on
+7 November 2026 (closes of 6 November), the AHP weights keep **8 of each
+profile's top 10** that the team weights gave, and 18, 17 and 17 of the
+conservative, balanced and aggressive top 20s.
+
+Every rerunnable test was re-measured with the AHP weights on 7 November 2026
+(Sections 5.1–5.2 and the profile, cost and long-horizon reports). Each was also
+re-run with the old team weights on the same download, so the comparison is
+like for like:
+
+| Test (7 Nov 2026, same download) | Team weights | AHP weights |
+|---|---|---|
+| Score vs next-month direction, balanced (trend p) | p = 0.29 | p = 0.66 |
+| Information coefficient, balanced | +0.0080 (t = +0.32) | +0.0128 (t = +0.54) |
+| Top 20% held 12 months vs +9.8%, balanced (luck bar) | +7.4% (2%) | +7.7% (3%) |
+| Monthly rotation vs +44.0%, balanced (luck bar) | +22.7% (22%) | +15.7% (13%) |
+| 12-month hold vs +8.6%, conservative (luck bar) | +6.6% (2%) | +7.1% (6%) |
+| 12-month hold vs +8.6%, balanced (luck bar) | +7.2% (8%) | +7.5% (11%) |
+| 12-month hold vs +8.6%, aggressive (luck bar) | +11.1% (100%) | +12.9% (100%) |
+
+Nothing in the verdict changes. The score still does not predict direction, and
+the balanced picks still trail buy-and-hold inside the luck bar. Aggressive is
+again ahead on this window, by more than before; it is the same survivor-only
+decade examined about fifteen times, on which the sealed test (Section 6) already
+refused that result. The expert gave the weights without seeing any backtest, so
+they were not tuned to it, but that does not make the window clean. The figure is
+listed in Appendix B.
+
+The two sealed one-shots were **not** re-run (Section 6): they test the frozen
+31 August model by design, so the AHP weights have no out-of-sample test.
 
 The survey form's answers name the ROE factor "Growth", and PR #10 maps it to ROE. <!-- facts-lint: ignore -->
 The questionnaire in `research/expert-ahp.md` switched that factor from the
@@ -888,6 +938,8 @@ Included so no team member cites them by accident.
 | Full-window cumulative (+16,707%) and CAGR +22–25% | 25 years compounding on survivors only |
 | Aggressive +164% net over 10 years | Same survivorship problem, same contaminated decade |
 | Aggressive +8.8% vs +7.0%, 96% luck bar | Data-snooped; cite only as "where the hypothesis came from" |
+| Aggressive +10.1% vs +7.5% (team weights, 21 Sep) and +12.9% vs +8.6% (AHP weights, 7 Nov), 100% luck bar | The same contaminated 2016–2026 window; the sealed test refused this result |
+| Aggressive +205% gross over 10 years (AHP weights, `backtest_costs.py`) | Survivor-only sample, contaminated decade |
 
 **Safe to quote:** the calibration table, blind-test luck bars and verdicts, the
 bias-decay table, and the profile-separation example. Each is either a null

@@ -60,10 +60,33 @@ FACTORS = ["momentum", "roe", "quality", "health"]
 #
 # ROE correlates -0.04 with momentum, +0.11 with quality and +0.04 with health,
 # so it passed the independence screen (trial 79) that "value" failed.
+#
+# WEIGHTS COME FROM THE AHP SURVEY SINCE 2026-11-07 (a team decision).
+# They are Expert 1's principal-eigenvector weights from PR #10,
+# research/ahp-factor-weights/results/factor_weights.csv (the survey form calls
+# ROE "Growth"). Expert 1 passed the consistency test in every profile
+# (CR 0.043 / 0.057 / 0.016). Expert 2 answered 7 on all 18 questions
+# (CR 0.379) and is excluded. One consistent expert is below the three that
+# MIN_KEPT in research/ahp_analyze.py asked for; the team adopted the weights
+# anyway, and docs/REPORT.md section 9 says so.
+#
+# The team-set weights they replace (16 Sep - 7 Nov 2026):
+#   conservative  quality .50  health .38  momentum .06  roe .06
+#   balanced      quality .37  momentum .26  health .21  roe .16
+#   aggressive    momentum .47  roe .35  quality .12  health .06
+#
+# The 4-decimal values below are copied from PR #10's CSV as published. Their
+# rounding leaves aggressive summing to 1.0001, so each profile is rescaled to
+# sum to exactly 1; that moves no weight by more than 0.0001.
+def _rescaled(w):
+    total = sum(w.values())
+    return {k: v / total for k, v in w.items()}
+
+
 PROFILES = {
-    "conservative": {"quality": .50, "health": .38, "momentum": .06, "roe": .06},
-    "balanced":     {"quality": .37, "momentum": .26, "health": .21, "roe": .16},
-    "aggressive":   {"momentum": .47, "roe": .35, "quality": .12, "health": .06},
+    "conservative": _rescaled({"health": .5650, "quality": .2622, "roe": .1175, "momentum": .0553}),
+    "balanced":     _rescaled({"health": .4874, "quality": .2085, "roe": .2085, "momentum": .0956}),
+    "aggressive":   _rescaled({"momentum": .5596, "roe": .2495, "quality": .0955, "health": .0955}),
 }
 
 # ------------------------------------------------------ normalisation

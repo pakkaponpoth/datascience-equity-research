@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-11-07 (later) — the engine uses the AHP weights
+
+| Change | Why |
+|---|---|
+| **`factors.PROFILES` = Expert 1's AHP weights** (PR #10 eigenvector, `results/factor_weights.csv`), each profile rescaled to sum to exactly 1. The team weights are kept in a comment. | Team decision, 7 Nov: weights from the expert survey only. E01 is the one consistent respondent (CR 0.016–0.057); E02 is excluded (CR 0.379). This sets aside `MIN_KEPT = 3`, and REPORT §9.1 says so. |
+| **Backtests re-run with both weight sets on one download**: `backtest`, `backtest_hold`, `backtest_profiles`, `backtest_costs`, `backtest_long`, `rederive_section34`. `reports/` now holds the AHP runs. | So the weight change is not confused with two extra months of data. Verdicts unchanged: decile trend p = 0.66 (team 0.29); 12-month hold +7.7% vs +9.8%, luck bar 3% (team +7.4%, 2%). Aggressive +12.9% vs +8.6% at a 100% luck bar is the contaminated decade and goes on the never-quote list. |
+| **Not re-run:** `blind_test.py`, `backtest_sizing.py`. | Sealed one-shots on the frozen 31 Aug model. The AHP weights therefore have no out-of-sample test; REPORT §6.4 says so. |
+| **Pages:** weights shown to one decimal (whole percents summed to 101%); fallback weights, honest notes, Terms, the findings table and p-value on "How it works" updated. | They described the team weights and the 21 Sep runs. |
+| **REPORT v3:** §3.3 weights table, §3.4 PTT/GUNKUL re-derived, §5.1–5.2, §6.4, §8 (balanced ≈ conservative), §9.1 comparison table, Appendix B. | Same facts in every place. |
+
 ## 2026-11-07 — final audit: honest reasons, price date, current pages, AHP pilot written up
 
 | Change | Why |
