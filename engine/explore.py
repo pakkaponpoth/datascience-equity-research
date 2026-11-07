@@ -166,15 +166,16 @@ def main():
 
     args = sys.argv[1:]
     if args and args[0] == "--years":
-        print("\nOne row per starting year. 'avg 12mo' is the misleading number;")
-        print("'index' is what the Thai market actually did that year.\n")
+        print("\nOne row per calendar year. 'buy&hold' is the equal-weight basket held")
+        print("through that year; gap = buy&hold - REALindex. 'balanced' and 'aggr' are")
+        print("averages of 12-month holds starting that year.\n")
         print(f"{'year':<7}{'stocks':>7}{'balanced':>10}{'aggr':>8}"
               f"{'buy&hold':>10}{'REALindex':>11}{'gap':>8}")
         for y in range(1999, 2025):
             r = period(mpx, rets, meta, idx, y, y, quiet=True)
             if r:
                 print(f"{y:<7}{r['n']:>7}{r['balanced']*100:>9.0f}%{r['aggressive']*100:>7.0f}%"
-                      f"{r['bench_avg']*100:>9.0f}%{r['idx']*100:>10.0f}%{r['gap']:>+8.0f}")
+                      f"{r['bench_comp']*100:>9.0f}%{r['idx']*100:>10.0f}%{r['gap']:>+8.0f}")
         return
 
     if len(args) == 2:

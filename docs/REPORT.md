@@ -665,15 +665,25 @@ we cannot separate without market-cap history.
 
 The most persuasive evidence is that the gap **shrinks as the problem shrinks**:
 
-| Year | Stocks existing | Our buy & hold | Real SET index | Gap |
+| Year | Stocks existing | Our basket, held through the year | Real SET index | Gap |
 |---|---|---|---|---|
-| 2001 | 37 of 95 | +97% | −9% | **+53** |
-| 2002 | 38 of 95 | +59% | +5% | **+77** |
-| 2006 | 48 of 95 | +54% | −12% | **+70** |
-| 2013 | 55 of 95 | +13% | −13% | +20 |
-| 2018 | 77 of 95 | +2% | −16% | **+3** |
-| 2022 | 87 of 95 | −2% | +1% | **+5** |
-| 2023 | 89 of 95 | −8% | −17% | **+6** |
+| 2001 | 37 of 95 | +44% | −9% | **+53** |
+| 2002 | 38 of 95 | +82% | +5% | **+77** |
+| 2006 | 48 of 95 | +58% | −12% | **+70** |
+| 2013 | 55 of 95 | +7% | −13% | +20 |
+| 2018 | 77 of 95 | −13% | −16% | **+3** |
+| 2022 | 87 of 95 | +6% | +1% | **+5** |
+| 2023 | 89 of 95 | −10% | −17% | **+6** |
+
+*How the columns relate.* Each row is one calendar year. The basket is the
+equal-weight basket of the stocks that existed, compounded month by month through
+that year; the gap is that basket minus the index, so basket = index + gap
+(±1 point from rounding). An earlier version of this table showed, in the basket
+column, the average of the 12-month returns starting in that year — the
+overlapping-window average Error 1 above warns against — so its columns did not
+subtract to the gap. The gap figures were always the compounded ones and are
+unchanged. The basket column was re-measured on 8 November 2026 with
+`explore.py --years` and matches index + gap within one point in every row.
 
 When only ~40% of the list existed, gaps run +53 to +77 points. When ~92%
 exists, +3 to +6. The bias is not an assumption but a measurement that decays
