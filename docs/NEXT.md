@@ -10,7 +10,7 @@ Five findings, all measured, all reproducible:
 1. **`p_win` was invented** — `0.44 + 0.22 × score`, shown as "Hit rate 66%". Measured up-rate is **flat ~47%**, with no trend from low to high scores (p = 0.53). *(first replaced with the measured figure, then removed from the product entirely on 16 Sep — a number identical for every stock does not belong next to one stock's name)*
 2. **`value` was momentum negated** — correlation **−0.93**, beta **−1.00**. "Balanced" was conservative in disguise: 8/10 shared names, 0.07 on a 0→1 scale. Now 6/10 and **0.44**. *(fixed)*
 3. **Nothing beats buy-and-hold** — not raw, not risk-adjusted (`ret/vol` 0.04–0.06 vs B&H 0.06), not at any of five rebalancing frequencies.
-4. **The score doesn't predict direction** — decile up-rates all between 44.5% and 49.5% (p = 0.66). Flat. *(re-measured 7 Nov with the AHP weights; team weights on the same data: p = 0.29)*
+4. **The score doesn't order returns** — information coefficient +0.013 (t = 0.54), statistically zero; a useful signal runs 0.03–0.05. *(re-measured 7 Nov with the AHP weights; team weights on the same data: +0.008, t = 0.32)*
 5. **Conservative won 2 of 11 years**, both falling markets. Best: 2018, **+1.7% while the market fell 13.3%**. Missed the 2020 recovery by 29 points.
 
 *(Findings 3 and 5 were measured before 21 Sep, on the engine with the sector step, and have not been re-run.)*

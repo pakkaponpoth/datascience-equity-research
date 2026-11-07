@@ -18,8 +18,8 @@ student projects skip: **does it actually work?**
 The answer is no, and establishing that carefully is the contribution.
 
 Across 83 months of point-in-time backtesting, a stock's score has **no
-relationship to whether it rises**: the measured up-rate is flat at roughly
-47% across all ten score deciles. Buying the top 20% and holding trails simply
+relationship to its next-month return**: the information coefficient is
++0.013 (t = 0.54), statistically zero. Buying the top 20% and holding trails simply
 buying everything, and beats at most **4%** of randomly-selected portfolios. When one
 weighting appeared to beat the market after roughly fifteen exploratory tests,
 we pre-registered a single blind test on a period we had never examined; it
@@ -418,66 +418,14 @@ portfolios of the same size that our picks beat. This is the critical control.
 Any strategy looks good in a rising market; the luck bar asks whether it beat
 *random picking in that same market*.
 
-### 5.1 Does the score predict direction? — `backtest.py`
+### 5.1 Does the score order returns? — `backtest.py`
 
-For every stock in every month across 83 complete months (Nov 2019 – Oct 2026;
-7,347 stock-months, 699–786 per decile), we recorded its score and whether it rose
-the following month.
-Scores here use the **balanced** weights, which `backtest.py` hard-codes.
-
-| Score decile | 0–10 | 10–20 | 20–30 | 30–40 | 40–50 | 50–60 | 60–70 | 70–80 | 80–90 | **90–100** |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Up-rate | 47.1% | 48.3% | 48.1% | **49.5%** | 46.0% | **44.5%** | **44.5%** | 49.0% | 46.0% | 48.5% |
-
-**Flat.** Every decile sits between 44.5% and 49.5% around a base rate of 47.2%.
-A Cochran–Armitage test for a trend from low to high scores finds none
-(z = −0.43, p = 0.66). As a group the deciles are not distinguishable either
-(χ² = 8.8, df = 9, below the 16.92 critical value), and the ordering is
-meaningless — the highest up-rate is in the 30–40 decile, the lowest in the
-middle (50–70), and the top decile (48.5%) is barely above the bottom one (47.1%).
-Both statistics are computed inside `backtest.py` rather than typed here, so
-they cannot drift the next time the engine changes.
-
-> **Re-measured 7 Nov 2026 with the AHP weights (Section 9).** The same script
-> with the old team weights, on the same download, gave a base rate of 47.2%,
-> z = −1.05, p = 0.29 and χ² = 13.0 — the same verdict. The window moved forward
-> two months (Sep 2019 – Aug 2026 before), because the script drops the
-> unfinished month and looks back about eight years.
-
-> **Re-measured 21 Sep 2026**, after sector neutralisation was removed (Section 3.2). The
-> engine before that gave the same base rate, 47.4%, with z = −1.04, p = 0.30 and
-> χ² = 7.7 — the same verdict.
-
-> **Re-measured 16 Sep 2026** on the engine with ROE in place of growth. The
-> four-factor price-only engine gave a base rate of 47.3% with z = −0.62,
-> p = 0.53 and χ² = 16.4 — the same verdict, and if anything the group test is
-> now *further* from significance.
-
-> **Re-measured 13 Sep 2026** on the four-factor engine. `backtest.py` now drops the
-> unfinished current month, so the result no longer depends on the day it is run.
-> The first measurement (31 Aug, five-factor model) had the top decile lowest at 44.2%;
-> that ordering was noise and did not survive re-measurement. The flat line did.
-
-A sub-50% base rate is normal, not a failure: monthly stock returns are
-right-skewed, so a stock is slightly more often down than up. **The finding is
-that the score does not move the number.**
-
-This result is now published inside the product by **subtraction**. Between
-31 August and 16 September 2026 the app showed the measured up-rate for each
-stock's score band instead of the figure it had previously invented; on
-16 September the figure was removed altogether. A number that is identical for
-every stock, rendered per stock next to that stock's name, invites precisely
-the reading the measurement rules out. The honest presentation of "the score
-does not predict direction" is not a better confidence figure - it is no
-confidence figure, and the finding stated in the report.
-
-#### 5.1.1 The same question from the ordering side — the information coefficient
-
-Section 5.1 asks about **direction**: did the stock go up. A score can order
-stocks correctly while getting the direction wrong, or the reverse, so the
-ordering deserves its own test. The standard one is the **information
-coefficient**: the rank correlation between this month's score and next month's
-return, computed per month and averaged.
+For every month across 83 complete months (Nov 2019 – Oct 2026; 7,347
+stock-months), we scored each stock and ranked it against its return the
+following month. The standard measure is the **information coefficient** (IC):
+the rank correlation between this month's score and next month's return,
+computed per month and averaged. Scores here use the **balanced** weights,
+which `backtest.py` hard-codes.
 
 | | |
 |---|---|
@@ -497,7 +445,12 @@ this, so the figure cannot drift out of step with the engine.
 **Why this matters for the product.** The site displays a stock's rank among the
 95. That is a description of where it sits on today's list, and the wording says
 so. It is not a forecast, and this measurement is why: the ordering carries no
-more information about next month than the direction does.
+information about next month.
+
+This result is also why the product shows **no hit rate**. Until 16 September
+2026 the app showed a per-stock "hit rate", first an invented formula and then a
+measured figure that came out the same for every stock. It was removed: a number
+shown next to one stock's name invites a forecast reading the tests rule out.
 
 ### 5.2 Does buying the top 20% beat buying everything? — `backtest_hold.py`
 
@@ -778,14 +731,14 @@ quoted side by side.
 across 14 years overlap heavily, so effective sample size is far below the
 nominal count.
 
-**Only the balanced profile was calibrated.** `backtest.py` and
-`backtest_hold.py` hard-code the balanced weights, so the flat ~47% up-rate and
+**Only the balanced profile was tested for ordering.** `backtest.py` and
+`backtest_hold.py` hard-code the balanced weights, so the near-zero IC and
 the 3–4% luck bars are measured for *balanced* specifically. The three-profile
 comparisons (`backtest_profiles.py`, `backtest_costs.py`, `backtest_long.py`,
-`blind_test.py`) do cover all three. We expect the calibration result to hold
+`blind_test.py`) do cover all three. We expect the null result to hold
 across profiles — they share identical factors and the same percentile
 transform — but we have not measured it, and it should not be presented as
-though we had. Extending calibration to all three is straightforward future
+though we had. Extending these tests to all three is straightforward future
 work.
 
 **The weights rest on one expert.** The AHP survey had two respondents and one
@@ -835,7 +788,6 @@ like for like:
 
 | Test (7 Nov 2026, same download) | Team weights | AHP weights |
 |---|---|---|
-| Score vs next-month direction, balanced (trend p) | p = 0.29 | p = 0.66 |
 | Information coefficient, balanced | +0.0080 (t = +0.32) | +0.0128 (t = +0.54) |
 | Top 20% held 12 months vs +9.8%, balanced (luck bar) | +7.4% (2%) | +7.7% (3%) |
 | Monthly rotation vs +44.0%, balanced (luck bar) | +22.7% (22%) | +15.7% (13%) |
@@ -843,7 +795,7 @@ like for like:
 | 12-month hold vs +8.6%, balanced (luck bar) | +7.2% (8%) | +7.5% (11%) |
 | 12-month hold vs +8.6%, aggressive (luck bar) | +11.1% (100%) | +12.9% (100%) |
 
-Nothing in the verdict changes. The score still does not predict direction, and
+Nothing in the verdict changes. The score still does not order next-month returns, and
 the balanced picks still trail buy-and-hold inside the luck bar. Aggressive is
 again ahead on this window, by more than before; it is the same survivor-only
 decade examined about fifteen times, on which the sealed test (Section 6) already
@@ -877,7 +829,7 @@ collected ourselves.
 ## 10. Verdict
 
 **SETScout does not beat buying the whole market, its score does not predict
-direction, and its risk-based sizing does not meaningfully reduce drawdown.**
+next-month returns, and its risk-based sizing does not meaningfully reduce drawdown.**
 Both halves of the product were tested against pass marks fixed in advance, and
 both fell short. We state this in the report, in the code, and in the product
 itself.
@@ -887,7 +839,7 @@ screener but a **demonstrated method for finding out**, comprising:
 
 1. Point-in-time evaluation with no look-ahead
 2. A luck bar controlling for random selection, not merely for the market
-3. Calibration measuring whether scores carry information at all
+3. An information-coefficient test of whether scores carry information at all
 4. A pre-registered blind test with the pass mark fixed in advance
 5. A second pre-registered test, of the risk sizing rather than the
    ranking, which also returned null
@@ -914,7 +866,7 @@ PY="C:\Users\HOME\.venvs\quant-project\Scripts\python.exe"
 
 $PY run_today.py        # refresh today.json (95 stocks x 3 profiles)
 $PY verify_today.py     # health check; exits 1 if the refresh is bad
-$PY backtest.py         # calibration + luck bar   -> reports/backtest.md
+$PY backtest.py         # IC + luck bar   -> reports/backtest.md
 $PY backtest_hold.py    # the fair hold test       -> reports/backtest_hold.md
 $PY backtest_profiles.py# three profiles compared  -> reports/backtest_profiles.md
 $PY backtest_costs.py   # after trading costs      -> reports/backtest_costs.md
@@ -941,7 +893,7 @@ Included so no team member cites them by accident.
 | Aggressive +10.1% vs +7.5% (team weights, 21 Sep) and +12.9% vs +8.6% (AHP weights, 7 Nov), 100% luck bar | The same contaminated 2016–2026 window; the sealed test refused this result |
 | Aggressive +205% gross over 10 years (AHP weights, `backtest_costs.py`) | Survivor-only sample, contaminated decade |
 
-**Safe to quote:** the calibration table, blind-test luck bars and verdicts, the
+**Safe to quote:** the information coefficient, blind-test luck bars and verdicts, the
 bias-decay table, and the profile-separation example. Each is either a null
 result or an internal comparison, so the bias does not distort it.
 
