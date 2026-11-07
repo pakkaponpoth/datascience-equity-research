@@ -242,7 +242,6 @@
   let theme = store.get('ss_theme')||'light';
   let risk = null; try{risk=JSON.parse(store.get('ss_risk'))}catch{}
   let filter='ALL', sector='ALL', DATA=null;
-  // months behind the measured up-rate - read from the data, so the label cannot go stale
   const tr=()=>T[lang];
 
   function applyTheme(){ document.documentElement.setAttribute('data-theme',theme); $('#themeBtn').textContent=theme==='light'?'🌙':'☀️'; }
