@@ -160,7 +160,7 @@ maps the user to one.
 |---|---|---|---|---|
 | Conservative | 5.5% | 11.8% | 26.2% | **56.5%** |
 | Balanced | 9.6% | 20.9% | 20.9% | **48.7%** |
-| Aggressive | **56.0%** | 24.9% | 9.6% | 9.6% |
+| Aggressive | **56.0%** | 24.9% | 9.5% | 9.5% |
 
 The composite is converted to a **percentile rank**, so a displayed score of 80
 means "top 20% of this list," not an absolute grade. Verdicts threshold that
