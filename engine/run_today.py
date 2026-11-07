@@ -23,7 +23,7 @@ including the honest caveat that roe did not improve returns.
 
 NO p_win / HIT RATE. The app used to show a confidence figure per stock. The
 measured up-rate turned out to be flat at ~47% across every score band
-(p = 0.53 for any trend), so the figure said the same thing about every stock
+(p = 0.28 for any trend, re-measured 21 Sep), so the figure said the same thing about every stock
 while looking like a per-stock forecast. It is not emitted at all rather than
 emitted and explained away. backtest.py still measures it - as a finding about
 the engine, in reports/, which is where a null result belongs.
@@ -36,7 +36,9 @@ Composite = weighted z-score; final score = its percentile across the market.
 PERSONALIZATION: the same factors are combined with THREE weight sets, one per
 risk profile, so the website's risk quiz can serve a matching list:
   conservative -> safety factors ·  balanced -> even ·  aggressive -> momentum.
-Factor WEIGHTS are placeholders until the AHP expert survey sets them.
+Factor WEIGHTS were set by the team. The AHP pilot (Sep-Nov 2026, one
+consistent expert) agreed on direction and kept 8 of the top 10 in every
+profile, so the team weights stay (docs/REPORT.md, section 9).
 """
 import json, os, sys
 import numpy as np, pandas as pd, yfinance as yf
@@ -59,6 +61,32 @@ def load_universe():
         print("WARNING: universe.json missing - falling back to today.json.\n"
               "         Any ticker that fails to fetch will be lost permanently.")
         return json.load(open(FILE, encoding="utf-8")), False
+
+
+def reasons(z, w, verdict):
+    """The two "because" chips: what actually moved this stock's score.
+
+    A factor is called a strength only if the stock is above the universe
+    average on it (z > 0) and a weakness only if below (z < 0). Among those,
+    the one that moved the weighted score most (weight x z) is named first.
+
+    Until 2026-11-07 the chips were the stock's highest and lowest raw z-scores,
+    ignoring both sign and weight. On the 6 Nov file that called 13-19 of 190
+    reasons the wrong way round (SINGER "high return on equity" at z = -0.94,
+    shown right above its below-average ROE), and 12 of 20 aggressive BUY cards
+    named a reason other than the two that put the stock in the top 20%.
+    Scores, ranks and verdicts are unchanged; only the explanation is.
+    """
+    contrib = {f: w[f] * z[f] for f in z}
+    pos = sorted((f for f in z if z[f] > 0), key=lambda f: contrib[f], reverse=True)
+    neg = sorted((f for f in z if z[f] < 0), key=lambda f: contrib[f])
+    if verdict == "BUY":
+        chips = [f + ":pos" for f in pos[:2]] or [f + ":neg" for f in neg[:1]]
+    else:
+        chips = [f + ":pos" for f in pos[:1]] + [f + ":neg" for f in neg[:1]]
+        if len(chips) < 2:                     # all above, or all below, average
+            chips = [f + ":pos" for f in pos[:2]] or [f + ":neg" for f in neg[:2]]
+    return chips
 
 
 def main():
@@ -112,10 +140,7 @@ def main():
             verdict = "BUY" if s01 >= 0.80 else "WAIT" if s01 >= 0.45 else "AVOID"
             risk = -int(round(min(max(1.645 * r["dvol"] * np.sqrt(21) * 100, 6), 35)))
             mw = round(float(min(0.40, max(0.08, 0.42 * (1 - abs(risk) / 32)))), 2)
-            zv = {f: r[f + "_z"] for f in FACTORS}
-            keys = sorted(zv, key=lambda k: zv[k], reverse=True)
-            because = [keys[0] + ":pos", keys[1] + ":pos"] if verdict == "BUY" \
-                else [keys[0] + ":pos", keys[-1] + ":neg"]
+            because = reasons({f: float(r[f + "_z"]) for f in FACTORS}, W, verdict)
             m = meta[t]
             out.append(dict(ticker=t, name=m["name"], name_th=m["name_th"],
                 sector=m["sector"], score=round(s01, 2), verdict=verdict,
@@ -128,7 +153,13 @@ def main():
         return out
 
     profiles = {name: build_list(W) for name, W in PROFILES.items()}
-    out = {"generated": str(pd.Timestamp.today().date()), "universe": uni["universe"],
+    # The date of the newest close in the download. It is not always the run
+    # date: runs that finished after midnight Thai time were handed the
+    # previous session's closes (11 of the runs between 12 Oct and 6 Nov).
+    # The site shows this date so a one-day lag is visible, not hidden.
+    prices_asof = str(px.index[-1].date())
+    out = {"generated": str(pd.Timestamp.today().date()), "prices_asof": prices_asof,
+           "universe": uni["universe"],
            "disclaimer": uni["disclaimer"],
            "universe_size": len(tickers), "scored": len(df),
            "roe_coverage": {"with_roe": int((~no_roe).sum()), "scored": int(len(df)),
@@ -148,7 +179,7 @@ def main():
         print(f"skipped {len(dropped)} ticker(s) this run (too little history or no data): "
               + ", ".join(t.replace('.BK', '') for t in dropped))
         print("  they stay in universe.json and will be retried tomorrow.")
-    print(f"wrote {len(df)} stocks x 3 profiles -> today.json")
+    print(f"wrote {len(df)} stocks x 3 profiles -> today.json (prices as of {prices_asof})")
     for name, lst in profiles.items():
         n = {v: sum(s["verdict"] == v for s in lst) for v in ("BUY", "WAIT", "AVOID")}
         top = ", ".join(s["ticker"].replace(".BK", "") for s in lst[:5])
