@@ -4,6 +4,32 @@
 
 ---
 
+## 2026-11-07 — final audit: honest reasons, price date, current pages, AHP pilot written up
+
+| Change | Why |
+|---|---|
+| **"Because" chips name what moved the score** (`run_today.reasons`): ranked by weight × z, a strength only if z > 0, a weakness only if z < 0. | The chips were the highest and lowest raw z-scores. On the 6 Nov file 13–19 of 190 reasons per profile were the wrong way round, and 12 of 20 aggressive BUY cards named a reason other than their two biggest drivers. SINGER read "high return on equity" beside an ROE of 1.4%. Scores, ranks and verdicts are unchanged. |
+| **`prices_asof` in `today.json`, shown in the page header.** | 11 runs between 12 Oct and 6 Nov finished after midnight Thai time and carried the previous session's closes under the run's date. |
+| **index.html**: AHP caveat updated; the 1999 backtest line made accurate; "2 years of prices" corrected; the size limit called a rule of thumb, with the sizing test's result. | The page still said "pending the AHP survey", and said the picks do not beat the market "back to 1999" when two profiles did in the sealed test (claimed by no one, but not "do not"). The cap is untested (REPORT §4, §5.3). |
+| **onboard.html**: 4 factors (said 5); ROE card (said Growth); "across all 95" (said within each sector); findings table re-read from `reports/backtest_profiles.md` (21 Sep); p = 0.28; AHP pill; system-map link that works on Firebase. | All were stale or wrong on the public "How it works" page; the facts lint does not scan for them. |
+| **legal.html**: ROE is from accounts (said "price alone"); removed the "past up-rate shown on each stock" (removed from the product 16 Sep); luck bar "at most 2%" (said 0%); weights note; hosting is Firebase with a Pages mirror. | Same. |
+| **atlas `refresh-setscout.yml`**: two off-the-hour runs (10:17 and 13:47 UTC) instead of one at 11:00; a step that keeps the published `today.json` when a late run gets older closes; pandas and numpy pinned (yfinance left free to follow Yahoo). | The 11:00 run was starting 3–9 hours late, and the job installed whatever library versions were newest rather than the ones the reports ran on. |
+| **index.html** reads and writes browser storage through one guarded helper. | A browser that blocks site storage made `localStorage` throw on the first line, which stopped the whole page from loading. |
+| **legal.html** privacy box describes the expert survey as it happened (invited experts, published as codes only). | It still called the survey "planned" and promised an update before collection. |
+| **REPORT.md** §8: the two "buy and hold" benchmarks (+8.8% true buy-and-hold in `backtest_hold.py`, +7.5% monthly-rebalanced in `backtest_profiles.py`) are named; the latter script's label now says what it is. | Same words, two different numbers. |
+| **REPORT.md** v2: §9.1 AHP pilot result; how the chips are chosen; a reproducibility note for §7.1 (`^SET.BK` now returns one row); abstract no longer says "price-based" or mentions a confidence figure. | The report described the AHP survey as outstanding work. |
+
+Untouched: factor weights, scoring, verdict thresholds, the cap formula, every backtest, and the sealed one-shots (not edited, not run).
+
+### Verify
+
+```
+cd engine && python run_today.py && python verify_today.py   # 95 of 95, "prices as of <date>"
+python tools/facts_lint.py                                    # docs and pages agree with the code
+```
+
+---
+
 ## 2026-10-04 — momentum looks back 126 trading days, as documented
 
 **สรุปสั้น ๆ** โค้ดคำนวณโมเมนตัมย้อนหลัง 125 วันทำการ แต่เอกสารและแบบสอบถามเขียนว่า 126 วัน จึงแก้โค้ดให้ตรงกับนิยาม อันดับเปลี่ยนเล็กน้อย และตัวเลขใน REPORT 3.4 ถูกคำนวณใหม่

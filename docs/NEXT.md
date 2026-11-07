@@ -36,7 +36,18 @@ Five findings, all measured, all reproducible:
 - **The questionnaire shows the real formulas** and how scores are z-scored (it also said sector-neutralised, until that step was dropped on 21 Sep). 45 questions per expert → **18**.
 - **Deleted**: `gen_today.js` (a fourth copy of the engine, stale weights, known-bad tickers), `firestore.rules.txt` (implied a database that doesn't exist).
 
-## ▶️ Do FIRST
+## ▶️ Do FIRST (updated 7 Nov — final presentation 10 Nov)
+
+1. **Merge PR #10** (the AHP analysis, raw judgments and workbook). REPORT §9 cites its folder.
+2. **Sync the site and engine changes into atlas**: `app/*.html` → `setscout/`, `engine/run_today.py` → `setscout/run_today.py` (keep atlas's extra `sys.path.insert(... "research")` line), docs and reports → the same names under `setscout/`. Then `python tools/live_check.py` until it prints OK.
+3. **The live site is often one trading day behind.** The refresh is scheduled for 11:00 UTC but GitHub has been starting it 3–9 hours late, and between 12 Oct and 6 Nov every run that finished after 17:00 UTC (midnight in Thailand) following a trading day was handed the previous session's closes by Yahoo — 11 runs. Runs that finished before midnight always got that day's closes. Fixed 7 Nov in atlas's `refresh-setscout.yml`: two off-the-hour runs (17:17 and 20:47 Thai time), and a step that keeps the published file when a late run gets older closes. The page also shows the date of the prices (`prices_asof`). Check over the next week that the header date matches the last trading day.
+
+### Done since the last update
+
+- **PR #9 is live** — merged 4 Oct, synced to atlas 6 Oct; `tools/live_check.py` prints OK (7 Nov).
+- **AHP closed 6 Nov as a pilot** — 2 answers, 1 consistent; team weights kept (REPORT §9).
+
+### Earlier notes (kept for the record)
 
 1. **Get PR #9 live. The public site still runs the 14 Sep engine.** Checked on 3 Oct: `setscout-th.web.app/today.json` is fresh (dated 2 Oct) but is scored with the old four factors, still carries `p_win` on all 95 stocks and has no ROE and no `factor_z`. Everything from 16-21 Sep (ROE, the hit rate removed, the rank "of 95", the sector step dropped) is in PR #9, open since 21 Sep. It cannot merge until the repo owner changes the branch rule on `main` to require `checks` instead of the website-build checks, which never run on a pull request. Then: merge, sync the live working copy (the atlas repo), and run `python tools/live_check.py` until it prints OK. Until then the survey asks experts about ROE while the site they can open does not use it.
 2. **Collect the AHP answers.** The survey went out on 21 Sep (Growth → ROE fixed first; the facts lint now fails if the survey and `FACTORS` disagree). Answers set the real deadline, not the presentation date. When they arrive, save them as `research/ahp_responses.csv` (same columns as `ahp_responses_template.csv`) and run `python research/ahp_analyze.py`. **Status 3 Oct: 1 of 5 answers in.** With five experts and a consistency cut-off, a profile can end below the 3 it needs; `ahp_analyze.py` then keeps the placeholders and says so.
