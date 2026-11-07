@@ -40,7 +40,7 @@ Five findings, all measured, all reproducible:
 
 1. **Merge PR #10** (the AHP analysis, raw judgments and workbook). REPORT §9 cites its folder.
 2. **Sync the site and engine changes into atlas**: `app/*.html` → `setscout/`, `engine/run_today.py` → `setscout/run_today.py` (keep atlas's extra `sys.path.insert(... "research")` line), docs and reports → the same names under `setscout/`. Then `python tools/live_check.py` until it prints OK.
-3. **The live site is often one trading day behind.** The refresh is scheduled for 11:00 UTC but GitHub has been starting it 3–9 hours late, and every run that finished after 17:00 UTC (midnight in Thailand) between 12 Oct and 6 Nov was handed the previous session's closes by Yahoo — 11 of them. The page now shows the date of the prices (`prices_asof`), so the lag is visible. A real fix (an earlier, off-the-hour schedule, or refusing to replace newer closes with older ones) is for after the final.
+3. **The live site is often one trading day behind.** The refresh is scheduled for 11:00 UTC but GitHub has been starting it 3–9 hours late, and between 12 Oct and 6 Nov every run that finished after 17:00 UTC (midnight in Thailand) following a trading day was handed the previous session's closes by Yahoo — 11 runs. Runs that finished before midnight always got that day's closes. The page now shows the date of the prices (`prices_asof`), so the lag is visible. A real fix (an earlier, off-the-hour schedule, or refusing to replace newer closes with older ones) is for after the final.
 
 ### Done since the last update
 
