@@ -77,7 +77,11 @@ for i in range(12, len(mpx) - H):
 
 b_avg = np.mean(bench)
 print(f"\nfair test: BUY the top picks, HOLD {H} months  ({len(bench)} start-points)")
-print(f"buy & hold (whole universe): {b_avg*100:+.1f}% avg\n")
+# Not the same benchmark as backtest_hold.py: this compounds the average MONTHLY
+# return of all scored stocks (an equal-weight basket rebalanced every month),
+# while backtest_hold.py averages each stock's own 12-month return (a true
+# buy-and-hold basket). On the 21 Sep run: +7.5% here, +8.8% there.
+print(f"buy & hold proxy (equal-weight, rebalanced monthly): {b_avg*100:+.1f}% avg\n")
 print(f"{'profile':<14}{'avg 12mo ret':>13}{'avg risk(vol)':>14}{'ret/risk':>9}{'vs B&H':>9}{'luck bar':>10}")
 for p in PROFILES:
     r = np.mean(res[p]["ret"]); v = np.mean(res[p]["vol"])

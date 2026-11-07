@@ -746,6 +746,14 @@ draw on the same banks.
 
 **Survivorship bias is unfixable with our data**, as quantified above.
 
+**"Buy and hold" means two slightly different things in two scripts.**
+`backtest_hold.py` averages each stock's own 12-month return (a true
+buy-and-hold basket: +8.8% on 21 Sep). `backtest_profiles.py` compounds the
+average monthly return of all stocks, an equal-weight basket rebalanced every
+month (+7.5%). Each script compares its picks with its own benchmark, so every
+"vs B&H" column is internally fair, but the two benchmark levels should not be
+quoted side by side.
+
 **Overlapping test windows are not independent observations.** 168 start-points
 across 14 years overlap heavily, so effective sample size is far below the
 nominal count.

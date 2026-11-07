@@ -233,9 +233,14 @@
      ] },
   };
 
-  let lang = localStorage.getItem('ss_lang')||'th';
-  let theme = localStorage.getItem('ss_theme')||'light';
-  let risk = null; try{risk=JSON.parse(localStorage.getItem('ss_risk'))}catch{}
+  // Browser storage can throw (site data blocked, some private windows). A failed
+  // read or write must never stop the page from loading, so every access goes through here.
+  const store={get:k=>{try{return localStorage.getItem(k)}catch{return null}},
+               set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}},
+               del:k=>{try{localStorage.removeItem(k)}catch{}}};
+  let lang = store.get('ss_lang')||'th';
+  let theme = store.get('ss_theme')||'light';
+  let risk = null; try{risk=JSON.parse(store.get('ss_risk'))}catch{}
   let filter='ALL', sector='ALL', DATA=null;
   // months behind the measured up-rate - read from the data, so the label cannot go stale
   const tr=()=>T[lang];
@@ -283,7 +288,7 @@
     // personalization banner
     const pb=$('#pbanner');
     if(risk){ pb.classList.add('on'); pb.innerHTML=`<span>${tr().banner(tr().prof[risk.key])}</span><span><a id="redoQ">${tr().redo}</a><a id="clrQ">${tr().clear}</a></span>`;
-      $('#redoQ').onclick=openQuiz; $('#clrQ').onclick=()=>{risk=null;localStorage.removeItem('ss_risk');render();}; }
+      $('#redoQ').onclick=openQuiz; $('#clrQ').onclick=()=>{risk=null;store.del('ss_risk');render();}; }
     else pb.classList.remove('on');
     if(!list.length){ $('#grid').innerHTML=`<div class="empty">${tr().empty}</div>`; return; }
     $('#grid').innerHTML=list.map(s=>{const c=vcls[s.verdict],up=s.chg_pct>=0;
@@ -321,7 +326,7 @@
       document.querySelectorAll(`.qopt[data-q="${qi}"]`).forEach(x=>x.classList.remove('on'));o.classList.add('on');ans[qi]=+o.dataset.p;
       $('#qgo').disabled=ans.includes(null);});
     $('#qgo').onclick=()=>{const sum=ans.reduce((a,b)=>a+b,0);const key=sum<=2?'cons':sum>=7?'agg':'bal';
-      risk={key,sum};localStorage.setItem('ss_risk',JSON.stringify(risk));close();render();};
+      risk={key,sum};store.set('ss_risk',JSON.stringify(risk));close();render();};
   }
 
   function openMethod(){
@@ -359,8 +364,8 @@
   }
 
   // events
-  $('#themeBtn').onclick=()=>{theme=theme==='light'?'dark':'light';localStorage.setItem('ss_theme',theme);applyTheme();};
-  $('#langBtn').onclick=()=>{lang=lang==='th'?'en':'th';localStorage.setItem('ss_lang',lang);paintStatic();render();if($('#notice').classList.contains('on'))paintNotice();};
+  $('#themeBtn').onclick=()=>{theme=theme==='light'?'dark':'light';store.set('ss_theme',theme);applyTheme();};
+  $('#langBtn').onclick=()=>{lang=lang==='th'?'en':'th';store.set('ss_lang',lang);paintStatic();render();if($('#notice').classList.contains('on'))paintNotice();};
   $('#filters').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(!b)return;filter=b.dataset.f;paintStatic();render();});
   $('#sectorSel').addEventListener('change',e=>{sector=e.target.value;render();});
   $('#pbtn').onclick=openQuiz;
